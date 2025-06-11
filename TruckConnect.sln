@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{25EC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C++", "C++", "{ABCF57D8-A47E-44FE-82C9-82570289BFA1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "truckconnect", "c++\truckconnect\truckconnect.vcxitems", "{07B6DE3E-FDF6-4293-BBA6-56AC2394FF27}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +40,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F46EAD73-0FDA-4586-B81A-38A7B0837EB6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{25EC4296-6D33-4073-9724-E1DCD12DEFAB} = {F46EAD73-0FDA-4586-B81A-38A7B0837EB6}
+		{07B6DE3E-FDF6-4293-BBA6-56AC2394FF27} = {ABCF57D8-A47E-44FE-82C9-82570289BFA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E07194E-A80A-4684-AA2A-D233517C3070}

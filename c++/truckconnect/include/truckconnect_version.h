@@ -1,0 +1,6 @@
+#pragma once
+#define TRUCKCONNECT "0.1.0"
+#define TRUCKCONNECT_MAJOR (0)
+#define TRUCKCONNECT_MINOR (1)
+#define TRUCKCONNECT_PATCH (0)
+#define TRUCKCONNECT_NAMESPACE truckconnect
