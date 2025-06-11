@@ -33,7 +33,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C++", "C++", "{ABCF57D8-A47
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "truckconnect", "c++\truckconnect\truckconnect.vcxitems", "{07B6DE3E-FDF6-4293-BBA6-56AC2394FF27}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "truckconnectextension", "truckconnectextension\truckconnectextension.vcxproj", "{4A867DCF-7B98-4D1F-B99D-64537F788236}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Debug|x64.ActiveCfg = Debug|x64
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Debug|x64.Build.0 = Debug|x64
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Debug|x86.ActiveCfg = Debug|Win32
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Debug|x86.Build.0 = Debug|Win32
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Release|x64.ActiveCfg = Release|x64
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Release|x64.Build.0 = Release|x64
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Release|x86.ActiveCfg = Release|Win32
+		{4A867DCF-7B98-4D1F-B99D-64537F788236}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
@@ -44,5 +62,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E07194E-A80A-4684-AA2A-D233517C3070}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		c++\truckconnect\truckconnect.vcxitems*{07b6de3e-fdf6-4293-bba6-56ac2394ff27}*SharedItemsImports = 9
+		c++\truckconnect\truckconnect.vcxitems*{4a867dcf-7b98-4d1f-b99d-64537f788236}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
