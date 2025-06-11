@@ -35,6 +35,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\scssdk_telemetry_channel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\scssdk_telemetry_event.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\scssdk_value.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\telemetry_metadata.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truckconnect.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truckconnect_platform.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truckconnect_version.h" />
