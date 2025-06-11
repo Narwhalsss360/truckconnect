@@ -99,6 +99,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_event_signal.h">
       <Filter>include\truckconnect_platform_win</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\value_storage.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\truckconnect.cpp">
