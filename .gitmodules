@@ -1,0 +1,3 @@
+[submodule "scssdk-telemetry"]
+	path = scssdk-telemetry
+	url = git@github.com:Narwhalsss360/scssdk-telemetry.git
