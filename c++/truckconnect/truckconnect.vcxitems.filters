@@ -108,6 +108,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\telemetry_metadata.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\metadata_functions.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\truckconnect.cpp">

@@ -4,3 +4,4 @@
 #include "value_storage.h"
 #include "master_structure.h"
 #include "telemetry_metadata.h"
+#include "metadata_functions.h"
