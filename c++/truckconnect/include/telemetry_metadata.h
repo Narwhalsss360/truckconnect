@@ -195,8 +195,19 @@ namespace truckconnect {
             custom_channel(custom_channel) {}
         };
 
-        constexpr const metadata_value INVALID_METADATA = metadata_value();
+        constexpr const size_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
+            return (
+                reversing ?
+                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
+                    count == 0 ?
+                        INVALID_OFFSET :
+                        '0' <= *cstr && *cstr <= '9' ?
+                            *cstr - '0' :
+                            extract_trailer_index(cstr - 1, false, count - 1)
+                );
+        }
 
+        constexpr const metadata_value INVALID_METADATA = metadata_value();
 
         struct master {
             static constexpr const telemetry_id id = telemetry_id::master;
