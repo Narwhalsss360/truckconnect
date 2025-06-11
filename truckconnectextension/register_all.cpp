@@ -25,9 +25,9 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
     constexpr const uint32_t& max_count = meta::max_count;
     constexpr const bool& trailer_channel = meta::trailer_channel;
     constexpr const uint32_t offset = master_offset_of(meta::id, trailer_index);
-    static_assert(meta::telemetry_type == telemetry_type::channel);
+    static_assert(meta::telemetry_type == telemetry_type::channel, "Template parameter was not a channel");
     static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
-    static_assert(offset < sizeof(::master));
+    static_assert(offset < sizeof(::master), "Specified offset will result in corrupt memory");
     debug_assert(meta::scs_type_id == value->type);
     
 	if ifconstexpr (trailer_channel) {

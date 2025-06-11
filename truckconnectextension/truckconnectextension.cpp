@@ -30,6 +30,14 @@ void console_log(scs_log_type_t type, const string& badge, const string& message
     }
 }
 
+SCSAPI_VOID paused(scs_event_t event, const void* const event_info, scs_context_t) {
+    master.channels.general.channel_paused.value = true;
+}
+
+SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context_t) {
+    master.channels.general.channel_paused.value = false;
+}
+
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
 
 }
@@ -38,23 +46,29 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     if (version != SCS_TELEMETRY_VERSION_CURRENT) {
         return SCS_RESULT_unsupported;
     }
-
     init = *reinterpret_cast<const scs_telemetry_init_params_v101_t* const>(params);
-    scs_result_t result = SCS_RESULT_ok;
-
-    if ((result = init.register_for_event(SCS_TELEMETRY_EVENT_frame_end, frame_end, nullptr)) != SCS_RESULT_ok) {
-        return result;
-    }
-
-    register_all(init.register_for_channel, init.register_for_event);
 
     _frame_end_signal = create_signal();
-
     if (_frame_end_signal == INVALID_SIGNAL) {
         console_log(SCS_LOG_TYPE_error, "Initialization failure. " + IDENTSTR(_frame_end_signal));
         return SCS_RESULT_generic_error;
     }
 
+    scs_result_t result = SCS_RESULT_ok;
+
+    if ((result = init.register_for_event(SCS_TELEMETRY_EVENT_frame_end, frame_end, nullptr)) != SCS_RESULT_ok) {
+        return result;
+    }
+    if ((result = init.register_for_event(SCS_TELEMETRY_EVENT_paused, paused, nullptr)) != SCS_RESULT_ok) {
+        return result;
+    }
+    if ((result = init.register_for_event(SCS_TELEMETRY_EVENT_started, started, nullptr)) != SCS_RESULT_ok) {
+        return result;
+    }
+    register_all(init.register_for_channel, init.register_for_event);
+
+    master.channels.general.channel_paused.value = true;
+    master.channels.general.channel_paused.initialized = true;
     console_log(SCS_LOG_TYPE_message, "Initialized!");
     return SCS_RESULT_ok;
 }
