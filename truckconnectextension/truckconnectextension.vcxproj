@@ -178,9 +178,11 @@
     <None Include="module.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="register_all.h" />
     <ClInclude Include="truckconnectextension.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="register_all.cpp" />
     <ClCompile Include="truckconnectextension.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -24,9 +24,15 @@
     <ClInclude Include="truckconnectextension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="register_all.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="truckconnectextension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="register_all.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,10 +7,11 @@ using truckconnect::platform::event_signal::signal;
 using truckconnect::platform::event_signal::INVALID_SIGNAL;
 using truckconnect::platform::event_signal::create_signal;
 using truckconnect::platform::event_signal::destroy_signal;
+using truckconnect::master_storage;
 
 scs_telemetry_init_params_v101_t init;
 static signal _frame_end_signal = INVALID_SIGNAL;
-
+master_storage master;
 
 const signal& frame_end_signal() {
     return _frame_end_signal;
