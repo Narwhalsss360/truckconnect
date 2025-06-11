@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)include\master_structure.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\metadata_functions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\packed_size.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\amtrucks\scssdk_ats.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\amtrucks\scssdk_input_ats.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\amtrucks\scssdk_telemetry_ats.h" />

@@ -5,3 +5,4 @@
 #include "master_structure.h"
 #include "telemetry_metadata.h"
 #include "metadata_functions.h"
+#include "packed_size.h"
