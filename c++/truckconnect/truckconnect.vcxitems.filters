@@ -102,6 +102,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\value_storage.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\master_structure.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\truckconnect.cpp">
