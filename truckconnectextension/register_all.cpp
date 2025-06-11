@@ -1,5 +1,6 @@
 #include "register_all.h"
 #include "truckconnectextension.h"
+#include "dynamic_store.h"
 #include <scssdk/common/scssdk_telemetry_common_channels.h>
 #include <scssdk/common/scssdk_telemetry_common_configs.h>
 #include <scssdk/common/scssdk_telemetry_common_gameplay_events.h>
@@ -14,8 +15,49 @@ using namespace truckconnect::metadata;
 using truckconnect::platform::debug_assert;
 
 template <typename meta>
-void handle_event(scs_event_t, const void* const event_info, scs_context_t) {
+void handle_event(scs_event_t event, const void* const info, scs_context_t) {
+	static_assert(meta::telemetry_type == telemetry_type::structure, "Expected an event structure");
+	static_assert(offsetof(scs_telemetry_configuration_t, id) == offsetof(scs_telemetry_gameplay_event_t, id), "Offsets must be equal.");
+	static_assert(offsetof(scs_telemetry_configuration_t, attributes) == offsetof(scs_telemetry_gameplay_event_t, attributes), "Offsets must be equal.");
+	
+	debug_assert(info != nullptr);
+	const scs_telemetry_configuration_t& data = *reinterpret_cast<const scs_telemetry_configuration_t* const>(info);
 
+	if (streq(data.id, "trailer")) {
+		console_log(SCS_LOG_TYPE_message, IDENTSTR(handle_event), "Skipping 'trailer' data, waiting for indexed data");
+		return;
+	}
+
+	const uint32_t& trailer_index = extract_trailer_index(data.id);
+	const telemetry_id& event_info_id = trailer_index != SCS_U32_NIL ? configuration_trailer_info::id : id_of(data.id, true);
+	debug_assert(event_info_id != telemetry_id::invalid);
+
+	const uint32_t& structure_offset = master_offset_of(event_info_id, trailer_index);
+	debug_assert(structure_offset != INVALID_OFFSET);
+
+	void* const structure = &apply_offset<void*>(&::master, structure_offset);
+	value_storage<uint32_t>& latest = apply_offset<value_storage<uint32_t>>(structure, event_info_latest_offset(event_info_id));
+	latest.initialized = true;
+
+	if (data.attributes->name == nullptr) {
+		return;
+	}
+
+	for (const scs_named_value_t* current = data.attributes; current->name; current++) {
+		constexpr const event_info_member& selector_count_member = event_info_member_of(telemetry_id::configuration_hshifter_info, "selector.count");
+		const event_info_member& member = event_info_member_of(event_info_id, current->name);
+		if (current->index != SCS_U32_NIL && &member == &selector_count_member) {
+			console_log(SCS_LOG_TYPE_message, IDENTSTR(handle_event), "Skipping hshifter selector.count configuration indexed member.");
+			continue;
+		}
+
+		debug_assert((current->index != SCS_U32_NIL) == member.indexed);
+		debug_assert(member.event_info_id != telemetry_id::invalid);
+		debug_assert(member.scs_type_id == current->value.type);
+		dynamic_store(current->value, &apply_offset<void*>(structure, member.structure_offset), current->index);
+	}
+
+	latest.value++;
 }
 
 template <typename meta, size_t trailer_index = INVALID_TRAILER_INDEX>
