@@ -17,6 +17,12 @@ namespace truckconnect {
         static inline error_int last_error() {
             return GetLastError();
         }
+
+        static inline void debug_assert(const bool& condition) {
+            if (!condition) {
+                __debugbreak();
+            }
+        }
     }
 }
 
