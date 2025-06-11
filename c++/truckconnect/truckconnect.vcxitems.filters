@@ -19,6 +19,9 @@
     <Filter Include="include\scssdk\eurotrucks2">
       <UniqueIdentifier>{05924906-0bdb-412e-85d7-9594c4931d3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\truckconnect_platform_win">
+      <UniqueIdentifier>{5e4bba54-ec77-4efe-a91c-00bf6ca29eeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truckconnect.h">
@@ -89,6 +92,12 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)include\scssdk\eurotrucks2\scssdk_telemetry_eut2.h">
       <Filter>include\scssdk\eurotrucks2</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win.h">
+      <Filter>include\truckconnect_platform_win</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_event_signal.h">
+      <Filter>include\truckconnect_platform_win</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

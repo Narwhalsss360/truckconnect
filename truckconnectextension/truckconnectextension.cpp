@@ -2,8 +2,19 @@
 #include <scssdk/scssdk_telemetry_event.h>
 
 using std::string;
+using std::to_string;
+using truckconnect::platform::event_signal::signal;
+using truckconnect::platform::event_signal::INVALID_SIGNAL;
+using truckconnect::platform::event_signal::create_signal;
+using truckconnect::platform::event_signal::destroy_signal;
 
 scs_telemetry_init_params_v101_t init;
+static signal _frame_end_signal = INVALID_SIGNAL;
+
+
+const signal& frame_end_signal() {
+    return _frame_end_signal;
+}
 
 void console_log(scs_log_type_t type, const string& badge, const string& message) {
     if (init.common.log == nullptr) {
@@ -33,10 +44,21 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
         return result;
     }
 
+    _frame_end_signal = create_signal();
+
+    if (_frame_end_signal == INVALID_SIGNAL) {
+        console_log(SCS_LOG_TYPE_error, "Initialization failure. " + IDENTSTR(_frame_end_signal));
+        return SCS_RESULT_generic_error;
+    }
+
     console_log(SCS_LOG_TYPE_message, "Initialized!");
     return SCS_RESULT_ok;
 }
 
 SCSAPI_VOID scs_telemetry_shutdown() {
+    if (!destroy_signal(frame_end_signal())) {
+        console_log(SCS_LOG_TYPE_error, "Deinitialization failure. " + IDENTSTR(_frame_end_signal) + to_string(truckconnect::platform::event_signal::last_error()));
+    }
+
     console_log(SCS_LOG_TYPE_message, "Deinitialized!");
 }
