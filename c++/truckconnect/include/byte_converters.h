@@ -1,0 +1,118 @@
+#pragma once
+#include "master_structure.h"
+
+namespace truckconnect {
+    void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_ferry_storage& gameplay_player_use_ferry_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage::gameplay_player_tollgate_paid_storage& gameplay_player_tollgate_paid_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage::gameplay_player_fined_storage& gameplay_player_fined_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage::gameplay_job_delivered_storage& gameplay_job_delivered_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage::gameplay_job_cancelled_storage& gameplay_job_cancelled_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_job_storage& configuration_job_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_trailer_storage& configuration_trailer_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_truck_storage& configuration_truck_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_hshifter_storage& configuration_hshifter_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_controls_storage& configuration_controls_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage::configuration_substances_storage& configuration_substances_info, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::channels_storage::trailer_storage& trailer, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::channels_storage::truck_storage& truck, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::channels_storage::general_storage& general, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::channels_storage& channels, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::gameplay_storage& gameplay, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage::configuration_storage& configuration, std::vector<uint8_t>& out);
+
+    void append_bytes(const master_storage& master, std::vector<uint8_t>& out);
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info) { uint32_t read; return from_bytes(as_bytes, gameplay_player_use_train_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_use_ferry_storage& gameplay_player_use_ferry_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_use_ferry_storage& gameplay_player_use_ferry_info) { uint32_t read; return from_bytes(as_bytes, gameplay_player_use_ferry_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_tollgate_paid_storage& gameplay_player_tollgate_paid_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_tollgate_paid_storage& gameplay_player_tollgate_paid_info) { uint32_t read; return from_bytes(as_bytes, gameplay_player_tollgate_paid_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_fined_storage& gameplay_player_fined_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_fined_storage& gameplay_player_fined_info) { uint32_t read; return from_bytes(as_bytes, gameplay_player_fined_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_job_delivered_storage& gameplay_job_delivered_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_job_delivered_storage& gameplay_job_delivered_info) { uint32_t read; return from_bytes(as_bytes, gameplay_job_delivered_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_job_cancelled_storage& gameplay_job_cancelled_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_job_cancelled_storage& gameplay_job_cancelled_info) { uint32_t read; return from_bytes(as_bytes, gameplay_job_cancelled_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_job_storage& configuration_job_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_job_storage& configuration_job_info) { uint32_t read; return from_bytes(as_bytes, configuration_job_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_trailer_storage& configuration_trailer_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_trailer_storage& configuration_trailer_info) { uint32_t read; return from_bytes(as_bytes, configuration_trailer_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_truck_storage& configuration_truck_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_truck_storage& configuration_truck_info) { uint32_t read; return from_bytes(as_bytes, configuration_truck_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_hshifter_storage& configuration_hshifter_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_hshifter_storage& configuration_hshifter_info) { uint32_t read; return from_bytes(as_bytes, configuration_hshifter_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_controls_storage& configuration_controls_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_controls_storage& configuration_controls_info) { uint32_t read; return from_bytes(as_bytes, configuration_controls_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_substances_storage& configuration_substances_info, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage::configuration_substances_storage& configuration_substances_info) { uint32_t read; return from_bytes(as_bytes, configuration_substances_info, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::trailer_storage& trailer, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::trailer_storage& trailer) { uint32_t read; return from_bytes(as_bytes, trailer, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::truck_storage& truck, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::truck_storage& truck) { uint32_t read; return from_bytes(as_bytes, truck, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::general_storage& general, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage::general_storage& general) { uint32_t read; return from_bytes(as_bytes, general, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage& channels, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::channels_storage& channels) { uint32_t read; return from_bytes(as_bytes, channels, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage& gameplay, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage& gameplay) { uint32_t read; return from_bytes(as_bytes, gameplay, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage& configuration, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::configuration_storage& configuration) { uint32_t read; return from_bytes(as_bytes, configuration, 0, read); }
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage& master, const uint32_t offset, uint32_t& read);
+
+    static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage& master) { uint32_t read; return from_bytes(as_bytes, master, 0, read); }
+}

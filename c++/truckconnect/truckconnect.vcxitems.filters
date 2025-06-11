@@ -114,9 +114,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\packed_size.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\byte_converters.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)src\truckconnect.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
