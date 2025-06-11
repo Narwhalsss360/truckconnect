@@ -25,10 +25,17 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
     constexpr const uint32_t& max_count = meta::max_count;
     constexpr const bool& trailer_channel = meta::trailer_channel;
     constexpr const uint32_t offset = master_offset_of(meta::id, trailer_index);
+    static_assert(meta::telemetry_type == telemetry_type::channel);
     static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
-    debug_assert(string(meta::macro) == channel);
-    debug_assert(offset < sizeof(::master));
+    static_assert(offset < sizeof(::master));
+    debug_assert(meta::scs_type_id == value->type);
     
+	if ifconstexpr (trailer_channel) {
+		debug_assert(extract_trailer_index(channel) == trailer_index);
+	} else {
+		debug_assert(string(meta::macro) == channel);
+	}
+
     if ifconstexpr (indexed) {
         using storage_type = value_array_storage<primitive_type, max_count>;
         if (index == SCS_U32_NIL) {

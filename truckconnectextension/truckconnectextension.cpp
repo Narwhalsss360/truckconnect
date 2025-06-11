@@ -1,4 +1,5 @@
 #include "truckconnectextension.h"
+#include "register_all.h"
 #include <scssdk/scssdk_telemetry_event.h>
 
 using std::string;
@@ -44,6 +45,8 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     if ((result = init.register_for_event(SCS_TELEMETRY_EVENT_frame_end, frame_end, nullptr)) != SCS_RESULT_ok) {
         return result;
     }
+
+    register_all(init.register_for_channel, init.register_for_event);
 
     _frame_end_signal = create_signal();
 
