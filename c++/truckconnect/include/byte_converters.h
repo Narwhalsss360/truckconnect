@@ -2,6 +2,16 @@
 #include "master_structure.h"
 
 namespace truckconnect {
+    template <typename T>
+    T& apply_offset(void* const start, const size_t& offset) {
+        return *reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(start) + offset);
+    }
+
+    template <typename T>
+    const T& apply_offset(const void* const start, const size_t& offset) {
+        return *reinterpret_cast<const T*>(reinterpret_cast<const uint8_t* const>(start) + offset);
+    }
+
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info, std::vector<uint8_t>& out);
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_ferry_storage& gameplay_player_use_ferry_info, std::vector<uint8_t>& out);
