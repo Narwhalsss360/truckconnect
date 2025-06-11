@@ -143,12 +143,12 @@ namespace truckconnect {
                 case telemetry_id::channels: return channels::master_offset;
                 case telemetry_id::general: return general::master_offset;
                 case telemetry_id::truck: return truck::master_offset;
-                case telemetry_id::trailer: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer::master_offset + sizeof(master_storage::channels_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
                 case telemetry_id::configuration_substances_info: return configuration_substances_info::master_offset;
                 case telemetry_id::configuration_controls_info: return configuration_controls_info::master_offset;
                 case telemetry_id::configuration_hshifter_info: return configuration_hshifter_info::master_offset;
                 case telemetry_id::configuration_truck_info: return configuration_truck_info::master_offset;
-                case telemetry_id::configuration_trailer_info: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? configuration_trailer_info::master_offset + sizeof(master_storage::configuration_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::configuration_trailer_info: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? configuration_trailer_info::master_offset + sizeof(master_storage::configuration_storage::configuration_trailer_storage) * trailer_index : INVALID_OFFSET;
                 case telemetry_id::configuration_job_info: return configuration_job_info::master_offset;
                 case telemetry_id::gameplay_job_cancelled_info: return gameplay_job_cancelled_info::master_offset;
                 case telemetry_id::gameplay_job_delivered_info: return gameplay_job_delivered_info::master_offset;
@@ -162,24 +162,24 @@ namespace truckconnect {
                 case telemetry_id::channel_multiplayer_time_offset: return channel_multiplayer_time_offset::master_offset;
                 case telemetry_id::channel_next_rest_stop: return channel_next_rest_stop::master_offset;
                 case telemetry_id::job_channel_cargo_damage: return job_channel_cargo_damage::master_offset;
-                case telemetry_id::trailer_channel_connected: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_connected::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_cargo_damage: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_cargo_damage::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_world_placement: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_world_placement::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_local_linear_velocity: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_local_linear_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_local_angular_velocity: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_local_angular_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_local_linear_acceleration: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_local_linear_acceleration::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_local_angular_acceleration: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_local_angular_acceleration::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wear_body: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wear_body::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wear_chassis: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wear_chassis::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wear_wheels: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wear_wheels::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_susp_deflection: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_susp_deflection::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_on_ground: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_on_ground::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_substance: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_substance::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_velocity: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_steering: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_steering::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_rotation: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_rotation::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_lift: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_lift::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
-                case telemetry_id::trailer_channel_wheel_lift_offset: return 0 <= trailer_index && trailer_index <= SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_lift_offset::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_connected: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_connected::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_cargo_damage: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_cargo_damage::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_world_placement: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_world_placement::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_local_linear_velocity: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_local_linear_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_local_angular_velocity: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_local_angular_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_local_linear_acceleration: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_local_linear_acceleration::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_local_angular_acceleration: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_local_angular_acceleration::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wear_body: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wear_body::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wear_chassis: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wear_chassis::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wear_wheels: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wear_wheels::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_susp_deflection: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_susp_deflection::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_on_ground: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_on_ground::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_substance: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_substance::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_velocity: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_velocity::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_steering: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_steering::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_rotation: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_rotation::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_lift: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_lift::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
+                case telemetry_id::trailer_channel_wheel_lift_offset: return 0 <= trailer_index && trailer_index < SCS_TELEMETRY_trailers_count ? trailer_channel_wheel_lift_offset::master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index : INVALID_OFFSET;
                 case telemetry_id::truck_channel_world_placement: return truck_channel_world_placement::master_offset;
                 case telemetry_id::truck_channel_local_linear_velocity: return truck_channel_local_linear_velocity::master_offset;
                 case telemetry_id::truck_channel_local_angular_velocity: return truck_channel_local_angular_velocity::master_offset;
@@ -855,34 +855,34 @@ namespace truckconnect {
             return *a == *b && (*a == '\0' || streq(a + 1, b + 1));
         }
 
-        constexpr const telemetry_id& id_of(const char* const macro) {
+        constexpr const telemetry_id& id_of(const char* const macro, const bool& is_event_info = false) {
             return
-                streq(macro, "master") ? master::id :
-                streq(macro, "configuration") ? configuration::id :
-                streq(macro, "gameplay") ? gameplay::id :
-                streq(macro, "channels") ? channels::id :
-                streq(macro, "general") ? general::id :
-                streq(macro, "truck") ? truck::id :
-                streq(macro, "trailer") ? trailer::id :
-                streq(macro, "configuration_substances_info") || streq(macro, configuration_substances_info::macro) ? configuration_substances_info::id :
-                streq(macro, "configuration_controls_info") || streq(macro, configuration_controls_info::macro) ? configuration_controls_info::id :
-                streq(macro, "configuration_hshifter_info") || streq(macro, configuration_hshifter_info::macro) ? configuration_hshifter_info::id :
-                streq(macro, "configuration_truck_info") || streq(macro, configuration_truck_info::macro) ? configuration_truck_info::id :
-                streq(macro, "configuration_trailer_info") || streq(macro, configuration_trailer_info::macro) ? configuration_trailer_info::id :
-                streq(macro, "configuration_job_info") || streq(macro, configuration_job_info::macro) ? configuration_job_info::id :
-                streq(macro, "gameplay_job_cancelled_info") || streq(macro, gameplay_job_cancelled_info::macro) ? gameplay_job_cancelled_info::id :
-                streq(macro, "gameplay_job_delivered_info") || streq(macro, gameplay_job_delivered_info::macro) ? gameplay_job_delivered_info::id :
-                streq(macro, "gameplay_player_fined_info") || streq(macro, gameplay_player_fined_info::macro) ? gameplay_player_fined_info::id :
-                streq(macro, "gameplay_player_tollgate_paid_info") || streq(macro, gameplay_player_tollgate_paid_info::macro) ? gameplay_player_tollgate_paid_info::id :
-                streq(macro, "gameplay_player_use_ferry_info") || streq(macro, gameplay_player_use_ferry_info::macro) ? gameplay_player_use_ferry_info::id :
-                streq(macro, "gameplay_player_use_train_info") || streq(macro, gameplay_player_use_train_info::macro) ? gameplay_player_use_train_info::id :
-                streq(macro, "channel_paused") || streq(macro, channel_paused::macro) ? channel_paused::id :
-                streq(macro, "channel_local_scale") || streq(macro, channel_local_scale::macro) ? channel_local_scale::id :
-                streq(macro, "channel_game_time") || streq(macro, channel_game_time::macro) ? channel_game_time::id :
-                streq(macro, "channel_multiplayer_time_offset") || streq(macro, channel_multiplayer_time_offset::macro) ? channel_multiplayer_time_offset::id :
-                streq(macro, "channel_next_rest_stop") || streq(macro, channel_next_rest_stop::macro) ? channel_next_rest_stop::id :
-                streq(macro, "job_channel_cargo_damage") || streq(macro, job_channel_cargo_damage::macro) ? job_channel_cargo_damage::id :
-                    streq(macro, "trailer_channel_connected") ||
+                !is_event_info && streq(macro, "master") ? master::id :
+                !is_event_info && streq(macro, "configuration") ? configuration::id :
+                !is_event_info && streq(macro, "gameplay") ? gameplay::id :
+                !is_event_info && streq(macro, "channels") ? channels::id :
+                !is_event_info && streq(macro, "general") ? general::id :
+                !is_event_info && streq(macro, "truck") ? truck::id :
+                !is_event_info && streq(macro, "trailer") ? trailer::id :
+                is_event_info && streq(macro, "configuration_substances_info") || streq(macro, configuration_substances_info::macro) ? configuration_substances_info::id :
+                is_event_info && streq(macro, "configuration_controls_info") || streq(macro, configuration_controls_info::macro) ? configuration_controls_info::id :
+                is_event_info && streq(macro, "configuration_hshifter_info") || streq(macro, configuration_hshifter_info::macro) ? configuration_hshifter_info::id :
+                is_event_info && streq(macro, "configuration_truck_info") || streq(macro, configuration_truck_info::macro) ? configuration_truck_info::id :
+                is_event_info && streq(macro, "configuration_trailer_info") || streq(macro, configuration_trailer_info::macro) ? configuration_trailer_info::id :
+                is_event_info && streq(macro, "configuration_job_info") || streq(macro, configuration_job_info::macro) ? configuration_job_info::id :
+                is_event_info && streq(macro, "gameplay_job_cancelled_info") || streq(macro, gameplay_job_cancelled_info::macro) ? gameplay_job_cancelled_info::id :
+                is_event_info && streq(macro, "gameplay_job_delivered_info") || streq(macro, gameplay_job_delivered_info::macro) ? gameplay_job_delivered_info::id :
+                is_event_info && streq(macro, "gameplay_player_fined_info") || streq(macro, gameplay_player_fined_info::macro) ? gameplay_player_fined_info::id :
+                is_event_info && streq(macro, "gameplay_player_tollgate_paid_info") || streq(macro, gameplay_player_tollgate_paid_info::macro) ? gameplay_player_tollgate_paid_info::id :
+                is_event_info && streq(macro, "gameplay_player_use_ferry_info") || streq(macro, gameplay_player_use_ferry_info::macro) ? gameplay_player_use_ferry_info::id :
+                is_event_info && streq(macro, "gameplay_player_use_train_info") || streq(macro, gameplay_player_use_train_info::macro) ? gameplay_player_use_train_info::id :
+                !is_event_info && streq(macro, "channel_paused") || streq(macro, channel_paused::macro) ? channel_paused::id :
+                !is_event_info && streq(macro, "channel_local_scale") || streq(macro, channel_local_scale::macro) ? channel_local_scale::id :
+                !is_event_info && streq(macro, "channel_game_time") || streq(macro, channel_game_time::macro) ? channel_game_time::id :
+                !is_event_info && streq(macro, "channel_multiplayer_time_offset") || streq(macro, channel_multiplayer_time_offset::macro) ? channel_multiplayer_time_offset::id :
+                !is_event_info && streq(macro, "channel_next_rest_stop") || streq(macro, channel_next_rest_stop::macro) ? channel_next_rest_stop::id :
+                !is_event_info && streq(macro, "job_channel_cargo_damage") || streq(macro, job_channel_cargo_damage::macro) ? job_channel_cargo_damage::id :
+                    !is_event_info && streq(macro, "trailer_channel_connected") ||
                     streq(macro, "trailer_channel_connected.0") ||
                     streq(macro, "trailer_channel_connected.1") ||
                     streq(macro, "trailer_channel_connected.2") ||
@@ -893,7 +893,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_connected.7") ||
                     streq(macro, "trailer_channel_connected.8") ||
                     streq(macro, "trailer_channel_connected.9") ? trailer_channel_connected::id :
-                    streq(macro, "trailer_channel_cargo_damage") ||
+                    !is_event_info && streq(macro, "trailer_channel_cargo_damage") ||
                     streq(macro, "trailer_channel_cargo_damage.0") ||
                     streq(macro, "trailer_channel_cargo_damage.1") ||
                     streq(macro, "trailer_channel_cargo_damage.2") ||
@@ -904,7 +904,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_cargo_damage.7") ||
                     streq(macro, "trailer_channel_cargo_damage.8") ||
                     streq(macro, "trailer_channel_cargo_damage.9") ? trailer_channel_cargo_damage::id :
-                    streq(macro, "trailer_channel_world_placement") ||
+                    !is_event_info && streq(macro, "trailer_channel_world_placement") ||
                     streq(macro, "trailer_channel_world_placement.0") ||
                     streq(macro, "trailer_channel_world_placement.1") ||
                     streq(macro, "trailer_channel_world_placement.2") ||
@@ -915,7 +915,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_world_placement.7") ||
                     streq(macro, "trailer_channel_world_placement.8") ||
                     streq(macro, "trailer_channel_world_placement.9") ? trailer_channel_world_placement::id :
-                    streq(macro, "trailer_channel_local_linear_velocity") ||
+                    !is_event_info && streq(macro, "trailer_channel_local_linear_velocity") ||
                     streq(macro, "trailer_channel_local_linear_velocity.0") ||
                     streq(macro, "trailer_channel_local_linear_velocity.1") ||
                     streq(macro, "trailer_channel_local_linear_velocity.2") ||
@@ -926,7 +926,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_local_linear_velocity.7") ||
                     streq(macro, "trailer_channel_local_linear_velocity.8") ||
                     streq(macro, "trailer_channel_local_linear_velocity.9") ? trailer_channel_local_linear_velocity::id :
-                    streq(macro, "trailer_channel_local_angular_velocity") ||
+                    !is_event_info && streq(macro, "trailer_channel_local_angular_velocity") ||
                     streq(macro, "trailer_channel_local_angular_velocity.0") ||
                     streq(macro, "trailer_channel_local_angular_velocity.1") ||
                     streq(macro, "trailer_channel_local_angular_velocity.2") ||
@@ -937,7 +937,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_local_angular_velocity.7") ||
                     streq(macro, "trailer_channel_local_angular_velocity.8") ||
                     streq(macro, "trailer_channel_local_angular_velocity.9") ? trailer_channel_local_angular_velocity::id :
-                    streq(macro, "trailer_channel_local_linear_acceleration") ||
+                    !is_event_info && streq(macro, "trailer_channel_local_linear_acceleration") ||
                     streq(macro, "trailer_channel_local_linear_acceleration.0") ||
                     streq(macro, "trailer_channel_local_linear_acceleration.1") ||
                     streq(macro, "trailer_channel_local_linear_acceleration.2") ||
@@ -948,7 +948,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_local_linear_acceleration.7") ||
                     streq(macro, "trailer_channel_local_linear_acceleration.8") ||
                     streq(macro, "trailer_channel_local_linear_acceleration.9") ? trailer_channel_local_linear_acceleration::id :
-                    streq(macro, "trailer_channel_local_angular_acceleration") ||
+                    !is_event_info && streq(macro, "trailer_channel_local_angular_acceleration") ||
                     streq(macro, "trailer_channel_local_angular_acceleration.0") ||
                     streq(macro, "trailer_channel_local_angular_acceleration.1") ||
                     streq(macro, "trailer_channel_local_angular_acceleration.2") ||
@@ -959,7 +959,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_local_angular_acceleration.7") ||
                     streq(macro, "trailer_channel_local_angular_acceleration.8") ||
                     streq(macro, "trailer_channel_local_angular_acceleration.9") ? trailer_channel_local_angular_acceleration::id :
-                    streq(macro, "trailer_channel_wear_body") ||
+                    !is_event_info && streq(macro, "trailer_channel_wear_body") ||
                     streq(macro, "trailer_channel_wear_body.0") ||
                     streq(macro, "trailer_channel_wear_body.1") ||
                     streq(macro, "trailer_channel_wear_body.2") ||
@@ -970,7 +970,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wear_body.7") ||
                     streq(macro, "trailer_channel_wear_body.8") ||
                     streq(macro, "trailer_channel_wear_body.9") ? trailer_channel_wear_body::id :
-                    streq(macro, "trailer_channel_wear_chassis") ||
+                    !is_event_info && streq(macro, "trailer_channel_wear_chassis") ||
                     streq(macro, "trailer_channel_wear_chassis.0") ||
                     streq(macro, "trailer_channel_wear_chassis.1") ||
                     streq(macro, "trailer_channel_wear_chassis.2") ||
@@ -981,7 +981,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wear_chassis.7") ||
                     streq(macro, "trailer_channel_wear_chassis.8") ||
                     streq(macro, "trailer_channel_wear_chassis.9") ? trailer_channel_wear_chassis::id :
-                    streq(macro, "trailer_channel_wear_wheels") ||
+                    !is_event_info && streq(macro, "trailer_channel_wear_wheels") ||
                     streq(macro, "trailer_channel_wear_wheels.0") ||
                     streq(macro, "trailer_channel_wear_wheels.1") ||
                     streq(macro, "trailer_channel_wear_wheels.2") ||
@@ -992,7 +992,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wear_wheels.7") ||
                     streq(macro, "trailer_channel_wear_wheels.8") ||
                     streq(macro, "trailer_channel_wear_wheels.9") ? trailer_channel_wear_wheels::id :
-                    streq(macro, "trailer_channel_wheel_susp_deflection") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_susp_deflection") ||
                     streq(macro, "trailer_channel_wheel_susp_deflection.0") ||
                     streq(macro, "trailer_channel_wheel_susp_deflection.1") ||
                     streq(macro, "trailer_channel_wheel_susp_deflection.2") ||
@@ -1003,7 +1003,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_susp_deflection.7") ||
                     streq(macro, "trailer_channel_wheel_susp_deflection.8") ||
                     streq(macro, "trailer_channel_wheel_susp_deflection.9") ? trailer_channel_wheel_susp_deflection::id :
-                    streq(macro, "trailer_channel_wheel_on_ground") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_on_ground") ||
                     streq(macro, "trailer_channel_wheel_on_ground.0") ||
                     streq(macro, "trailer_channel_wheel_on_ground.1") ||
                     streq(macro, "trailer_channel_wheel_on_ground.2") ||
@@ -1014,7 +1014,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_on_ground.7") ||
                     streq(macro, "trailer_channel_wheel_on_ground.8") ||
                     streq(macro, "trailer_channel_wheel_on_ground.9") ? trailer_channel_wheel_on_ground::id :
-                    streq(macro, "trailer_channel_wheel_substance") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_substance") ||
                     streq(macro, "trailer_channel_wheel_substance.0") ||
                     streq(macro, "trailer_channel_wheel_substance.1") ||
                     streq(macro, "trailer_channel_wheel_substance.2") ||
@@ -1025,7 +1025,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_substance.7") ||
                     streq(macro, "trailer_channel_wheel_substance.8") ||
                     streq(macro, "trailer_channel_wheel_substance.9") ? trailer_channel_wheel_substance::id :
-                    streq(macro, "trailer_channel_wheel_velocity") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_velocity") ||
                     streq(macro, "trailer_channel_wheel_velocity.0") ||
                     streq(macro, "trailer_channel_wheel_velocity.1") ||
                     streq(macro, "trailer_channel_wheel_velocity.2") ||
@@ -1036,7 +1036,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_velocity.7") ||
                     streq(macro, "trailer_channel_wheel_velocity.8") ||
                     streq(macro, "trailer_channel_wheel_velocity.9") ? trailer_channel_wheel_velocity::id :
-                    streq(macro, "trailer_channel_wheel_steering") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_steering") ||
                     streq(macro, "trailer_channel_wheel_steering.0") ||
                     streq(macro, "trailer_channel_wheel_steering.1") ||
                     streq(macro, "trailer_channel_wheel_steering.2") ||
@@ -1047,7 +1047,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_steering.7") ||
                     streq(macro, "trailer_channel_wheel_steering.8") ||
                     streq(macro, "trailer_channel_wheel_steering.9") ? trailer_channel_wheel_steering::id :
-                    streq(macro, "trailer_channel_wheel_rotation") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_rotation") ||
                     streq(macro, "trailer_channel_wheel_rotation.0") ||
                     streq(macro, "trailer_channel_wheel_rotation.1") ||
                     streq(macro, "trailer_channel_wheel_rotation.2") ||
@@ -1058,7 +1058,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_rotation.7") ||
                     streq(macro, "trailer_channel_wheel_rotation.8") ||
                     streq(macro, "trailer_channel_wheel_rotation.9") ? trailer_channel_wheel_rotation::id :
-                    streq(macro, "trailer_channel_wheel_lift") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_lift") ||
                     streq(macro, "trailer_channel_wheel_lift.0") ||
                     streq(macro, "trailer_channel_wheel_lift.1") ||
                     streq(macro, "trailer_channel_wheel_lift.2") ||
@@ -1069,7 +1069,7 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_lift.7") ||
                     streq(macro, "trailer_channel_wheel_lift.8") ||
                     streq(macro, "trailer_channel_wheel_lift.9") ? trailer_channel_wheel_lift::id :
-                    streq(macro, "trailer_channel_wheel_lift_offset") ||
+                    !is_event_info && streq(macro, "trailer_channel_wheel_lift_offset") ||
                     streq(macro, "trailer_channel_wheel_lift_offset.0") ||
                     streq(macro, "trailer_channel_wheel_lift_offset.1") ||
                     streq(macro, "trailer_channel_wheel_lift_offset.2") ||
@@ -1080,89 +1080,89 @@ namespace truckconnect {
                     streq(macro, "trailer_channel_wheel_lift_offset.7") ||
                     streq(macro, "trailer_channel_wheel_lift_offset.8") ||
                     streq(macro, "trailer_channel_wheel_lift_offset.9") ? trailer_channel_wheel_lift_offset::id :
-                streq(macro, "truck_channel_world_placement") || streq(macro, truck_channel_world_placement::macro) ? truck_channel_world_placement::id :
-                streq(macro, "truck_channel_local_linear_velocity") || streq(macro, truck_channel_local_linear_velocity::macro) ? truck_channel_local_linear_velocity::id :
-                streq(macro, "truck_channel_local_angular_velocity") || streq(macro, truck_channel_local_angular_velocity::macro) ? truck_channel_local_angular_velocity::id :
-                streq(macro, "truck_channel_local_linear_acceleration") || streq(macro, truck_channel_local_linear_acceleration::macro) ? truck_channel_local_linear_acceleration::id :
-                streq(macro, "truck_channel_local_angular_acceleration") || streq(macro, truck_channel_local_angular_acceleration::macro) ? truck_channel_local_angular_acceleration::id :
-                streq(macro, "truck_channel_cabin_offset") || streq(macro, truck_channel_cabin_offset::macro) ? truck_channel_cabin_offset::id :
-                streq(macro, "truck_channel_cabin_angular_velocity") || streq(macro, truck_channel_cabin_angular_velocity::macro) ? truck_channel_cabin_angular_velocity::id :
-                streq(macro, "truck_channel_cabin_angular_acceleration") || streq(macro, truck_channel_cabin_angular_acceleration::macro) ? truck_channel_cabin_angular_acceleration::id :
-                streq(macro, "truck_channel_head_offset") || streq(macro, truck_channel_head_offset::macro) ? truck_channel_head_offset::id :
-                streq(macro, "truck_channel_speed") || streq(macro, truck_channel_speed::macro) ? truck_channel_speed::id :
-                streq(macro, "truck_channel_engine_rpm") || streq(macro, truck_channel_engine_rpm::macro) ? truck_channel_engine_rpm::id :
-                streq(macro, "truck_channel_engine_gear") || streq(macro, truck_channel_engine_gear::macro) ? truck_channel_engine_gear::id :
-                streq(macro, "truck_channel_displayed_gear") || streq(macro, truck_channel_displayed_gear::macro) ? truck_channel_displayed_gear::id :
-                streq(macro, "truck_channel_input_steering") || streq(macro, truck_channel_input_steering::macro) ? truck_channel_input_steering::id :
-                streq(macro, "truck_channel_input_throttle") || streq(macro, truck_channel_input_throttle::macro) ? truck_channel_input_throttle::id :
-                streq(macro, "truck_channel_input_brake") || streq(macro, truck_channel_input_brake::macro) ? truck_channel_input_brake::id :
-                streq(macro, "truck_channel_input_clutch") || streq(macro, truck_channel_input_clutch::macro) ? truck_channel_input_clutch::id :
-                streq(macro, "truck_channel_effective_steering") || streq(macro, truck_channel_effective_steering::macro) ? truck_channel_effective_steering::id :
-                streq(macro, "truck_channel_effective_throttle") || streq(macro, truck_channel_effective_throttle::macro) ? truck_channel_effective_throttle::id :
-                streq(macro, "truck_channel_effective_brake") || streq(macro, truck_channel_effective_brake::macro) ? truck_channel_effective_brake::id :
-                streq(macro, "truck_channel_effective_clutch") || streq(macro, truck_channel_effective_clutch::macro) ? truck_channel_effective_clutch::id :
-                streq(macro, "truck_channel_cruise_control") || streq(macro, truck_channel_cruise_control::macro) ? truck_channel_cruise_control::id :
-                streq(macro, "truck_channel_hshifter_slot") || streq(macro, truck_channel_hshifter_slot::macro) ? truck_channel_hshifter_slot::id :
-                streq(macro, "truck_channel_hshifter_selector") || streq(macro, truck_channel_hshifter_selector::macro) ? truck_channel_hshifter_selector::id :
-                streq(macro, "truck_channel_parking_brake") || streq(macro, truck_channel_parking_brake::macro) ? truck_channel_parking_brake::id :
-                streq(macro, "truck_channel_motor_brake") || streq(macro, truck_channel_motor_brake::macro) ? truck_channel_motor_brake::id :
-                streq(macro, "truck_channel_retarder_level") || streq(macro, truck_channel_retarder_level::macro) ? truck_channel_retarder_level::id :
-                streq(macro, "truck_channel_brake_air_pressure") || streq(macro, truck_channel_brake_air_pressure::macro) ? truck_channel_brake_air_pressure::id :
-                streq(macro, "truck_channel_brake_air_pressure_warning") || streq(macro, truck_channel_brake_air_pressure_warning::macro) ? truck_channel_brake_air_pressure_warning::id :
-                streq(macro, "truck_channel_brake_air_pressure_emergency") || streq(macro, truck_channel_brake_air_pressure_emergency::macro) ? truck_channel_brake_air_pressure_emergency::id :
-                streq(macro, "truck_channel_brake_temperature") || streq(macro, truck_channel_brake_temperature::macro) ? truck_channel_brake_temperature::id :
-                streq(macro, "truck_channel_fuel") || streq(macro, truck_channel_fuel::macro) ? truck_channel_fuel::id :
-                streq(macro, "truck_channel_fuel_warning") || streq(macro, truck_channel_fuel_warning::macro) ? truck_channel_fuel_warning::id :
-                streq(macro, "truck_channel_fuel_average_consumption") || streq(macro, truck_channel_fuel_average_consumption::macro) ? truck_channel_fuel_average_consumption::id :
-                streq(macro, "truck_channel_fuel_range") || streq(macro, truck_channel_fuel_range::macro) ? truck_channel_fuel_range::id :
-                streq(macro, "truck_channel_adblue") || streq(macro, truck_channel_adblue::macro) ? truck_channel_adblue::id :
-                streq(macro, "truck_channel_adblue_warning") || streq(macro, truck_channel_adblue_warning::macro) ? truck_channel_adblue_warning::id :
-                streq(macro, "truck_channel_oil_pressure") || streq(macro, truck_channel_oil_pressure::macro) ? truck_channel_oil_pressure::id :
-                streq(macro, "truck_channel_oil_pressure_warning") || streq(macro, truck_channel_oil_pressure_warning::macro) ? truck_channel_oil_pressure_warning::id :
-                streq(macro, "truck_channel_oil_temperature") || streq(macro, truck_channel_oil_temperature::macro) ? truck_channel_oil_temperature::id :
-                streq(macro, "truck_channel_water_temperature") || streq(macro, truck_channel_water_temperature::macro) ? truck_channel_water_temperature::id :
-                streq(macro, "truck_channel_water_temperature_warning") || streq(macro, truck_channel_water_temperature_warning::macro) ? truck_channel_water_temperature_warning::id :
-                streq(macro, "truck_channel_battery_voltage") || streq(macro, truck_channel_battery_voltage::macro) ? truck_channel_battery_voltage::id :
-                streq(macro, "truck_channel_battery_voltage_warning") || streq(macro, truck_channel_battery_voltage_warning::macro) ? truck_channel_battery_voltage_warning::id :
-                streq(macro, "truck_channel_electric_enabled") || streq(macro, truck_channel_electric_enabled::macro) ? truck_channel_electric_enabled::id :
-                streq(macro, "truck_channel_engine_enabled") || streq(macro, truck_channel_engine_enabled::macro) ? truck_channel_engine_enabled::id :
-                streq(macro, "truck_channel_lblinker") || streq(macro, truck_channel_lblinker::macro) ? truck_channel_lblinker::id :
-                streq(macro, "truck_channel_rblinker") || streq(macro, truck_channel_rblinker::macro) ? truck_channel_rblinker::id :
-                streq(macro, "truck_channel_hazard_warning") || streq(macro, truck_channel_hazard_warning::macro) ? truck_channel_hazard_warning::id :
-                streq(macro, "truck_channel_light_lblinker") || streq(macro, truck_channel_light_lblinker::macro) ? truck_channel_light_lblinker::id :
-                streq(macro, "truck_channel_light_rblinker") || streq(macro, truck_channel_light_rblinker::macro) ? truck_channel_light_rblinker::id :
-                streq(macro, "truck_channel_light_parking") || streq(macro, truck_channel_light_parking::macro) ? truck_channel_light_parking::id :
-                streq(macro, "truck_channel_light_low_beam") || streq(macro, truck_channel_light_low_beam::macro) ? truck_channel_light_low_beam::id :
-                streq(macro, "truck_channel_light_high_beam") || streq(macro, truck_channel_light_high_beam::macro) ? truck_channel_light_high_beam::id :
-                streq(macro, "truck_channel_light_aux_front") || streq(macro, truck_channel_light_aux_front::macro) ? truck_channel_light_aux_front::id :
-                streq(macro, "truck_channel_light_aux_roof") || streq(macro, truck_channel_light_aux_roof::macro) ? truck_channel_light_aux_roof::id :
-                streq(macro, "truck_channel_light_beacon") || streq(macro, truck_channel_light_beacon::macro) ? truck_channel_light_beacon::id :
-                streq(macro, "truck_channel_light_brake") || streq(macro, truck_channel_light_brake::macro) ? truck_channel_light_brake::id :
-                streq(macro, "truck_channel_light_reverse") || streq(macro, truck_channel_light_reverse::macro) ? truck_channel_light_reverse::id :
-                streq(macro, "truck_channel_wipers") || streq(macro, truck_channel_wipers::macro) ? truck_channel_wipers::id :
-                streq(macro, "truck_channel_dashboard_backlight") || streq(macro, truck_channel_dashboard_backlight::macro) ? truck_channel_dashboard_backlight::id :
-                streq(macro, "truck_channel_differential_lock") || streq(macro, truck_channel_differential_lock::macro) ? truck_channel_differential_lock::id :
-                streq(macro, "truck_channel_lift_axle") || streq(macro, truck_channel_lift_axle::macro) ? truck_channel_lift_axle::id :
-                streq(macro, "truck_channel_lift_axle_indicator") || streq(macro, truck_channel_lift_axle_indicator::macro) ? truck_channel_lift_axle_indicator::id :
-                streq(macro, "truck_channel_trailer_lift_axle") || streq(macro, truck_channel_trailer_lift_axle::macro) ? truck_channel_trailer_lift_axle::id :
-                streq(macro, "truck_channel_trailer_lift_axle_indicator") || streq(macro, truck_channel_trailer_lift_axle_indicator::macro) ? truck_channel_trailer_lift_axle_indicator::id :
-                streq(macro, "truck_channel_wear_engine") || streq(macro, truck_channel_wear_engine::macro) ? truck_channel_wear_engine::id :
-                streq(macro, "truck_channel_wear_transmission") || streq(macro, truck_channel_wear_transmission::macro) ? truck_channel_wear_transmission::id :
-                streq(macro, "truck_channel_wear_cabin") || streq(macro, truck_channel_wear_cabin::macro) ? truck_channel_wear_cabin::id :
-                streq(macro, "truck_channel_wear_chassis") || streq(macro, truck_channel_wear_chassis::macro) ? truck_channel_wear_chassis::id :
-                streq(macro, "truck_channel_wear_wheels") || streq(macro, truck_channel_wear_wheels::macro) ? truck_channel_wear_wheels::id :
-                streq(macro, "truck_channel_odometer") || streq(macro, truck_channel_odometer::macro) ? truck_channel_odometer::id :
-                streq(macro, "truck_channel_navigation_distance") || streq(macro, truck_channel_navigation_distance::macro) ? truck_channel_navigation_distance::id :
-                streq(macro, "truck_channel_navigation_time") || streq(macro, truck_channel_navigation_time::macro) ? truck_channel_navigation_time::id :
-                streq(macro, "truck_channel_navigation_speed_limit") || streq(macro, truck_channel_navigation_speed_limit::macro) ? truck_channel_navigation_speed_limit::id :
-                streq(macro, "truck_channel_wheel_susp_deflection") || streq(macro, truck_channel_wheel_susp_deflection::macro) ? truck_channel_wheel_susp_deflection::id :
-                streq(macro, "truck_channel_wheel_on_ground") || streq(macro, truck_channel_wheel_on_ground::macro) ? truck_channel_wheel_on_ground::id :
-                streq(macro, "truck_channel_wheel_substance") || streq(macro, truck_channel_wheel_substance::macro) ? truck_channel_wheel_substance::id :
-                streq(macro, "truck_channel_wheel_velocity") || streq(macro, truck_channel_wheel_velocity::macro) ? truck_channel_wheel_velocity::id :
-                streq(macro, "truck_channel_wheel_steering") || streq(macro, truck_channel_wheel_steering::macro) ? truck_channel_wheel_steering::id :
-                streq(macro, "truck_channel_wheel_rotation") || streq(macro, truck_channel_wheel_rotation::macro) ? truck_channel_wheel_rotation::id :
-                streq(macro, "truck_channel_wheel_lift") || streq(macro, truck_channel_wheel_lift::macro) ? truck_channel_wheel_lift::id :
-                streq(macro, "truck_channel_wheel_lift_offset") || streq(macro, truck_channel_wheel_lift_offset::macro) ? truck_channel_wheel_lift_offset::id :
+                !is_event_info && streq(macro, "truck_channel_world_placement") || streq(macro, truck_channel_world_placement::macro) ? truck_channel_world_placement::id :
+                !is_event_info && streq(macro, "truck_channel_local_linear_velocity") || streq(macro, truck_channel_local_linear_velocity::macro) ? truck_channel_local_linear_velocity::id :
+                !is_event_info && streq(macro, "truck_channel_local_angular_velocity") || streq(macro, truck_channel_local_angular_velocity::macro) ? truck_channel_local_angular_velocity::id :
+                !is_event_info && streq(macro, "truck_channel_local_linear_acceleration") || streq(macro, truck_channel_local_linear_acceleration::macro) ? truck_channel_local_linear_acceleration::id :
+                !is_event_info && streq(macro, "truck_channel_local_angular_acceleration") || streq(macro, truck_channel_local_angular_acceleration::macro) ? truck_channel_local_angular_acceleration::id :
+                !is_event_info && streq(macro, "truck_channel_cabin_offset") || streq(macro, truck_channel_cabin_offset::macro) ? truck_channel_cabin_offset::id :
+                !is_event_info && streq(macro, "truck_channel_cabin_angular_velocity") || streq(macro, truck_channel_cabin_angular_velocity::macro) ? truck_channel_cabin_angular_velocity::id :
+                !is_event_info && streq(macro, "truck_channel_cabin_angular_acceleration") || streq(macro, truck_channel_cabin_angular_acceleration::macro) ? truck_channel_cabin_angular_acceleration::id :
+                !is_event_info && streq(macro, "truck_channel_head_offset") || streq(macro, truck_channel_head_offset::macro) ? truck_channel_head_offset::id :
+                !is_event_info && streq(macro, "truck_channel_speed") || streq(macro, truck_channel_speed::macro) ? truck_channel_speed::id :
+                !is_event_info && streq(macro, "truck_channel_engine_rpm") || streq(macro, truck_channel_engine_rpm::macro) ? truck_channel_engine_rpm::id :
+                !is_event_info && streq(macro, "truck_channel_engine_gear") || streq(macro, truck_channel_engine_gear::macro) ? truck_channel_engine_gear::id :
+                !is_event_info && streq(macro, "truck_channel_displayed_gear") || streq(macro, truck_channel_displayed_gear::macro) ? truck_channel_displayed_gear::id :
+                !is_event_info && streq(macro, "truck_channel_input_steering") || streq(macro, truck_channel_input_steering::macro) ? truck_channel_input_steering::id :
+                !is_event_info && streq(macro, "truck_channel_input_throttle") || streq(macro, truck_channel_input_throttle::macro) ? truck_channel_input_throttle::id :
+                !is_event_info && streq(macro, "truck_channel_input_brake") || streq(macro, truck_channel_input_brake::macro) ? truck_channel_input_brake::id :
+                !is_event_info && streq(macro, "truck_channel_input_clutch") || streq(macro, truck_channel_input_clutch::macro) ? truck_channel_input_clutch::id :
+                !is_event_info && streq(macro, "truck_channel_effective_steering") || streq(macro, truck_channel_effective_steering::macro) ? truck_channel_effective_steering::id :
+                !is_event_info && streq(macro, "truck_channel_effective_throttle") || streq(macro, truck_channel_effective_throttle::macro) ? truck_channel_effective_throttle::id :
+                !is_event_info && streq(macro, "truck_channel_effective_brake") || streq(macro, truck_channel_effective_brake::macro) ? truck_channel_effective_brake::id :
+                !is_event_info && streq(macro, "truck_channel_effective_clutch") || streq(macro, truck_channel_effective_clutch::macro) ? truck_channel_effective_clutch::id :
+                !is_event_info && streq(macro, "truck_channel_cruise_control") || streq(macro, truck_channel_cruise_control::macro) ? truck_channel_cruise_control::id :
+                !is_event_info && streq(macro, "truck_channel_hshifter_slot") || streq(macro, truck_channel_hshifter_slot::macro) ? truck_channel_hshifter_slot::id :
+                !is_event_info && streq(macro, "truck_channel_hshifter_selector") || streq(macro, truck_channel_hshifter_selector::macro) ? truck_channel_hshifter_selector::id :
+                !is_event_info && streq(macro, "truck_channel_parking_brake") || streq(macro, truck_channel_parking_brake::macro) ? truck_channel_parking_brake::id :
+                !is_event_info && streq(macro, "truck_channel_motor_brake") || streq(macro, truck_channel_motor_brake::macro) ? truck_channel_motor_brake::id :
+                !is_event_info && streq(macro, "truck_channel_retarder_level") || streq(macro, truck_channel_retarder_level::macro) ? truck_channel_retarder_level::id :
+                !is_event_info && streq(macro, "truck_channel_brake_air_pressure") || streq(macro, truck_channel_brake_air_pressure::macro) ? truck_channel_brake_air_pressure::id :
+                !is_event_info && streq(macro, "truck_channel_brake_air_pressure_warning") || streq(macro, truck_channel_brake_air_pressure_warning::macro) ? truck_channel_brake_air_pressure_warning::id :
+                !is_event_info && streq(macro, "truck_channel_brake_air_pressure_emergency") || streq(macro, truck_channel_brake_air_pressure_emergency::macro) ? truck_channel_brake_air_pressure_emergency::id :
+                !is_event_info && streq(macro, "truck_channel_brake_temperature") || streq(macro, truck_channel_brake_temperature::macro) ? truck_channel_brake_temperature::id :
+                !is_event_info && streq(macro, "truck_channel_fuel") || streq(macro, truck_channel_fuel::macro) ? truck_channel_fuel::id :
+                !is_event_info && streq(macro, "truck_channel_fuel_warning") || streq(macro, truck_channel_fuel_warning::macro) ? truck_channel_fuel_warning::id :
+                !is_event_info && streq(macro, "truck_channel_fuel_average_consumption") || streq(macro, truck_channel_fuel_average_consumption::macro) ? truck_channel_fuel_average_consumption::id :
+                !is_event_info && streq(macro, "truck_channel_fuel_range") || streq(macro, truck_channel_fuel_range::macro) ? truck_channel_fuel_range::id :
+                !is_event_info && streq(macro, "truck_channel_adblue") || streq(macro, truck_channel_adblue::macro) ? truck_channel_adblue::id :
+                !is_event_info && streq(macro, "truck_channel_adblue_warning") || streq(macro, truck_channel_adblue_warning::macro) ? truck_channel_adblue_warning::id :
+                !is_event_info && streq(macro, "truck_channel_oil_pressure") || streq(macro, truck_channel_oil_pressure::macro) ? truck_channel_oil_pressure::id :
+                !is_event_info && streq(macro, "truck_channel_oil_pressure_warning") || streq(macro, truck_channel_oil_pressure_warning::macro) ? truck_channel_oil_pressure_warning::id :
+                !is_event_info && streq(macro, "truck_channel_oil_temperature") || streq(macro, truck_channel_oil_temperature::macro) ? truck_channel_oil_temperature::id :
+                !is_event_info && streq(macro, "truck_channel_water_temperature") || streq(macro, truck_channel_water_temperature::macro) ? truck_channel_water_temperature::id :
+                !is_event_info && streq(macro, "truck_channel_water_temperature_warning") || streq(macro, truck_channel_water_temperature_warning::macro) ? truck_channel_water_temperature_warning::id :
+                !is_event_info && streq(macro, "truck_channel_battery_voltage") || streq(macro, truck_channel_battery_voltage::macro) ? truck_channel_battery_voltage::id :
+                !is_event_info && streq(macro, "truck_channel_battery_voltage_warning") || streq(macro, truck_channel_battery_voltage_warning::macro) ? truck_channel_battery_voltage_warning::id :
+                !is_event_info && streq(macro, "truck_channel_electric_enabled") || streq(macro, truck_channel_electric_enabled::macro) ? truck_channel_electric_enabled::id :
+                !is_event_info && streq(macro, "truck_channel_engine_enabled") || streq(macro, truck_channel_engine_enabled::macro) ? truck_channel_engine_enabled::id :
+                !is_event_info && streq(macro, "truck_channel_lblinker") || streq(macro, truck_channel_lblinker::macro) ? truck_channel_lblinker::id :
+                !is_event_info && streq(macro, "truck_channel_rblinker") || streq(macro, truck_channel_rblinker::macro) ? truck_channel_rblinker::id :
+                !is_event_info && streq(macro, "truck_channel_hazard_warning") || streq(macro, truck_channel_hazard_warning::macro) ? truck_channel_hazard_warning::id :
+                !is_event_info && streq(macro, "truck_channel_light_lblinker") || streq(macro, truck_channel_light_lblinker::macro) ? truck_channel_light_lblinker::id :
+                !is_event_info && streq(macro, "truck_channel_light_rblinker") || streq(macro, truck_channel_light_rblinker::macro) ? truck_channel_light_rblinker::id :
+                !is_event_info && streq(macro, "truck_channel_light_parking") || streq(macro, truck_channel_light_parking::macro) ? truck_channel_light_parking::id :
+                !is_event_info && streq(macro, "truck_channel_light_low_beam") || streq(macro, truck_channel_light_low_beam::macro) ? truck_channel_light_low_beam::id :
+                !is_event_info && streq(macro, "truck_channel_light_high_beam") || streq(macro, truck_channel_light_high_beam::macro) ? truck_channel_light_high_beam::id :
+                !is_event_info && streq(macro, "truck_channel_light_aux_front") || streq(macro, truck_channel_light_aux_front::macro) ? truck_channel_light_aux_front::id :
+                !is_event_info && streq(macro, "truck_channel_light_aux_roof") || streq(macro, truck_channel_light_aux_roof::macro) ? truck_channel_light_aux_roof::id :
+                !is_event_info && streq(macro, "truck_channel_light_beacon") || streq(macro, truck_channel_light_beacon::macro) ? truck_channel_light_beacon::id :
+                !is_event_info && streq(macro, "truck_channel_light_brake") || streq(macro, truck_channel_light_brake::macro) ? truck_channel_light_brake::id :
+                !is_event_info && streq(macro, "truck_channel_light_reverse") || streq(macro, truck_channel_light_reverse::macro) ? truck_channel_light_reverse::id :
+                !is_event_info && streq(macro, "truck_channel_wipers") || streq(macro, truck_channel_wipers::macro) ? truck_channel_wipers::id :
+                !is_event_info && streq(macro, "truck_channel_dashboard_backlight") || streq(macro, truck_channel_dashboard_backlight::macro) ? truck_channel_dashboard_backlight::id :
+                !is_event_info && streq(macro, "truck_channel_differential_lock") || streq(macro, truck_channel_differential_lock::macro) ? truck_channel_differential_lock::id :
+                !is_event_info && streq(macro, "truck_channel_lift_axle") || streq(macro, truck_channel_lift_axle::macro) ? truck_channel_lift_axle::id :
+                !is_event_info && streq(macro, "truck_channel_lift_axle_indicator") || streq(macro, truck_channel_lift_axle_indicator::macro) ? truck_channel_lift_axle_indicator::id :
+                !is_event_info && streq(macro, "truck_channel_trailer_lift_axle") || streq(macro, truck_channel_trailer_lift_axle::macro) ? truck_channel_trailer_lift_axle::id :
+                !is_event_info && streq(macro, "truck_channel_trailer_lift_axle_indicator") || streq(macro, truck_channel_trailer_lift_axle_indicator::macro) ? truck_channel_trailer_lift_axle_indicator::id :
+                !is_event_info && streq(macro, "truck_channel_wear_engine") || streq(macro, truck_channel_wear_engine::macro) ? truck_channel_wear_engine::id :
+                !is_event_info && streq(macro, "truck_channel_wear_transmission") || streq(macro, truck_channel_wear_transmission::macro) ? truck_channel_wear_transmission::id :
+                !is_event_info && streq(macro, "truck_channel_wear_cabin") || streq(macro, truck_channel_wear_cabin::macro) ? truck_channel_wear_cabin::id :
+                !is_event_info && streq(macro, "truck_channel_wear_chassis") || streq(macro, truck_channel_wear_chassis::macro) ? truck_channel_wear_chassis::id :
+                !is_event_info && streq(macro, "truck_channel_wear_wheels") || streq(macro, truck_channel_wear_wheels::macro) ? truck_channel_wear_wheels::id :
+                !is_event_info && streq(macro, "truck_channel_odometer") || streq(macro, truck_channel_odometer::macro) ? truck_channel_odometer::id :
+                !is_event_info && streq(macro, "truck_channel_navigation_distance") || streq(macro, truck_channel_navigation_distance::macro) ? truck_channel_navigation_distance::id :
+                !is_event_info && streq(macro, "truck_channel_navigation_time") || streq(macro, truck_channel_navigation_time::macro) ? truck_channel_navigation_time::id :
+                !is_event_info && streq(macro, "truck_channel_navigation_speed_limit") || streq(macro, truck_channel_navigation_speed_limit::macro) ? truck_channel_navigation_speed_limit::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_susp_deflection") || streq(macro, truck_channel_wheel_susp_deflection::macro) ? truck_channel_wheel_susp_deflection::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_on_ground") || streq(macro, truck_channel_wheel_on_ground::macro) ? truck_channel_wheel_on_ground::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_substance") || streq(macro, truck_channel_wheel_substance::macro) ? truck_channel_wheel_substance::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_velocity") || streq(macro, truck_channel_wheel_velocity::macro) ? truck_channel_wheel_velocity::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_steering") || streq(macro, truck_channel_wheel_steering::macro) ? truck_channel_wheel_steering::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_rotation") || streq(macro, truck_channel_wheel_rotation::macro) ? truck_channel_wheel_rotation::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_lift") || streq(macro, truck_channel_wheel_lift::macro) ? truck_channel_wheel_lift::id :
+                !is_event_info && streq(macro, "truck_channel_wheel_lift_offset") || streq(macro, truck_channel_wheel_lift_offset::macro) ? truck_channel_wheel_lift_offset::id :
                 LIFETIME_INVALID_ID;
         }
 
@@ -1458,15 +1458,15 @@ namespace truckconnect {
                 case telemetry_id::configuration_controls_info:
                     return
                         streq(member, "latest") ? offsetof(configuration_controls_info::storage_type, latest) :
-                        streq(member, "shifter_type") ? offsetof(configuration_controls_info::storage_type, shifter_type) :
+                        streq(member, "shifter.type") ? offsetof(configuration_controls_info::storage_type, shifter_type) :
                         INVALID_OFFSET;
                 case telemetry_id::configuration_hshifter_info:
                     return
                         streq(member, "latest") ? offsetof(configuration_hshifter_info::storage_type, latest) :
-                        streq(member, "selector_count") ? offsetof(configuration_hshifter_info::storage_type, selector_count) :
-                        streq(member, "slot_gear") ? offsetof(configuration_hshifter_info::storage_type, slot_gear) :
-                        streq(member, "slot_handle_position") ? offsetof(configuration_hshifter_info::storage_type, slot_handle_position) :
-                        streq(member, "slot_selectors") ? offsetof(configuration_hshifter_info::storage_type, slot_selectors) :
+                        streq(member, "selector.count") ? offsetof(configuration_hshifter_info::storage_type, selector_count) :
+                        streq(member, "slot.gear") ? offsetof(configuration_hshifter_info::storage_type, slot_gear) :
+                        streq(member, "slot.handle.position") ? offsetof(configuration_hshifter_info::storage_type, slot_handle_position) :
+                        streq(member, "slot.selectors") ? offsetof(configuration_hshifter_info::storage_type, slot_selectors) :
                         INVALID_OFFSET;
                 case telemetry_id::configuration_truck_info:
                     return
@@ -1475,125 +1475,125 @@ namespace truckconnect {
                         streq(member, "brand") ? offsetof(configuration_truck_info::storage_type, brand) :
                         streq(member, "id") ? offsetof(configuration_truck_info::storage_type, id) :
                         streq(member, "name") ? offsetof(configuration_truck_info::storage_type, name) :
-                        streq(member, "fuel_capacity") ? offsetof(configuration_truck_info::storage_type, fuel_capacity) :
-                        streq(member, "fuel_warning_factor") ? offsetof(configuration_truck_info::storage_type, fuel_warning_factor) :
-                        streq(member, "adblue_capacity") ? offsetof(configuration_truck_info::storage_type, adblue_capacity) :
-                        streq(member, "adblue_warning_factor") ? offsetof(configuration_truck_info::storage_type, adblue_warning_factor) :
-                        streq(member, "air_pressure_warning") ? offsetof(configuration_truck_info::storage_type, air_pressure_warning) :
-                        streq(member, "air_pressure_emergency") ? offsetof(configuration_truck_info::storage_type, air_pressure_emergency) :
-                        streq(member, "oil_pressure_warning") ? offsetof(configuration_truck_info::storage_type, oil_pressure_warning) :
-                        streq(member, "water_temperature_warning") ? offsetof(configuration_truck_info::storage_type, water_temperature_warning) :
-                        streq(member, "battery_voltage_warning") ? offsetof(configuration_truck_info::storage_type, battery_voltage_warning) :
-                        streq(member, "rpm_limit") ? offsetof(configuration_truck_info::storage_type, rpm_limit) :
-                        streq(member, "forward_gear_count") ? offsetof(configuration_truck_info::storage_type, forward_gear_count) :
-                        streq(member, "reverse_gear_count") ? offsetof(configuration_truck_info::storage_type, reverse_gear_count) :
-                        streq(member, "differential_ratio") ? offsetof(configuration_truck_info::storage_type, differential_ratio) :
-                        streq(member, "retarder_step_count") ? offsetof(configuration_truck_info::storage_type, retarder_step_count) :
-                        streq(member, "cabin_position") ? offsetof(configuration_truck_info::storage_type, cabin_position) :
-                        streq(member, "forward_ratio") ? offsetof(configuration_truck_info::storage_type, forward_ratio) :
-                        streq(member, "reverse_ratio") ? offsetof(configuration_truck_info::storage_type, reverse_ratio) :
-                        streq(member, "head_position") ? offsetof(configuration_truck_info::storage_type, head_position) :
-                        streq(member, "hook_position") ? offsetof(configuration_truck_info::storage_type, hook_position) :
-                        streq(member, "license_plate") ? offsetof(configuration_truck_info::storage_type, license_plate) :
-                        streq(member, "license_plate_country") ? offsetof(configuration_truck_info::storage_type, license_plate_country) :
-                        streq(member, "license_plate_country_id") ? offsetof(configuration_truck_info::storage_type, license_plate_country_id) :
-                        streq(member, "wheel_count") ? offsetof(configuration_truck_info::storage_type, wheel_count) :
-                        streq(member, "wheel_position") ? offsetof(configuration_truck_info::storage_type, wheel_position) :
-                        streq(member, "wheel_steerable") ? offsetof(configuration_truck_info::storage_type, wheel_steerable) :
-                        streq(member, "wheel_simulated") ? offsetof(configuration_truck_info::storage_type, wheel_simulated) :
-                        streq(member, "wheel_radius") ? offsetof(configuration_truck_info::storage_type, wheel_radius) :
-                        streq(member, "wheel_powered") ? offsetof(configuration_truck_info::storage_type, wheel_powered) :
-                        streq(member, "wheel_liftable") ? offsetof(configuration_truck_info::storage_type, wheel_liftable) :
+                        streq(member, "fuel.capacity") ? offsetof(configuration_truck_info::storage_type, fuel_capacity) :
+                        streq(member, "fuel.warning.factor") ? offsetof(configuration_truck_info::storage_type, fuel_warning_factor) :
+                        streq(member, "adblue.capacity") ? offsetof(configuration_truck_info::storage_type, adblue_capacity) :
+                        streq(member, "adblue.warning.factor") ? offsetof(configuration_truck_info::storage_type, adblue_warning_factor) :
+                        streq(member, "brake.air.pressure.warning") ? offsetof(configuration_truck_info::storage_type, air_pressure_warning) :
+                        streq(member, "brake.air.pressure.emergency") ? offsetof(configuration_truck_info::storage_type, air_pressure_emergency) :
+                        streq(member, "oil.pressure.warning") ? offsetof(configuration_truck_info::storage_type, oil_pressure_warning) :
+                        streq(member, "water.temperature.warning") ? offsetof(configuration_truck_info::storage_type, water_temperature_warning) :
+                        streq(member, "battery.voltage.warning") ? offsetof(configuration_truck_info::storage_type, battery_voltage_warning) :
+                        streq(member, "rpm.limit") ? offsetof(configuration_truck_info::storage_type, rpm_limit) :
+                        streq(member, "gears.forward") ? offsetof(configuration_truck_info::storage_type, forward_gear_count) :
+                        streq(member, "gears.reverse") ? offsetof(configuration_truck_info::storage_type, reverse_gear_count) :
+                        streq(member, "differential.ratio") ? offsetof(configuration_truck_info::storage_type, differential_ratio) :
+                        streq(member, "retarder.steps") ? offsetof(configuration_truck_info::storage_type, retarder_step_count) :
+                        streq(member, "cabin.position") ? offsetof(configuration_truck_info::storage_type, cabin_position) :
+                        streq(member, "forward.ratio") ? offsetof(configuration_truck_info::storage_type, forward_ratio) :
+                        streq(member, "reverse.ratio") ? offsetof(configuration_truck_info::storage_type, reverse_ratio) :
+                        streq(member, "head.position") ? offsetof(configuration_truck_info::storage_type, head_position) :
+                        streq(member, "hook.position") ? offsetof(configuration_truck_info::storage_type, hook_position) :
+                        streq(member, "license.plate") ? offsetof(configuration_truck_info::storage_type, license_plate) :
+                        streq(member, "license.plate.country") ? offsetof(configuration_truck_info::storage_type, license_plate_country) :
+                        streq(member, "license.plate.country.id") ? offsetof(configuration_truck_info::storage_type, license_plate_country_id) :
+                        streq(member, "wheels.count") ? offsetof(configuration_truck_info::storage_type, wheel_count) :
+                        streq(member, "wheel.position") ? offsetof(configuration_truck_info::storage_type, wheel_position) :
+                        streq(member, "wheel.steerable") ? offsetof(configuration_truck_info::storage_type, wheel_steerable) :
+                        streq(member, "wheel.simulated") ? offsetof(configuration_truck_info::storage_type, wheel_simulated) :
+                        streq(member, "wheel.radius") ? offsetof(configuration_truck_info::storage_type, wheel_radius) :
+                        streq(member, "wheel.powered") ? offsetof(configuration_truck_info::storage_type, wheel_powered) :
+                        streq(member, "wheel.liftable") ? offsetof(configuration_truck_info::storage_type, wheel_liftable) :
                         INVALID_OFFSET;
                 case telemetry_id::configuration_trailer_info:
                     return
                         streq(member, "latest") ? offsetof(configuration_trailer_info::storage_type, latest) :
                         streq(member, "id") ? offsetof(configuration_trailer_info::storage_type, id) :
-                        streq(member, "cargo_accessory_id") ? offsetof(configuration_trailer_info::storage_type, cargo_accessory_id) :
-                        streq(member, "hook_position") ? offsetof(configuration_trailer_info::storage_type, hook_position) :
+                        streq(member, "cargo.accessory.id") ? offsetof(configuration_trailer_info::storage_type, cargo_accessory_id) :
+                        streq(member, "hook.position") ? offsetof(configuration_trailer_info::storage_type, hook_position) :
                         streq(member, "brand_id") ? offsetof(configuration_trailer_info::storage_type, brand_id) :
                         streq(member, "brand") ? offsetof(configuration_trailer_info::storage_type, brand) :
                         streq(member, "name") ? offsetof(configuration_trailer_info::storage_type, name) :
-                        streq(member, "chain_type") ? offsetof(configuration_trailer_info::storage_type, chain_type) :
-                        streq(member, "body_type") ? offsetof(configuration_trailer_info::storage_type, body_type) :
-                        streq(member, "license_plate") ? offsetof(configuration_trailer_info::storage_type, license_plate) :
-                        streq(member, "license_plate_country") ? offsetof(configuration_trailer_info::storage_type, license_plate_country) :
-                        streq(member, "license_plate_country_id") ? offsetof(configuration_trailer_info::storage_type, license_plate_country_id) :
-                        streq(member, "wheel_count") ? offsetof(configuration_trailer_info::storage_type, wheel_count) :
-                        streq(member, "wheel_position") ? offsetof(configuration_trailer_info::storage_type, wheel_position) :
-                        streq(member, "wheel_steerable") ? offsetof(configuration_trailer_info::storage_type, wheel_steerable) :
-                        streq(member, "wheel_simulated") ? offsetof(configuration_trailer_info::storage_type, wheel_simulated) :
-                        streq(member, "wheel_radius") ? offsetof(configuration_trailer_info::storage_type, wheel_radius) :
-                        streq(member, "wheel_powered") ? offsetof(configuration_trailer_info::storage_type, wheel_powered) :
-                        streq(member, "wheel_liftable") ? offsetof(configuration_trailer_info::storage_type, wheel_liftable) :
+                        streq(member, "chain.type") ? offsetof(configuration_trailer_info::storage_type, chain_type) :
+                        streq(member, "body.type") ? offsetof(configuration_trailer_info::storage_type, body_type) :
+                        streq(member, "license.plate") ? offsetof(configuration_trailer_info::storage_type, license_plate) :
+                        streq(member, "license.plate.country") ? offsetof(configuration_trailer_info::storage_type, license_plate_country) :
+                        streq(member, "license.plate.country.id") ? offsetof(configuration_trailer_info::storage_type, license_plate_country_id) :
+                        streq(member, "wheels.count") ? offsetof(configuration_trailer_info::storage_type, wheel_count) :
+                        streq(member, "wheel.position") ? offsetof(configuration_trailer_info::storage_type, wheel_position) :
+                        streq(member, "wheel.steerable") ? offsetof(configuration_trailer_info::storage_type, wheel_steerable) :
+                        streq(member, "wheel.simulated") ? offsetof(configuration_trailer_info::storage_type, wheel_simulated) :
+                        streq(member, "wheel.radius") ? offsetof(configuration_trailer_info::storage_type, wheel_radius) :
+                        streq(member, "wheel.powered") ? offsetof(configuration_trailer_info::storage_type, wheel_powered) :
+                        streq(member, "wheel.liftable") ? offsetof(configuration_trailer_info::storage_type, wheel_liftable) :
                         INVALID_OFFSET;
                 case telemetry_id::configuration_job_info:
                     return
                         streq(member, "latest") ? offsetof(configuration_job_info::storage_type, latest) :
-                        streq(member, "cargo_id") ? offsetof(configuration_job_info::storage_type, cargo_id) :
+                        streq(member, "cargo.id") ? offsetof(configuration_job_info::storage_type, cargo_id) :
                         streq(member, "cargo") ? offsetof(configuration_job_info::storage_type, cargo) :
-                        streq(member, "cargo_mass") ? offsetof(configuration_job_info::storage_type, cargo_mass) :
-                        streq(member, "destination_city_id") ? offsetof(configuration_job_info::storage_type, destination_city_id) :
-                        streq(member, "cargo_unit_mass") ? offsetof(configuration_job_info::storage_type, cargo_unit_mass) :
-                        streq(member, "cargo_unit_count") ? offsetof(configuration_job_info::storage_type, cargo_unit_count) :
-                        streq(member, "destination_city") ? offsetof(configuration_job_info::storage_type, destination_city) :
-                        streq(member, "source_city_id") ? offsetof(configuration_job_info::storage_type, source_city_id) :
-                        streq(member, "source_city") ? offsetof(configuration_job_info::storage_type, source_city) :
-                        streq(member, "destination_company_id") ? offsetof(configuration_job_info::storage_type, destination_company_id) :
-                        streq(member, "destination_company") ? offsetof(configuration_job_info::storage_type, destination_company) :
-                        streq(member, "source_company_id") ? offsetof(configuration_job_info::storage_type, source_company_id) :
-                        streq(member, "source_company") ? offsetof(configuration_job_info::storage_type, source_company) :
+                        streq(member, "cargo.mass") ? offsetof(configuration_job_info::storage_type, cargo_mass) :
+                        streq(member, "destination.city.id") ? offsetof(configuration_job_info::storage_type, destination_city_id) :
+                        streq(member, "cargo.unit.mass") ? offsetof(configuration_job_info::storage_type, cargo_unit_mass) :
+                        streq(member, "cargo.unit.count") ? offsetof(configuration_job_info::storage_type, cargo_unit_count) :
+                        streq(member, "destination.city") ? offsetof(configuration_job_info::storage_type, destination_city) :
+                        streq(member, "source.city.id") ? offsetof(configuration_job_info::storage_type, source_city_id) :
+                        streq(member, "source.city") ? offsetof(configuration_job_info::storage_type, source_city) :
+                        streq(member, "destination.company.id") ? offsetof(configuration_job_info::storage_type, destination_company_id) :
+                        streq(member, "destination.company") ? offsetof(configuration_job_info::storage_type, destination_company) :
+                        streq(member, "source.company.id") ? offsetof(configuration_job_info::storage_type, source_company_id) :
+                        streq(member, "source.company") ? offsetof(configuration_job_info::storage_type, source_company) :
                         streq(member, "income") ? offsetof(configuration_job_info::storage_type, income) :
-                        streq(member, "delivery_time") ? offsetof(configuration_job_info::storage_type, delivery_time) :
-                        streq(member, "is_cargo_loaded") ? offsetof(configuration_job_info::storage_type, is_cargo_loaded) :
-                        streq(member, "job_market") ? offsetof(configuration_job_info::storage_type, job_market) :
-                        streq(member, "special_job") ? offsetof(configuration_job_info::storage_type, special_job) :
-                        streq(member, "planned_distance_km") ? offsetof(configuration_job_info::storage_type, planned_distance_km) :
+                        streq(member, "delivery.time") ? offsetof(configuration_job_info::storage_type, delivery_time) :
+                        streq(member, "cargo.loaded") ? offsetof(configuration_job_info::storage_type, is_cargo_loaded) :
+                        streq(member, "job.market") ? offsetof(configuration_job_info::storage_type, job_market) :
+                        streq(member, "is.special.job") ? offsetof(configuration_job_info::storage_type, special_job) :
+                        streq(member, "planned_distance.km") ? offsetof(configuration_job_info::storage_type, planned_distance_km) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_job_cancelled_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_job_cancelled_info::storage_type, latest) :
-                        streq(member, "cancel_penalty") ? offsetof(gameplay_job_cancelled_info::storage_type, cancel_penalty) :
+                        streq(member, "cancel.penalty") ? offsetof(gameplay_job_cancelled_info::storage_type, cancel_penalty) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_job_delivered_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_job_delivered_info::storage_type, latest) :
                         streq(member, "revenue") ? offsetof(gameplay_job_delivered_info::storage_type, revenue) :
-                        streq(member, "earned_xp") ? offsetof(gameplay_job_delivered_info::storage_type, earned_xp) :
-                        streq(member, "cargo_damage") ? offsetof(gameplay_job_delivered_info::storage_type, cargo_damage) :
-                        streq(member, "distance_km") ? offsetof(gameplay_job_delivered_info::storage_type, distance_km) :
-                        streq(member, "delivery_time") ? offsetof(gameplay_job_delivered_info::storage_type, delivery_time) :
-                        streq(member, "auto_park_used") ? offsetof(gameplay_job_delivered_info::storage_type, auto_park_used) :
-                        streq(member, "auto_load_used") ? offsetof(gameplay_job_delivered_info::storage_type, auto_load_used) :
+                        streq(member, "earned.xp") ? offsetof(gameplay_job_delivered_info::storage_type, earned_xp) :
+                        streq(member, "cargo.damage") ? offsetof(gameplay_job_delivered_info::storage_type, cargo_damage) :
+                        streq(member, "distance.km") ? offsetof(gameplay_job_delivered_info::storage_type, distance_km) :
+                        streq(member, "delivery.time") ? offsetof(gameplay_job_delivered_info::storage_type, delivery_time) :
+                        streq(member, "auto.park.used") ? offsetof(gameplay_job_delivered_info::storage_type, auto_park_used) :
+                        streq(member, "auto.load.used") ? offsetof(gameplay_job_delivered_info::storage_type, auto_load_used) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_player_fined_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_player_fined_info::storage_type, latest) :
-                        streq(member, "fine_offence") ? offsetof(gameplay_player_fined_info::storage_type, fine_offence) :
-                        streq(member, "fine_amount") ? offsetof(gameplay_player_fined_info::storage_type, fine_amount) :
+                        streq(member, "fine.offence") ? offsetof(gameplay_player_fined_info::storage_type, fine_offence) :
+                        streq(member, "fine.amount") ? offsetof(gameplay_player_fined_info::storage_type, fine_amount) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_player_tollgate_paid_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_player_tollgate_paid_info::storage_type, latest) :
-                        streq(member, "pay_amount") ? offsetof(gameplay_player_tollgate_paid_info::storage_type, pay_amount) :
+                        streq(member, "pay.amount") ? offsetof(gameplay_player_tollgate_paid_info::storage_type, pay_amount) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_player_use_ferry_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_player_use_ferry_info::storage_type, latest) :
-                        streq(member, "pay_amount") ? offsetof(gameplay_player_use_ferry_info::storage_type, pay_amount) :
-                        streq(member, "source_name") ? offsetof(gameplay_player_use_ferry_info::storage_type, source_name) :
-                        streq(member, "target_name") ? offsetof(gameplay_player_use_ferry_info::storage_type, target_name) :
-                        streq(member, "source_id") ? offsetof(gameplay_player_use_ferry_info::storage_type, source_id) :
-                        streq(member, "target_id") ? offsetof(gameplay_player_use_ferry_info::storage_type, target_id) :
+                        streq(member, "pay.amount") ? offsetof(gameplay_player_use_ferry_info::storage_type, pay_amount) :
+                        streq(member, "source.name") ? offsetof(gameplay_player_use_ferry_info::storage_type, source_name) :
+                        streq(member, "target.name") ? offsetof(gameplay_player_use_ferry_info::storage_type, target_name) :
+                        streq(member, "source.id") ? offsetof(gameplay_player_use_ferry_info::storage_type, source_id) :
+                        streq(member, "target.id") ? offsetof(gameplay_player_use_ferry_info::storage_type, target_id) :
                         INVALID_OFFSET;
                 case telemetry_id::gameplay_player_use_train_info:
                     return
                         streq(member, "latest") ? offsetof(gameplay_player_use_train_info::storage_type, latest) :
-                        streq(member, "pay_amount") ? offsetof(gameplay_player_use_train_info::storage_type, pay_amount) :
-                        streq(member, "source_name") ? offsetof(gameplay_player_use_train_info::storage_type, source_name) :
-                        streq(member, "target_name") ? offsetof(gameplay_player_use_train_info::storage_type, target_name) :
-                        streq(member, "source_id") ? offsetof(gameplay_player_use_train_info::storage_type, source_id) :
-                        streq(member, "target_id") ? offsetof(gameplay_player_use_train_info::storage_type, target_id) :
+                        streq(member, "pay.amount") ? offsetof(gameplay_player_use_train_info::storage_type, pay_amount) :
+                        streq(member, "source.name") ? offsetof(gameplay_player_use_train_info::storage_type, source_name) :
+                        streq(member, "target.name") ? offsetof(gameplay_player_use_train_info::storage_type, target_name) :
+                        streq(member, "source.id") ? offsetof(gameplay_player_use_train_info::storage_type, source_id) :
+                        streq(member, "target.id") ? offsetof(gameplay_player_use_train_info::storage_type, target_id) :
                         INVALID_OFFSET;
                 default: return INVALID_OFFSET;
             }
@@ -1609,15 +1609,15 @@ namespace truckconnect {
                 case telemetry_id::configuration_controls_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "shifter_type") ? SCS_VALUE_TYPE_string :
+                        streq(member, "shifter.type") ? SCS_VALUE_TYPE_string :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::configuration_hshifter_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "selector_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "slot_gear") ? SCS_VALUE_TYPE_s32 :
-                        streq(member, "slot_handle_position") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "slot_selectors") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "selector.count") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "slot.gear") ? SCS_VALUE_TYPE_s32 :
+                        streq(member, "slot.handle.position") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "slot.selectors") ? SCS_VALUE_TYPE_u32 :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::configuration_truck_info:
                     return
@@ -1626,127 +1626,356 @@ namespace truckconnect {
                         streq(member, "brand") ? SCS_VALUE_TYPE_string :
                         streq(member, "id") ? SCS_VALUE_TYPE_string :
                         streq(member, "name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "fuel_capacity") ? SCS_VALUE_TYPE_float :
-                        streq(member, "fuel_warning_factor") ? SCS_VALUE_TYPE_float :
-                        streq(member, "adblue_capacity") ? SCS_VALUE_TYPE_float :
-                        streq(member, "adblue_warning_factor") ? SCS_VALUE_TYPE_float :
-                        streq(member, "air_pressure_warning") ? SCS_VALUE_TYPE_float :
-                        streq(member, "air_pressure_emergency") ? SCS_VALUE_TYPE_float :
-                        streq(member, "oil_pressure_warning") ? SCS_VALUE_TYPE_float :
-                        streq(member, "water_temperature_warning") ? SCS_VALUE_TYPE_float :
-                        streq(member, "battery_voltage_warning") ? SCS_VALUE_TYPE_float :
-                        streq(member, "rpm_limit") ? SCS_VALUE_TYPE_float :
-                        streq(member, "forward_gear_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "reverse_gear_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "differential_ratio") ? SCS_VALUE_TYPE_float :
-                        streq(member, "retarder_step_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "cabin_position") ? SCS_VALUE_TYPE_fvector :
-                        streq(member, "forward_ratio") ? SCS_VALUE_TYPE_float :
-                        streq(member, "reverse_ratio") ? SCS_VALUE_TYPE_float :
-                        streq(member, "head_position") ? SCS_VALUE_TYPE_fvector :
-                        streq(member, "hook_position") ? SCS_VALUE_TYPE_fvector :
-                        streq(member, "license_plate") ? SCS_VALUE_TYPE_string :
-                        streq(member, "license_plate_country") ? SCS_VALUE_TYPE_string :
-                        streq(member, "license_plate_country_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "wheel_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "wheel_position") ? SCS_VALUE_TYPE_fvector :
-                        streq(member, "wheel_steerable") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_simulated") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_radius") ? SCS_VALUE_TYPE_float :
-                        streq(member, "wheel_powered") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_liftable") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "fuel.capacity") ? SCS_VALUE_TYPE_float :
+                        streq(member, "fuel.warning.factor") ? SCS_VALUE_TYPE_float :
+                        streq(member, "adblue.capacity") ? SCS_VALUE_TYPE_float :
+                        streq(member, "adblue.warning.factor") ? SCS_VALUE_TYPE_float :
+                        streq(member, "brake.air.pressure.warning") ? SCS_VALUE_TYPE_float :
+                        streq(member, "brake.air.pressure.emergency") ? SCS_VALUE_TYPE_float :
+                        streq(member, "oil.pressure.warning") ? SCS_VALUE_TYPE_float :
+                        streq(member, "water.temperature.warning") ? SCS_VALUE_TYPE_float :
+                        streq(member, "battery.voltage.warning") ? SCS_VALUE_TYPE_float :
+                        streq(member, "rpm.limit") ? SCS_VALUE_TYPE_float :
+                        streq(member, "gears.forward") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "gears.reverse") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "differential.ratio") ? SCS_VALUE_TYPE_float :
+                        streq(member, "retarder.steps") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "cabin.position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "forward.ratio") ? SCS_VALUE_TYPE_float :
+                        streq(member, "reverse.ratio") ? SCS_VALUE_TYPE_float :
+                        streq(member, "head.position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "hook.position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "license.plate") ? SCS_VALUE_TYPE_string :
+                        streq(member, "license.plate.country") ? SCS_VALUE_TYPE_string :
+                        streq(member, "license.plate.country.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "wheels.count") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "wheel.position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "wheel.steerable") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.simulated") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.radius") ? SCS_VALUE_TYPE_float :
+                        streq(member, "wheel.powered") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.liftable") ? SCS_VALUE_TYPE_bool :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::configuration_trailer_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
                         streq(member, "id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "cargo_accessory_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "hook_position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "cargo.accessory.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "hook.position") ? SCS_VALUE_TYPE_fvector :
                         streq(member, "brand_id") ? SCS_VALUE_TYPE_string :
                         streq(member, "brand") ? SCS_VALUE_TYPE_string :
                         streq(member, "name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "chain_type") ? SCS_VALUE_TYPE_string :
-                        streq(member, "body_type") ? SCS_VALUE_TYPE_string :
-                        streq(member, "license_plate") ? SCS_VALUE_TYPE_string :
-                        streq(member, "license_plate_country") ? SCS_VALUE_TYPE_string :
-                        streq(member, "license_plate_country_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "wheel_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "wheel_position") ? SCS_VALUE_TYPE_fvector :
-                        streq(member, "wheel_steerable") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_simulated") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_radius") ? SCS_VALUE_TYPE_float :
-                        streq(member, "wheel_powered") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "wheel_liftable") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "chain.type") ? SCS_VALUE_TYPE_string :
+                        streq(member, "body.type") ? SCS_VALUE_TYPE_string :
+                        streq(member, "license.plate") ? SCS_VALUE_TYPE_string :
+                        streq(member, "license.plate.country") ? SCS_VALUE_TYPE_string :
+                        streq(member, "license.plate.country.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "wheels.count") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "wheel.position") ? SCS_VALUE_TYPE_fvector :
+                        streq(member, "wheel.steerable") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.simulated") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.radius") ? SCS_VALUE_TYPE_float :
+                        streq(member, "wheel.powered") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "wheel.liftable") ? SCS_VALUE_TYPE_bool :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::configuration_job_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "cargo_id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "cargo.id") ? SCS_VALUE_TYPE_string :
                         streq(member, "cargo") ? SCS_VALUE_TYPE_string :
-                        streq(member, "cargo_mass") ? SCS_VALUE_TYPE_float :
-                        streq(member, "destination_city_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "cargo_unit_mass") ? SCS_VALUE_TYPE_float :
-                        streq(member, "cargo_unit_count") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "destination_city") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_city_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_city") ? SCS_VALUE_TYPE_string :
-                        streq(member, "destination_company_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "destination_company") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_company_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_company") ? SCS_VALUE_TYPE_string :
+                        streq(member, "cargo.mass") ? SCS_VALUE_TYPE_float :
+                        streq(member, "destination.city.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "cargo.unit.mass") ? SCS_VALUE_TYPE_float :
+                        streq(member, "cargo.unit.count") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "destination.city") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.city.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.city") ? SCS_VALUE_TYPE_string :
+                        streq(member, "destination.company.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "destination.company") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.company.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.company") ? SCS_VALUE_TYPE_string :
                         streq(member, "income") ? SCS_VALUE_TYPE_u64 :
-                        streq(member, "delivery_time") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "is_cargo_loaded") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "job_market") ? SCS_VALUE_TYPE_string :
-                        streq(member, "special_job") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "planned_distance_km") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "delivery.time") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "cargo.loaded") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "job.market") ? SCS_VALUE_TYPE_string :
+                        streq(member, "is.special.job") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "planned_distance.km") ? SCS_VALUE_TYPE_u32 :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_job_cancelled_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "cancel_penalty") ? SCS_VALUE_TYPE_s64 :
+                        streq(member, "cancel.penalty") ? SCS_VALUE_TYPE_s64 :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_job_delivered_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
                         streq(member, "revenue") ? SCS_VALUE_TYPE_s64 :
-                        streq(member, "earned_xp") ? SCS_VALUE_TYPE_s32 :
-                        streq(member, "cargo_damage") ? SCS_VALUE_TYPE_float :
-                        streq(member, "distance_km") ? SCS_VALUE_TYPE_float :
-                        streq(member, "delivery_time") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "auto_park_used") ? SCS_VALUE_TYPE_bool :
-                        streq(member, "auto_load_used") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "earned.xp") ? SCS_VALUE_TYPE_s32 :
+                        streq(member, "cargo.damage") ? SCS_VALUE_TYPE_float :
+                        streq(member, "distance.km") ? SCS_VALUE_TYPE_float :
+                        streq(member, "delivery.time") ? SCS_VALUE_TYPE_u32 :
+                        streq(member, "auto.park.used") ? SCS_VALUE_TYPE_bool :
+                        streq(member, "auto.load.used") ? SCS_VALUE_TYPE_bool :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_player_fined_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "fine_offence") ? SCS_VALUE_TYPE_string :
-                        streq(member, "fine_amount") ? SCS_VALUE_TYPE_s64 :
+                        streq(member, "fine.offence") ? SCS_VALUE_TYPE_string :
+                        streq(member, "fine.amount") ? SCS_VALUE_TYPE_s64 :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_player_tollgate_paid_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "pay_amount") ? SCS_VALUE_TYPE_s64 :
+                        streq(member, "pay.amount") ? SCS_VALUE_TYPE_s64 :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_player_use_ferry_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "pay_amount") ? SCS_VALUE_TYPE_s64 :
-                        streq(member, "source_name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "target_name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "target_id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "pay.amount") ? SCS_VALUE_TYPE_s64 :
+                        streq(member, "source.name") ? SCS_VALUE_TYPE_string :
+                        streq(member, "target.name") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "target.id") ? SCS_VALUE_TYPE_string :
                         SCS_VALUE_TYPE_INVALID;
                 case telemetry_id::gameplay_player_use_train_info:
                     return
                         streq(member, "latest") ? SCS_VALUE_TYPE_u32 :
-                        streq(member, "pay_amount") ? SCS_VALUE_TYPE_s64 :
-                        streq(member, "source_name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "target_name") ? SCS_VALUE_TYPE_string :
-                        streq(member, "source_id") ? SCS_VALUE_TYPE_string :
-                        streq(member, "target_id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "pay.amount") ? SCS_VALUE_TYPE_s64 :
+                        streq(member, "source.name") ? SCS_VALUE_TYPE_string :
+                        streq(member, "target.name") ? SCS_VALUE_TYPE_string :
+                        streq(member, "source.id") ? SCS_VALUE_TYPE_string :
+                        streq(member, "target.id") ? SCS_VALUE_TYPE_string :
                         SCS_VALUE_TYPE_INVALID;
                 default: return SCS_VALUE_TYPE_INVALID;
+            }
+        }
+
+        constexpr const uint32_t event_info_latest_offset(const telemetry_id& id) {
+            switch (id) {
+                case telemetry_id::configuration_substances_info: return offsetof(configuration_substances_info::storage_type, latest);
+                case telemetry_id::configuration_controls_info: return offsetof(configuration_controls_info::storage_type, latest);
+                case telemetry_id::configuration_hshifter_info: return offsetof(configuration_hshifter_info::storage_type, latest);
+                case telemetry_id::configuration_truck_info: return offsetof(configuration_truck_info::storage_type, latest);
+                case telemetry_id::configuration_trailer_info: return offsetof(configuration_trailer_info::storage_type, latest);
+                case telemetry_id::configuration_job_info: return offsetof(configuration_job_info::storage_type, latest);
+                case telemetry_id::gameplay_job_cancelled_info: return offsetof(gameplay_job_cancelled_info::storage_type, latest);
+                case telemetry_id::gameplay_job_delivered_info: return offsetof(gameplay_job_delivered_info::storage_type, latest);
+                case telemetry_id::gameplay_player_fined_info: return offsetof(gameplay_player_fined_info::storage_type, latest);
+                case telemetry_id::gameplay_player_tollgate_paid_info: return offsetof(gameplay_player_tollgate_paid_info::storage_type, latest);
+                case telemetry_id::gameplay_player_use_ferry_info: return offsetof(gameplay_player_use_ferry_info::storage_type, latest);
+                case telemetry_id::gameplay_player_use_train_info: return offsetof(gameplay_player_use_train_info::storage_type, latest);
+                default: return INVALID_OFFSET;
+            }
+        }
+
+        constexpr const bool event_info_member_indexed(const telemetry_id& id, const char* const member) {
+            switch (id) {
+                case telemetry_id::configuration_substances_info:
+                    return
+                        streq(member, "id") ? true :
+                        false;
+                case telemetry_id::configuration_controls_info:
+                    return
+                        false;
+                case telemetry_id::configuration_hshifter_info:
+                    return
+                        streq(member, "slot.gear") ? true :
+                        streq(member, "slot.handle.position") ? true :
+                        streq(member, "slot.selectors") ? true :
+                        false;
+                case telemetry_id::configuration_truck_info:
+                    return
+                        streq(member, "forward.ratio") ? true :
+                        streq(member, "reverse.ratio") ? true :
+                        streq(member, "wheel.position") ? true :
+                        streq(member, "wheel.steerable") ? true :
+                        streq(member, "wheel.simulated") ? true :
+                        streq(member, "wheel.radius") ? true :
+                        streq(member, "wheel.powered") ? true :
+                        streq(member, "wheel.liftable") ? true :
+                        false;
+                case telemetry_id::configuration_trailer_info:
+                    return
+                        streq(member, "wheel.position") ? true :
+                        streq(member, "wheel.steerable") ? true :
+                        streq(member, "wheel.simulated") ? true :
+                        streq(member, "wheel.radius") ? true :
+                        streq(member, "wheel.powered") ? true :
+                        streq(member, "wheel.liftable") ? true :
+                        false;
+                case telemetry_id::configuration_job_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_job_cancelled_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_job_delivered_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_player_fined_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_player_tollgate_paid_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_player_use_ferry_info:
+                    return
+                        false;
+                case telemetry_id::gameplay_player_use_train_info:
+                    return
+                        false;
+                default: return false;
+            }
+        }
+
+        constexpr const event_info_member& event_info_member_of(const telemetry_id& id, const char* const member) {
+            switch (id) {
+                case telemetry_id::configuration_substances_info:
+                    return
+                        streq(member, "latest") ? configuration_substances_info::latest_member_info :
+                        streq(member, "id") ? configuration_substances_info::id_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::configuration_controls_info:
+                    return
+                        streq(member, "latest") ? configuration_controls_info::latest_member_info :
+                        streq(member, "shifter.type") ? configuration_controls_info::shifter_type_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::configuration_hshifter_info:
+                    return
+                        streq(member, "latest") ? configuration_hshifter_info::latest_member_info :
+                        streq(member, "selector.count") ? configuration_hshifter_info::selector_count_member_info :
+                        streq(member, "slot.gear") ? configuration_hshifter_info::slot_gear_member_info :
+                        streq(member, "slot.handle.position") ? configuration_hshifter_info::slot_handle_position_member_info :
+                        streq(member, "slot.selectors") ? configuration_hshifter_info::slot_selectors_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::configuration_truck_info:
+                    return
+                        streq(member, "latest") ? configuration_truck_info::latest_member_info :
+                        streq(member, "brand_id") ? configuration_truck_info::brand_id_member_info :
+                        streq(member, "brand") ? configuration_truck_info::brand_member_info :
+                        streq(member, "id") ? configuration_truck_info::id_member_info :
+                        streq(member, "name") ? configuration_truck_info::name_member_info :
+                        streq(member, "fuel.capacity") ? configuration_truck_info::fuel_capacity_member_info :
+                        streq(member, "fuel.warning.factor") ? configuration_truck_info::fuel_warning_factor_member_info :
+                        streq(member, "adblue.capacity") ? configuration_truck_info::adblue_capacity_member_info :
+                        streq(member, "adblue.warning.factor") ? configuration_truck_info::adblue_warning_factor_member_info :
+                        streq(member, "brake.air.pressure.warning") ? configuration_truck_info::air_pressure_warning_member_info :
+                        streq(member, "brake.air.pressure.emergency") ? configuration_truck_info::air_pressure_emergency_member_info :
+                        streq(member, "oil.pressure.warning") ? configuration_truck_info::oil_pressure_warning_member_info :
+                        streq(member, "water.temperature.warning") ? configuration_truck_info::water_temperature_warning_member_info :
+                        streq(member, "battery.voltage.warning") ? configuration_truck_info::battery_voltage_warning_member_info :
+                        streq(member, "rpm.limit") ? configuration_truck_info::rpm_limit_member_info :
+                        streq(member, "gears.forward") ? configuration_truck_info::forward_gear_count_member_info :
+                        streq(member, "gears.reverse") ? configuration_truck_info::reverse_gear_count_member_info :
+                        streq(member, "differential.ratio") ? configuration_truck_info::differential_ratio_member_info :
+                        streq(member, "retarder.steps") ? configuration_truck_info::retarder_step_count_member_info :
+                        streq(member, "cabin.position") ? configuration_truck_info::cabin_position_member_info :
+                        streq(member, "forward.ratio") ? configuration_truck_info::forward_ratio_member_info :
+                        streq(member, "reverse.ratio") ? configuration_truck_info::reverse_ratio_member_info :
+                        streq(member, "head.position") ? configuration_truck_info::head_position_member_info :
+                        streq(member, "hook.position") ? configuration_truck_info::hook_position_member_info :
+                        streq(member, "license.plate") ? configuration_truck_info::license_plate_member_info :
+                        streq(member, "license.plate.country") ? configuration_truck_info::license_plate_country_member_info :
+                        streq(member, "license.plate.country.id") ? configuration_truck_info::license_plate_country_id_member_info :
+                        streq(member, "wheels.count") ? configuration_truck_info::wheel_count_member_info :
+                        streq(member, "wheel.position") ? configuration_truck_info::wheel_position_member_info :
+                        streq(member, "wheel.steerable") ? configuration_truck_info::wheel_steerable_member_info :
+                        streq(member, "wheel.simulated") ? configuration_truck_info::wheel_simulated_member_info :
+                        streq(member, "wheel.radius") ? configuration_truck_info::wheel_radius_member_info :
+                        streq(member, "wheel.powered") ? configuration_truck_info::wheel_powered_member_info :
+                        streq(member, "wheel.liftable") ? configuration_truck_info::wheel_liftable_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::configuration_trailer_info:
+                    return
+                        streq(member, "latest") ? configuration_trailer_info::latest_member_info :
+                        streq(member, "id") ? configuration_trailer_info::id_member_info :
+                        streq(member, "cargo.accessory.id") ? configuration_trailer_info::cargo_accessory_id_member_info :
+                        streq(member, "hook.position") ? configuration_trailer_info::hook_position_member_info :
+                        streq(member, "brand_id") ? configuration_trailer_info::brand_id_member_info :
+                        streq(member, "brand") ? configuration_trailer_info::brand_member_info :
+                        streq(member, "name") ? configuration_trailer_info::name_member_info :
+                        streq(member, "chain.type") ? configuration_trailer_info::chain_type_member_info :
+                        streq(member, "body.type") ? configuration_trailer_info::body_type_member_info :
+                        streq(member, "license.plate") ? configuration_trailer_info::license_plate_member_info :
+                        streq(member, "license.plate.country") ? configuration_trailer_info::license_plate_country_member_info :
+                        streq(member, "license.plate.country.id") ? configuration_trailer_info::license_plate_country_id_member_info :
+                        streq(member, "wheels.count") ? configuration_trailer_info::wheel_count_member_info :
+                        streq(member, "wheel.position") ? configuration_trailer_info::wheel_position_member_info :
+                        streq(member, "wheel.steerable") ? configuration_trailer_info::wheel_steerable_member_info :
+                        streq(member, "wheel.simulated") ? configuration_trailer_info::wheel_simulated_member_info :
+                        streq(member, "wheel.radius") ? configuration_trailer_info::wheel_radius_member_info :
+                        streq(member, "wheel.powered") ? configuration_trailer_info::wheel_powered_member_info :
+                        streq(member, "wheel.liftable") ? configuration_trailer_info::wheel_liftable_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::configuration_job_info:
+                    return
+                        streq(member, "latest") ? configuration_job_info::latest_member_info :
+                        streq(member, "cargo.id") ? configuration_job_info::cargo_id_member_info :
+                        streq(member, "cargo") ? configuration_job_info::cargo_member_info :
+                        streq(member, "cargo.mass") ? configuration_job_info::cargo_mass_member_info :
+                        streq(member, "destination.city.id") ? configuration_job_info::destination_city_id_member_info :
+                        streq(member, "cargo.unit.mass") ? configuration_job_info::cargo_unit_mass_member_info :
+                        streq(member, "cargo.unit.count") ? configuration_job_info::cargo_unit_count_member_info :
+                        streq(member, "destination.city") ? configuration_job_info::destination_city_member_info :
+                        streq(member, "source.city.id") ? configuration_job_info::source_city_id_member_info :
+                        streq(member, "source.city") ? configuration_job_info::source_city_member_info :
+                        streq(member, "destination.company.id") ? configuration_job_info::destination_company_id_member_info :
+                        streq(member, "destination.company") ? configuration_job_info::destination_company_member_info :
+                        streq(member, "source.company.id") ? configuration_job_info::source_company_id_member_info :
+                        streq(member, "source.company") ? configuration_job_info::source_company_member_info :
+                        streq(member, "income") ? configuration_job_info::income_member_info :
+                        streq(member, "delivery.time") ? configuration_job_info::delivery_time_member_info :
+                        streq(member, "cargo.loaded") ? configuration_job_info::is_cargo_loaded_member_info :
+                        streq(member, "job.market") ? configuration_job_info::job_market_member_info :
+                        streq(member, "is.special.job") ? configuration_job_info::special_job_member_info :
+                        streq(member, "planned_distance.km") ? configuration_job_info::planned_distance_km_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_job_cancelled_info:
+                    return
+                        streq(member, "latest") ? gameplay_job_cancelled_info::latest_member_info :
+                        streq(member, "cancel.penalty") ? gameplay_job_cancelled_info::cancel_penalty_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_job_delivered_info:
+                    return
+                        streq(member, "latest") ? gameplay_job_delivered_info::latest_member_info :
+                        streq(member, "revenue") ? gameplay_job_delivered_info::revenue_member_info :
+                        streq(member, "earned.xp") ? gameplay_job_delivered_info::earned_xp_member_info :
+                        streq(member, "cargo.damage") ? gameplay_job_delivered_info::cargo_damage_member_info :
+                        streq(member, "distance.km") ? gameplay_job_delivered_info::distance_km_member_info :
+                        streq(member, "delivery.time") ? gameplay_job_delivered_info::delivery_time_member_info :
+                        streq(member, "auto.park.used") ? gameplay_job_delivered_info::auto_park_used_member_info :
+                        streq(member, "auto.load.used") ? gameplay_job_delivered_info::auto_load_used_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_player_fined_info:
+                    return
+                        streq(member, "latest") ? gameplay_player_fined_info::latest_member_info :
+                        streq(member, "fine.offence") ? gameplay_player_fined_info::fine_offence_member_info :
+                        streq(member, "fine.amount") ? gameplay_player_fined_info::fine_amount_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_player_tollgate_paid_info:
+                    return
+                        streq(member, "latest") ? gameplay_player_tollgate_paid_info::latest_member_info :
+                        streq(member, "pay.amount") ? gameplay_player_tollgate_paid_info::pay_amount_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_player_use_ferry_info:
+                    return
+                        streq(member, "latest") ? gameplay_player_use_ferry_info::latest_member_info :
+                        streq(member, "pay.amount") ? gameplay_player_use_ferry_info::pay_amount_member_info :
+                        streq(member, "source.name") ? gameplay_player_use_ferry_info::source_name_member_info :
+                        streq(member, "target.name") ? gameplay_player_use_ferry_info::target_name_member_info :
+                        streq(member, "source.id") ? gameplay_player_use_ferry_info::source_id_member_info :
+                        streq(member, "target.id") ? gameplay_player_use_ferry_info::target_id_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                case telemetry_id::gameplay_player_use_train_info:
+                    return
+                        streq(member, "latest") ? gameplay_player_use_train_info::latest_member_info :
+                        streq(member, "pay.amount") ? gameplay_player_use_train_info::pay_amount_member_info :
+                        streq(member, "source.name") ? gameplay_player_use_train_info::source_name_member_info :
+                        streq(member, "target.name") ? gameplay_player_use_train_info::target_name_member_info :
+                        streq(member, "source.id") ? gameplay_player_use_train_info::source_id_member_info :
+                        streq(member, "target.id") ? gameplay_player_use_train_info::target_id_member_info :
+                        INVALID_EVENT_INFO_MEMBER;
+                default: return INVALID_EVENT_INFO_MEMBER;
             }
         }
 

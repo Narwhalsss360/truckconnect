@@ -153,6 +153,32 @@ namespace truckconnect {
 
         constexpr const telemetry_id LIFETIME_INVALID_ID = telemetry_id::invalid;
 
+        struct event_info_member {
+            telemetry_id event_info_id;
+            const char* const macro_identifier;
+            const char* const macro;
+            uint32_t structure_offset;
+            scs_value_type_t scs_type_id;
+            bool indexed;
+
+            constexpr event_info_member(
+                telemetry_id event_info_id = telemetry_id::invalid,
+                const char* const macro_identifier = nullptr,
+                const char* const macro = nullptr,
+                uint32_t structure_offset = 0,
+                scs_value_type_t scs_type_id = SCS_VALUE_TYPE_INVALID,
+                bool indexed = false
+            ) :
+                event_info_id(event_info_id),
+                macro_identifier(macro_identifier),
+                macro(macro),
+                structure_offset(structure_offset),
+                scs_type_id(scs_type_id),
+                indexed(indexed) {}
+        };
+
+        constexpr const event_info_member INVALID_EVENT_INFO_MEMBER = event_info_member();
+
         struct metadata_value {
             telemetry_id id;
             telemetry_type telemetry_type;
@@ -168,34 +194,36 @@ namespace truckconnect {
             bool custom_channel;
 
             constexpr metadata_value(
-            telemetry_id id = telemetry_id::invalid,
-            metadata::telemetry_type telemetry_type = truckconnect::metadata::telemetry_type::invalid,
-            uint32_t master_offset = INVALID_OFFSET,
-            uint32_t structure_offset = INVALID_OFFSET,
-            uint32_t storage_size = INVALID_SIZE,
-            const char* macro_identifier = nullptr,
-            const char* macro = nullptr,
-            bool indexed = false,
-            uint32_t max_count = 1,
-            bool trailer_channel = false,
-            scs_value_type_t scs_type_id = SCS_VALUE_TYPE_INVALID,
-            bool custom_channel = SCS_VALUE_TYPE_INVALID
-        ) :
-            id(id),
-            telemetry_type(telemetry_type),
-            master_offset(master_offset),
-            structure_offset(structure_offset),
-            storage_size(storage_size),
-            macro_identifier(macro_identifier),
-            macro(macro),
-            indexed(indexed),
-            max_count(max_count),
-            trailer_channel(trailer_channel),
-            scs_type_id(scs_type_id),
-            custom_channel(custom_channel) {}
+                telemetry_id id = telemetry_id::invalid,
+                metadata::telemetry_type telemetry_type = metadata::telemetry_type::invalid,
+                uint32_t master_offset = INVALID_OFFSET,
+                uint32_t structure_offset = INVALID_OFFSET,
+                uint32_t storage_size = INVALID_SIZE,
+                const char* macro_identifier = nullptr,
+                const char* macro = nullptr,
+                bool indexed = false,
+                uint32_t max_count = 1,
+                bool trailer_channel = false,
+                scs_value_type_t scs_type_id = SCS_VALUE_TYPE_INVALID,
+                bool custom_channel = SCS_VALUE_TYPE_INVALID
+            ) :
+                id(id),
+                telemetry_type(telemetry_type),
+                master_offset(master_offset),
+                structure_offset(structure_offset),
+                storage_size(storage_size),
+                macro_identifier(macro_identifier),
+                macro(macro),
+                indexed(indexed),
+                max_count(max_count),
+                trailer_channel(trailer_channel),
+                scs_type_id(scs_type_id),
+                custom_channel(custom_channel) {}
         };
 
-        constexpr const size_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
+        constexpr const metadata_value INVALID_METADATA = metadata_value();
+        
+        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
             return (
                 reversing ?
                     extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
@@ -206,8 +234,6 @@ namespace truckconnect {
                             extract_trailer_index(cstr - 1, false, count - 1)
                 );
         }
-
-        constexpr const metadata_value INVALID_METADATA = metadata_value();
 
         struct master {
             static constexpr const telemetry_id id = telemetry_id::master;
@@ -281,6 +307,12 @@ namespace truckconnect {
             static constexpr const char* const macro = "substances";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_substances_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_substances_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_substances_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_id", "id", offsetof(storage_type, id), SCS_VALUE_TYPE_string, true)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& id_member_info = members[1];
         };
 
         struct configuration_controls_info {
@@ -292,6 +324,12 @@ namespace truckconnect {
             static constexpr const char* const macro = "controls";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_controls_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_controls_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_controls_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_shifter_type", "shifter.type", offsetof(storage_type, shifter_type), SCS_VALUE_TYPE_string, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& shifter_type_member_info = members[1];
         };
 
         struct configuration_hshifter_info {
@@ -303,6 +341,18 @@ namespace truckconnect {
             static constexpr const char* const macro = "hshifter";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_hshifter_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_hshifter_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_hshifter_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_selector_count", "selector.count", offsetof(storage_type, selector_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_hshifter_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_gear", "slot.gear", offsetof(storage_type, slot_gear), SCS_VALUE_TYPE_s32, true),
+                event_info_member(telemetry_id::configuration_hshifter_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_handle_position", "slot.handle.position", offsetof(storage_type, slot_handle_position), SCS_VALUE_TYPE_u32, true),
+                event_info_member(telemetry_id::configuration_hshifter_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_selectors", "slot.selectors", offsetof(storage_type, slot_selectors), SCS_VALUE_TYPE_u32, true)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& selector_count_member_info = members[1];
+            static constexpr const event_info_member& slot_gear_member_info = members[2];
+            static constexpr const event_info_member& slot_handle_position_member_info = members[3];
+            static constexpr const event_info_member& slot_selectors_member_info = members[4];
         };
 
         struct configuration_truck_info {
@@ -314,6 +364,76 @@ namespace truckconnect {
             static constexpr const char* const macro = "truck";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_truck_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_truck_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id", "brand_id", offsetof(storage_type, brand_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand", "brand", offsetof(storage_type, brand), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_id", "id", offsetof(storage_type, id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_name", "name", offsetof(storage_type, name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_capacity", "fuel.capacity", offsetof(storage_type, fuel_capacity), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_warning_factor", "fuel.warning.factor", offsetof(storage_type, fuel_warning_factor), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_capacity", "adblue.capacity", offsetof(storage_type, adblue_capacity), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_warning_factor", "adblue.warning.factor", offsetof(storage_type, adblue_warning_factor), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_warning", "brake.air.pressure.warning", offsetof(storage_type, air_pressure_warning), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_emergency", "brake.air.pressure.emergency", offsetof(storage_type, air_pressure_emergency), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_oil_pressure_warning", "oil.pressure.warning", offsetof(storage_type, oil_pressure_warning), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_water_temperature_warning", "water.temperature.warning", offsetof(storage_type, water_temperature_warning), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_battery_voltage_warning", "battery.voltage.warning", offsetof(storage_type, battery_voltage_warning), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_rpm_limit", "rpm.limit", offsetof(storage_type, rpm_limit), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_gear_count", "gears.forward", offsetof(storage_type, forward_gear_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_gear_count", "gears.reverse", offsetof(storage_type, reverse_gear_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_differential_ratio", "differential.ratio", offsetof(storage_type, differential_ratio), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_retarder_step_count", "retarder.steps", offsetof(storage_type, retarder_step_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cabin_position", "cabin.position", offsetof(storage_type, cabin_position), SCS_VALUE_TYPE_fvector, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_ratio", "forward.ratio", offsetof(storage_type, forward_ratio), SCS_VALUE_TYPE_float, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_ratio", "reverse.ratio", offsetof(storage_type, reverse_ratio), SCS_VALUE_TYPE_float, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_head_position", "head.position", offsetof(storage_type, head_position), SCS_VALUE_TYPE_fvector, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position", "hook.position", offsetof(storage_type, hook_position), SCS_VALUE_TYPE_fvector, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate", "license.plate", offsetof(storage_type, license_plate), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country", "license.plate.country", offsetof(storage_type, license_plate_country), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id", "license.plate.country.id", offsetof(storage_type, license_plate_country_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count", "wheels.count", offsetof(storage_type, wheel_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position", "wheel.position", offsetof(storage_type, wheel_position), SCS_VALUE_TYPE_fvector, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable", "wheel.steerable", offsetof(storage_type, wheel_steerable), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated", "wheel.simulated", offsetof(storage_type, wheel_simulated), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius", "wheel.radius", offsetof(storage_type, wheel_radius), SCS_VALUE_TYPE_float, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered", "wheel.powered", offsetof(storage_type, wheel_powered), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_truck_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable", "wheel.liftable", offsetof(storage_type, wheel_liftable), SCS_VALUE_TYPE_bool, true)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& brand_id_member_info = members[1];
+            static constexpr const event_info_member& brand_member_info = members[2];
+            static constexpr const event_info_member& id_member_info = members[3];
+            static constexpr const event_info_member& name_member_info = members[4];
+            static constexpr const event_info_member& fuel_capacity_member_info = members[5];
+            static constexpr const event_info_member& fuel_warning_factor_member_info = members[6];
+            static constexpr const event_info_member& adblue_capacity_member_info = members[7];
+            static constexpr const event_info_member& adblue_warning_factor_member_info = members[8];
+            static constexpr const event_info_member& air_pressure_warning_member_info = members[9];
+            static constexpr const event_info_member& air_pressure_emergency_member_info = members[10];
+            static constexpr const event_info_member& oil_pressure_warning_member_info = members[11];
+            static constexpr const event_info_member& water_temperature_warning_member_info = members[12];
+            static constexpr const event_info_member& battery_voltage_warning_member_info = members[13];
+            static constexpr const event_info_member& rpm_limit_member_info = members[14];
+            static constexpr const event_info_member& forward_gear_count_member_info = members[15];
+            static constexpr const event_info_member& reverse_gear_count_member_info = members[16];
+            static constexpr const event_info_member& differential_ratio_member_info = members[17];
+            static constexpr const event_info_member& retarder_step_count_member_info = members[18];
+            static constexpr const event_info_member& cabin_position_member_info = members[19];
+            static constexpr const event_info_member& forward_ratio_member_info = members[20];
+            static constexpr const event_info_member& reverse_ratio_member_info = members[21];
+            static constexpr const event_info_member& head_position_member_info = members[22];
+            static constexpr const event_info_member& hook_position_member_info = members[23];
+            static constexpr const event_info_member& license_plate_member_info = members[24];
+            static constexpr const event_info_member& license_plate_country_member_info = members[25];
+            static constexpr const event_info_member& license_plate_country_id_member_info = members[26];
+            static constexpr const event_info_member& wheel_count_member_info = members[27];
+            static constexpr const event_info_member& wheel_position_member_info = members[28];
+            static constexpr const event_info_member& wheel_steerable_member_info = members[29];
+            static constexpr const event_info_member& wheel_simulated_member_info = members[30];
+            static constexpr const event_info_member& wheel_radius_member_info = members[31];
+            static constexpr const event_info_member& wheel_powered_member_info = members[32];
+            static constexpr const event_info_member& wheel_liftable_member_info = members[33];
         };
 
         struct configuration_trailer_info {
@@ -325,6 +445,46 @@ namespace truckconnect {
             static constexpr const char* const macro = "trailer";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_trailer_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_trailer_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_id", "id", offsetof(storage_type, id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_accessory_id", "cargo.accessory.id", offsetof(storage_type, cargo_accessory_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position", "hook.position", offsetof(storage_type, hook_position), SCS_VALUE_TYPE_fvector, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id", "brand_id", offsetof(storage_type, brand_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand", "brand", offsetof(storage_type, brand), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_name", "name", offsetof(storage_type, name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_chain_type", "chain.type", offsetof(storage_type, chain_type), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_body_type", "body.type", offsetof(storage_type, body_type), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate", "license.plate", offsetof(storage_type, license_plate), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country", "license.plate.country", offsetof(storage_type, license_plate_country), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id", "license.plate.country.id", offsetof(storage_type, license_plate_country_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count", "wheels.count", offsetof(storage_type, wheel_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position", "wheel.position", offsetof(storage_type, wheel_position), SCS_VALUE_TYPE_fvector, true),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable", "wheel.steerable", offsetof(storage_type, wheel_steerable), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated", "wheel.simulated", offsetof(storage_type, wheel_simulated), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius", "wheel.radius", offsetof(storage_type, wheel_radius), SCS_VALUE_TYPE_float, true),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered", "wheel.powered", offsetof(storage_type, wheel_powered), SCS_VALUE_TYPE_bool, true),
+                event_info_member(telemetry_id::configuration_trailer_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable", "wheel.liftable", offsetof(storage_type, wheel_liftable), SCS_VALUE_TYPE_bool, true)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& id_member_info = members[1];
+            static constexpr const event_info_member& cargo_accessory_id_member_info = members[2];
+            static constexpr const event_info_member& hook_position_member_info = members[3];
+            static constexpr const event_info_member& brand_id_member_info = members[4];
+            static constexpr const event_info_member& brand_member_info = members[5];
+            static constexpr const event_info_member& name_member_info = members[6];
+            static constexpr const event_info_member& chain_type_member_info = members[7];
+            static constexpr const event_info_member& body_type_member_info = members[8];
+            static constexpr const event_info_member& license_plate_member_info = members[9];
+            static constexpr const event_info_member& license_plate_country_member_info = members[10];
+            static constexpr const event_info_member& license_plate_country_id_member_info = members[11];
+            static constexpr const event_info_member& wheel_count_member_info = members[12];
+            static constexpr const event_info_member& wheel_position_member_info = members[13];
+            static constexpr const event_info_member& wheel_steerable_member_info = members[14];
+            static constexpr const event_info_member& wheel_simulated_member_info = members[15];
+            static constexpr const event_info_member& wheel_radius_member_info = members[16];
+            static constexpr const event_info_member& wheel_powered_member_info = members[17];
+            static constexpr const event_info_member& wheel_liftable_member_info = members[18];
         };
 
         struct configuration_job_info {
@@ -336,6 +496,48 @@ namespace truckconnect {
             static constexpr const char* const macro = "job";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_job_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::configuration_job_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_id", "cargo.id", offsetof(storage_type, cargo_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo", "cargo", offsetof(storage_type, cargo), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_mass", "cargo.mass", offsetof(storage_type, cargo_mass), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city_id", "destination.city.id", offsetof(storage_type, destination_city_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_mass", "cargo.unit.mass", offsetof(storage_type, cargo_unit_mass), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_count", "cargo.unit.count", offsetof(storage_type, cargo_unit_count), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city", "destination.city", offsetof(storage_type, destination_city), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city_id", "source.city.id", offsetof(storage_type, source_city_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city", "source.city", offsetof(storage_type, source_city), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company_id", "destination.company.id", offsetof(storage_type, destination_company_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company", "destination.company", offsetof(storage_type, destination_company), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company_id", "source.company.id", offsetof(storage_type, source_company_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company", "source.company", offsetof(storage_type, source_company), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_income", "income", offsetof(storage_type, income), SCS_VALUE_TYPE_u64, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_delivery_time", "delivery.time", offsetof(storage_type, delivery_time), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_is_cargo_loaded", "cargo.loaded", offsetof(storage_type, is_cargo_loaded), SCS_VALUE_TYPE_bool, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_job_market", "job.market", offsetof(storage_type, job_market), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_special_job", "is.special.job", offsetof(storage_type, special_job), SCS_VALUE_TYPE_bool, false),
+                event_info_member(telemetry_id::configuration_job_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_planned_distance_km", "planned_distance.km", offsetof(storage_type, planned_distance_km), SCS_VALUE_TYPE_u32, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& cargo_id_member_info = members[1];
+            static constexpr const event_info_member& cargo_member_info = members[2];
+            static constexpr const event_info_member& cargo_mass_member_info = members[3];
+            static constexpr const event_info_member& destination_city_id_member_info = members[4];
+            static constexpr const event_info_member& cargo_unit_mass_member_info = members[5];
+            static constexpr const event_info_member& cargo_unit_count_member_info = members[6];
+            static constexpr const event_info_member& destination_city_member_info = members[7];
+            static constexpr const event_info_member& source_city_id_member_info = members[8];
+            static constexpr const event_info_member& source_city_member_info = members[9];
+            static constexpr const event_info_member& destination_company_id_member_info = members[10];
+            static constexpr const event_info_member& destination_company_member_info = members[11];
+            static constexpr const event_info_member& source_company_id_member_info = members[12];
+            static constexpr const event_info_member& source_company_member_info = members[13];
+            static constexpr const event_info_member& income_member_info = members[14];
+            static constexpr const event_info_member& delivery_time_member_info = members[15];
+            static constexpr const event_info_member& is_cargo_loaded_member_info = members[16];
+            static constexpr const event_info_member& job_market_member_info = members[17];
+            static constexpr const event_info_member& special_job_member_info = members[18];
+            static constexpr const event_info_member& planned_distance_km_member_info = members[19];
         };
 
         struct gameplay_job_cancelled_info {
@@ -347,6 +549,12 @@ namespace truckconnect {
             static constexpr const char* const macro = "job.cancelled";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_cancelled_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_job_cancelled_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_job_cancelled_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_cancel_penalty", "cancel.penalty", offsetof(storage_type, cancel_penalty), SCS_VALUE_TYPE_s64, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& cancel_penalty_member_info = members[1];
         };
 
         struct gameplay_job_delivered_info {
@@ -358,6 +566,24 @@ namespace truckconnect {
             static constexpr const char* const macro = "job.delivered";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_delivered_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_revenue", "revenue", offsetof(storage_type, revenue), SCS_VALUE_TYPE_s64, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_earned_xp", "earned.xp", offsetof(storage_type, earned_xp), SCS_VALUE_TYPE_s32, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_cargo_damage", "cargo.damage", offsetof(storage_type, cargo_damage), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_distance_km", "distance.km", offsetof(storage_type, distance_km), SCS_VALUE_TYPE_float, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_CONFIG_ATTRIBUTE_delivery_time", "delivery.time", offsetof(storage_type, delivery_time), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_auto_park_used", "auto.park.used", offsetof(storage_type, auto_park_used), SCS_VALUE_TYPE_bool, false),
+                event_info_member(telemetry_id::gameplay_job_delivered_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_auto_load_used", "auto.load.used", offsetof(storage_type, auto_load_used), SCS_VALUE_TYPE_bool, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& revenue_member_info = members[1];
+            static constexpr const event_info_member& earned_xp_member_info = members[2];
+            static constexpr const event_info_member& cargo_damage_member_info = members[3];
+            static constexpr const event_info_member& distance_km_member_info = members[4];
+            static constexpr const event_info_member& delivery_time_member_info = members[5];
+            static constexpr const event_info_member& auto_park_used_member_info = members[6];
+            static constexpr const event_info_member& auto_load_used_member_info = members[7];
         };
 
         struct gameplay_player_fined_info {
@@ -369,6 +595,14 @@ namespace truckconnect {
             static constexpr const char* const macro = "player.fined";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_fined_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_player_fined_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_player_fined_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_fine_offence", "fine.offence", offsetof(storage_type, fine_offence), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_fined_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_fine_amount", "fine.amount", offsetof(storage_type, fine_amount), SCS_VALUE_TYPE_s64, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& fine_offence_member_info = members[1];
+            static constexpr const event_info_member& fine_amount_member_info = members[2];
         };
 
         struct gameplay_player_tollgate_paid_info {
@@ -380,6 +614,12 @@ namespace truckconnect {
             static constexpr const char* const macro = "player.tollgate.paid";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_tollgate_paid_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_player_tollgate_paid_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_player_tollgate_paid_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_pay_amount", "pay.amount", offsetof(storage_type, pay_amount), SCS_VALUE_TYPE_s64, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& pay_amount_member_info = members[1];
         };
 
         struct gameplay_player_use_ferry_info {
@@ -391,6 +631,20 @@ namespace truckconnect {
             static constexpr const char* const macro = "player.use.ferry";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_ferry_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_pay_amount", "pay.amount", offsetof(storage_type, pay_amount), SCS_VALUE_TYPE_s64, false),
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_source_name", "source.name", offsetof(storage_type, source_name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_target_name", "target.name", offsetof(storage_type, target_name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_source_id", "source.id", offsetof(storage_type, source_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_ferry_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_target_id", "target.id", offsetof(storage_type, target_id), SCS_VALUE_TYPE_string, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& pay_amount_member_info = members[1];
+            static constexpr const event_info_member& source_name_member_info = members[2];
+            static constexpr const event_info_member& target_name_member_info = members[3];
+            static constexpr const event_info_member& source_id_member_info = members[4];
+            static constexpr const event_info_member& target_id_member_info = members[5];
         };
 
         struct gameplay_player_use_train_info {
@@ -402,6 +656,20 @@ namespace truckconnect {
             static constexpr const char* const macro = "player.use.train";
             static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_train_info);
             static constexpr const metadata_value metadata_value = metadata_value(id, telemetry_type, master_offset, structure_offset, sizeof(storage_type), macro_identifier, macro);
+            static constexpr const event_info_member members[] = {
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_pay_amount", "pay.amount", offsetof(storage_type, pay_amount), SCS_VALUE_TYPE_s64, false),
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_source_name", "source.name", offsetof(storage_type, source_name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_target_name", "target.name", offsetof(storage_type, target_name), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_source_id", "source.id", offsetof(storage_type, source_id), SCS_VALUE_TYPE_string, false),
+                event_info_member(telemetry_id::gameplay_player_use_train_info, "SCS_TELEMETRY_GAMEPLAY_EVENT_ATTRIBUTE_target_id", "target.id", offsetof(storage_type, target_id), SCS_VALUE_TYPE_string, false)
+            };
+            static constexpr const event_info_member& latest_member_info = members[0];
+            static constexpr const event_info_member& pay_amount_member_info = members[1];
+            static constexpr const event_info_member& source_name_member_info = members[2];
+            static constexpr const event_info_member& target_name_member_info = members[3];
+            static constexpr const event_info_member& source_id_member_info = members[4];
+            static constexpr const event_info_member& target_id_member_info = members[5];
         };
 
         struct channel_paused {
