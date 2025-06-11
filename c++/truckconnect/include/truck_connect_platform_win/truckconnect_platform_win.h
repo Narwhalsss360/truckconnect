@@ -1,5 +1,8 @@
 #pragma once
 #ifdef _WIN32
+#ifdef _DEBUG
+#define TRUCKCONNECT_DEBUG
+#endif
 
 #define TRUCKCONNECT_PLATFORM_WIN
 #define TRUCKCONNECT_PLATFORM "windows"
@@ -19,9 +22,11 @@ namespace truckconnect {
         }
 
         static inline void debug_assert(const bool& condition) {
+#ifdef TRUCKCONNECT_DEBUG
             if (!condition) {
                 __debugbreak();
             }
+#endif
         }
     }
 }

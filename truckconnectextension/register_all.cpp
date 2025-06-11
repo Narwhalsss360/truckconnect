@@ -7,8 +7,11 @@
 #include <scssdk/common/scssdk_telemetry_trailer_common_channels.h>
 #include <scssdk/common/scssdk_telemetry_truck_common_channels.h>
 
+using std::string;
+using std::to_string;
 using namespace truckconnect;
 using namespace truckconnect::metadata;
+using truckconnect::platform::debug_assert;
 
 template <typename meta>
 void handle_event(scs_event_t, const void* const event_info, scs_context_t) {
@@ -16,8 +19,42 @@ void handle_event(scs_event_t, const void* const event_info, scs_context_t) {
 }
 
 template <typename meta, size_t trailer_index = INVALID_TRAILER_INDEX>
-void store(const scs_string_t, const scs_u32_t index, const scs_value_t* const value, const scs_context_t) {
+void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t* const value, const scs_context_t) {
+    using primitive_type = typename meta::primitive_type;
+    constexpr const bool& indexed = meta::indexed;
+    constexpr const uint32_t& max_count = meta::max_count;
+    constexpr const bool& trailer_channel = meta::trailer_channel;
+    constexpr const uint32_t offset = master_offset_of(meta::id, trailer_index);
+    static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
+    debug_assert(string(meta::macro) == channel);
+    debug_assert(offset < sizeof(::master));
+    
+    if ifconstexpr (indexed) {
+        using storage_type = value_array_storage<primitive_type, max_count>;
+        if (index == SCS_U32_NIL) {
+            console_log(SCS_LOG_TYPE_error, string("store<") + name_of(meta::id) + ", " + to_string(trailer_index) + ">", "Critical error: expected indexed telemetry, but value was not.");
+            debug_assert(false);
+            return;
+        }
 
+		storage_type& storage = apply_offset<storage_type>(&::master, offset);
+        storage.values[index] = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
+        if (storage.count <= index) {
+            storage.count = index + 1;
+        }
+        storage.initialized = true;
+    } else {
+        using storage_type = value_storage<primitive_type>;
+        if (index != SCS_U32_NIL) {
+            console_log(SCS_LOG_TYPE_error, string("store<") + name_of(meta::id) + ", " + to_string(trailer_index) + ">", "Critical error: expected non-indexed telemetry, but value was.");
+            debug_assert(false);
+            return;
+        }
+
+		storage_type& storage = apply_offset<storage_type>(&::master, offset);
+        storage.value = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
+        storage.initialized = true;
+    }
 }
 
 void register_all(scs_telemetry_register_for_channel_t register_for_channel, scs_telemetry_register_for_event_t register_for_event) {
