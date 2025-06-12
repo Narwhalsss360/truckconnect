@@ -48,7 +48,7 @@ namespace truckconnect {
         }
 
         const uint32_t vector_collector::size() const {
-            return _buffer.size();
+            return static_cast<uint32_t>(_buffer.size());
         }
 
         bool vector_collector::expand() {
@@ -65,7 +65,7 @@ namespace truckconnect {
         }
 
         const uint32_t vector_collector::index() {
-            return _decoder.position() - _decoder.begin();
+            return static_cast<uint32_t>(_decoder.position() - _decoder.begin());
         }
 
         void vector_collector::notify(const uint32_t& index) {

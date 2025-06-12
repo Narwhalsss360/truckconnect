@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)include\byte_converters.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\connection.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\master_structure.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\metadata_functions.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\packed_size.h" />
@@ -50,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\connection.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\vector_collector.cpp" />
   </ItemGroup>
   <ItemGroup>
