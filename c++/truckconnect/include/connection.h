@@ -15,7 +15,7 @@ namespace truckconnect {
             socklen_t addr_len;
             vector_collector collector;
 
-            connection(const std::string& address);
+            connection(const std::string& address = "");
 
             operator const bool() const;
         };

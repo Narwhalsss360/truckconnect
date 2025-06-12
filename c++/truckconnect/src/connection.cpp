@@ -8,8 +8,14 @@ namespace truckconnect {
             : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({})
         {
             addr.sin_family = AF_INET;
-            inet_pton(AF_INET, address.c_str(), &addr.sin_addr);
+            if (address != "") {
+                inet_pton(AF_INET, address.c_str(), &addr.sin_addr);
+            }
             addr.sin_port = htons(PORT);
+        }
+
+        connection::operator const bool() const {
+            return socket != sockets::INVALID;
         }
 
         communication_result connect(connection& connection) {
