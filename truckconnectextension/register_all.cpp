@@ -35,7 +35,7 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	const uint32_t& structure_offset = master_offset_of(event_info_id, trailer_index);
 	debug_assert(structure_offset != INVALID_OFFSET);
 
-	void* const structure = &apply_offset<void*>(&::master, structure_offset);
+	void* const structure = &apply_offset<void*>(&current_master(), structure_offset);
 	value_storage<uint32_t>& latest = apply_offset<value_storage<uint32_t>>(structure, event_info_latest_offset(event_info_id));
 	latest.initialized = true;
 
@@ -69,7 +69,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
     constexpr const uint32_t offset = master_offset_of(meta::id, trailer_index);
     static_assert(meta::telemetry_type == telemetry_type::channel, "Template parameter was not a channel");
     static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
-    static_assert(offset < sizeof(::master), "Specified offset will result in corrupt memory");
+    static_assert(offset < sizeof(current_master()), "Specified offset will result in corrupt memory");
     debug_assert(meta::scs_type_id == value->type);
     
 	if ifconstexpr (trailer_channel) {
@@ -86,7 +86,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
             return;
         }
 
-		storage_type& storage = apply_offset<storage_type>(&::master, offset);
+		storage_type& storage = apply_offset<storage_type>(&current_master(), offset);
         storage.values[index] = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
         if (storage.count <= index) {
             storage.count = index + 1;
@@ -100,7 +100,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
             return;
         }
 
-		storage_type& storage = apply_offset<storage_type>(&::master, offset);
+		storage_type& storage = apply_offset<storage_type>(&current_master(), offset);
         storage.value = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
         storage.initialized = true;
     }

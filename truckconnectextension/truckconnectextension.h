@@ -6,7 +6,7 @@
 
 #define IDENTSTR(ident) std::string(#ident)
 
-extern truckconnect::master_storage master;
+extern truckconnect::master_storage& current_master();
 
 const truckconnect::platform::event_signal::signal& frame_end_signal();
 

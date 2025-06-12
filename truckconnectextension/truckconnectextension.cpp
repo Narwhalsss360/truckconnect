@@ -12,7 +12,11 @@ using truckconnect::master_storage;
 
 scs_telemetry_init_params_v101_t init;
 static signal _frame_end_signal = INVALID_SIGNAL;
-master_storage master;
+static master_storage master;
+
+master_storage& current_master() {
+    return master;
+}
 
 const signal& frame_end_signal() {
     return _frame_end_signal;
