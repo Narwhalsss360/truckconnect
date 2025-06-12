@@ -42,13 +42,19 @@ bool clients_init() {
     all.sin_port = htons(truckconnect::communication::PORT);
 
     if (bind(listener, reinterpret_cast<sockaddr* const>(&all), sizeof(all)) == sockets::ERROR_RESULT) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "bind(...) creation failure " + to_string(sockets::last_error()));
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "bind(...) failure " + to_string(sockets::last_error()));
         cleanup_listener();
         return false;
     }
 
     if (!sockets::nonblocking(listener)) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "nonblocking(...) creation failure " + to_string(sockets::last_error()));
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "nonblocking(...) failure " + to_string(sockets::last_error()));
+        cleanup_listener();
+        return false;
+    }
+
+    if (listen(listener, LISTENER_BACKLOG) == sockets::ERROR_RESULT) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "listen(...) failure " + to_string(sockets::last_error()));
         cleanup_listener();
         return false;
     }
