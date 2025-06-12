@@ -1,3 +1,4 @@
+#pragma once
 #include "truckconnectextension.h"
 
 struct client {

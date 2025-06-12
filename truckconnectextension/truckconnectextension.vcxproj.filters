@@ -33,6 +33,9 @@
     <ClInclude Include="clients.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="process_client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="truckconnectextension.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="clients.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="process_client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

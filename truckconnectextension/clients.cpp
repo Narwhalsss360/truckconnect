@@ -1,5 +1,6 @@
 #include "clients.h"
 #include <thread>
+#include "process_client.h"
 
 #define LISTENER_BACKLOG (2)
 
@@ -78,6 +79,13 @@ void dispatcher_start() {
         } else {
             clients.push_back(new_client);
             console_log(SCS_LOG_TYPE_message, to_string(new_client.connection.addr) + " connected.");
+        }
+
+        for (uint32_t i = 0; i < clients.size(); i++) {
+            if (!process_client(clients[i])) {
+                console_log(SCS_LOG_TYPE_message, IDENTSTR(dispatcher_start), "Client " + to_string(clients[i].connection.addr) + " disconncted.");
+                clients.erase(clients.begin() + i);
+            }
         }
 
         switch (wait(frame_end_signal())) {

@@ -181,12 +181,14 @@
   <ItemGroup>
     <ClInclude Include="clients.h" />
     <ClInclude Include="dynamic_store.h" />
+    <ClInclude Include="process_client.h" />
     <ClInclude Include="register_all.h" />
     <ClInclude Include="truckconnectextension.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="clients.cpp" />
     <ClCompile Include="dynamic_store.cpp" />
+    <ClCompile Include="process_client.cpp" />
     <ClCompile Include="register_all.cpp" />
     <ClCompile Include="truckconnectextension.cpp" />
   </ItemGroup>
