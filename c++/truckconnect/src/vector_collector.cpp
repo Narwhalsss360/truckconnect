@@ -62,7 +62,7 @@ namespace truckconnect {
             return static_cast<uint32_t>(_buffer.size());
         }
 
-        bool vector_collector::expand() {
+        void vector_collector::expand() {
             const uint32_t current_index = index();
             const uint32_t new_size = size() + minimum_size;
             if (_state != collector_states::BUFFER_FULL) {
@@ -72,7 +72,14 @@ namespace truckconnect {
             }
             
             notify(current_index);
-            return true;
+        }
+
+        collector_states vector_collector::dynamic_collect(uint8_t byte) {
+            if (collect(byte) == collector_states::BUFFER_FULL) {
+                expand();
+                collect(byte);
+            }
+            return _state;
         }
 
         const uint32_t vector_collector::index() {
