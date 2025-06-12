@@ -7,3 +7,4 @@
 #include "metadata_functions.h"
 #include "packed_size.h"
 #include "byte_converters.h"
+#include "vector_collector.h"

@@ -120,9 +120,15 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_sockets.h">
       <Filter>include\truckconnect_platform_win</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\vector_collector.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\vector_collector.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

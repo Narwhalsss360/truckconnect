@@ -46,9 +46,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_event_signal.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_sockets.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\value_storage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\vector_collector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\vector_collector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)include\truckconnect" />
