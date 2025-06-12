@@ -62,6 +62,12 @@ namespace truckconnect {
             return static_cast<uint32_t>(_buffer.size());
         }
 
+        void vector_collector::reset_and_resize(const uint32_t& new_size) {
+            reset();
+            _buffer.resize(new_size < minimum_size ? minimum_size : new_size);
+            notify(0);
+        }
+
         void vector_collector::expand() {
             const uint32_t current_index = index();
             const uint32_t new_size = size() + minimum_size;

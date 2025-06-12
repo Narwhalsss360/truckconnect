@@ -34,6 +34,8 @@ namespace truckconnect {
 
             const uint32_t size() const;
 
+            void reset_and_resize(const uint32_t& new_size);
+
             void expand();
 
             nstreamcom::collector_states dynamic_collect(uint8_t byte);
