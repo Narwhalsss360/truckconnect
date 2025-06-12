@@ -44,6 +44,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truckconnect_version.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_event_signal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\truck_connect_platform_win\truckconnect_platform_win_sockets.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\value_storage.h" />
   </ItemGroup>
   <ItemGroup>
