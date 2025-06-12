@@ -18,7 +18,7 @@ namespace truckconnect {
 
             vector_collector(uint32_t initialize_size = minimum_size);
 
-            vector_collector(vector_collector&) = delete;
+            vector_collector(const vector_collector& other);
 
             std::vector<uint8_t>& buffer();
 

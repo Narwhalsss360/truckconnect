@@ -23,6 +23,17 @@ namespace truckconnect {
             );
         }
 
+        vector_collector::vector_collector(const vector_collector& other)
+            : my_base(iterator(), iterator()), _buffer(other.size())
+        {
+            _decoder.use(
+                _buffer.begin(),
+                _buffer.end(),
+                _buffer.begin(),
+                _buffer.begin()
+            );
+        }
+
         std::vector<uint8_t>& vector_collector::buffer() {
             return _buffer;
         }
