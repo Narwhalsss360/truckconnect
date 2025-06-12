@@ -19,7 +19,7 @@ namespace truckconnect {
         }
 
         communication_result connect(connection& connection) {
-            if (connection.socket != sockets::socket()) {
+            if (connection.socket != sockets::INVALID) {
                 return communication_result::already_connected;
             }
 
