@@ -1,3 +1,6 @@
 [submodule "scssdk-telemetry"]
 	path = scssdk-telemetry
 	url = git@github.com:Narwhalsss360/scssdk-telemetry.git
+[submodule "c++/NStreamCom"]
+	path = c++/NStreamCom
+	url = git@github.com:Narwhalsss360/NStreamCom

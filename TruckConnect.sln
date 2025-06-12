@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "truckconnect", "c++\truckco
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "truckconnectextension", "truckconnectextension\truckconnectextension.vcxproj", "{4A867DCF-7B98-4D1F-B99D-64537F788236}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nstreamcom", "..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems", "{F6AABF94-ED61-41AC-AAAD-E75510AF8CFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -59,12 +61,15 @@ Global
 		{F46EAD73-0FDA-4586-B81A-38A7B0837EB6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{25EC4296-6D33-4073-9724-E1DCD12DEFAB} = {F46EAD73-0FDA-4586-B81A-38A7B0837EB6}
 		{07B6DE3E-FDF6-4293-BBA6-56AC2394FF27} = {ABCF57D8-A47E-44FE-82C9-82570289BFA1}
+		{F6AABF94-ED61-41AC-AAAD-E75510AF8CFF} = {ABCF57D8-A47E-44FE-82C9-82570289BFA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E07194E-A80A-4684-AA2A-D233517C3070}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		c++\truckconnect\truckconnect.vcxitems*{07b6de3e-fdf6-4293-bba6-56ac2394ff27}*SharedItemsImports = 9
+		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{4a867dcf-7b98-4d1f-b99d-64537f788236}*SharedItemsImports = 4
 		c++\truckconnect\truckconnect.vcxitems*{4a867dcf-7b98-4d1f-b99d-64537f788236}*SharedItemsImports = 4
+		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{f6aabf94-ed61-41ac-aaad-e75510af8cff}*SharedItemsImports = 9
 	EndGlobalSection
 EndGlobal

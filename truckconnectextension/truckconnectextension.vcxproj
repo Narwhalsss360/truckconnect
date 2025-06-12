@@ -57,6 +57,7 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\c++\truckconnect\truckconnect.vcxitems" Label="Shared" />
+    <Import Project="..\..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -73,8 +74,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>truckconnectextension</TargetName>
-    <IncludePath>$(SolutionDir)c++\truckconnect\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(SolutionDir)c++\truckconnect\src;$(SourcePath)</SourcePath>
+    <IncludePath>$(SolutionDir)c++\truckconnect\include;$(SolutionDir)c++\NStreamCom\include;$(IncludePath)</IncludePath>
+    <SourcePath>$(SolutionDir)c++\truckconnect\src;$(SolutionDir)c++\NStreamCom\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>truckconnectextension</TargetName>
@@ -84,8 +85,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>truckconnectextension</TargetName>
-    <IncludePath>$(SolutionDir)c++\truckconnect\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(SolutionDir)c++\truckconnect\src;$(SourcePath)</SourcePath>
+    <IncludePath>$(SolutionDir)c++\truckconnect\include;$(SolutionDir)c++\NStreamCom\include;$(IncludePath)</IncludePath>
+    <SourcePath>$(SolutionDir)c++\truckconnect\src;$(SolutionDir)c++\NStreamCom\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
