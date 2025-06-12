@@ -24,7 +24,7 @@ void cleanup_listener() {
 }
 
 bool clients_init() {
-    if (!sockets::initiaize()) {
+    if (!sockets::initialize()) {
         console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_init), "Slatform sockets initialization failure.");
         return false;
     }

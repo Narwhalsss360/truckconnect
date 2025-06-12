@@ -12,7 +12,7 @@ namespace truckconnect {
 
             constexpr const int ERROR_RESULT = SOCKET_ERROR;
 
-            static bool initiaize() {
+            static bool initialize() {
                 WSADATA data;
                 return WSAStartup(MAKEWORD(2, 2), &data) == 0;
             }
