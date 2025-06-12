@@ -8,6 +8,8 @@ namespace truckconnect {
 
             using socket = SOCKET;
 
+            constexpr const socket INVALID = INVALID_SOCKET;
+
             static bool initiaize() {
                 WSADATA data;
                 return WSAStartup(MAKEWORD(2, 2), &data) == 0;
