@@ -1,5 +1,6 @@
 #include "truckconnectextension.h"
 #include "register_all.h"
+#include "clients.h"
 #include <scssdk/scssdk_telemetry_event.h>
 
 using std::string;
@@ -43,7 +44,22 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 }
 
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
+    using namespace truckconnect::platform::event_signal;
 
+    switch (signaled(frame_end_signal())) {
+    case signal_state::signaled:
+        console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher.");
+    case signal_state::not_signaled:
+        if (!set(frame_end_signal())) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal set(...) error: " + to_string(last_error()));
+        }
+        break;
+    case signal_state::error:
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Singal signaled(...) error: " + to_string(last_error()));
+        break;
+    default:
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal signaled(...) unknown result."); break;
+    }
 }
 
 SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_init_params_t* const params) {
@@ -55,6 +71,10 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     _frame_end_signal = create_signal();
     if (_frame_end_signal == INVALID_SIGNAL) {
         console_log(SCS_LOG_TYPE_error, "Initialization failure. " + IDENTSTR(_frame_end_signal));
+        return SCS_RESULT_generic_error;
+    }
+
+    if (!clients_init()) {
         return SCS_RESULT_generic_error;
     }
 
@@ -78,6 +98,8 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 }
 
 SCSAPI_VOID scs_telemetry_shutdown() {
+    clients_deinit();
+
     if (!destroy_signal(frame_end_signal())) {
         console_log(SCS_LOG_TYPE_error, "Deinitialization failure. " + IDENTSTR(_frame_end_signal) + to_string(truckconnect::platform::event_signal::last_error()));
     }

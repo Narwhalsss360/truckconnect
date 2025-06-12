@@ -30,6 +30,9 @@
     <ClInclude Include="dynamic_store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="clients.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="truckconnectextension.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dynamic_store.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clients.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

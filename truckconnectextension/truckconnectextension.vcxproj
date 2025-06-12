@@ -179,11 +179,13 @@
     <None Include="module.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="clients.h" />
     <ClInclude Include="dynamic_store.h" />
     <ClInclude Include="register_all.h" />
     <ClInclude Include="truckconnectextension.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="clients.cpp" />
     <ClCompile Include="dynamic_store.cpp" />
     <ClCompile Include="register_all.cpp" />
     <ClCompile Include="truckconnectextension.cpp" />
