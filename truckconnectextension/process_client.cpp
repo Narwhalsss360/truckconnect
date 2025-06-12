@@ -1,5 +1,6 @@
 #include "process_client.h"
 
+using std::vector;
 using std::to_string;
 using nstreamcom::collector_states;
 using nstreamcom::nsize_int;
@@ -61,12 +62,12 @@ bool read_new_pending_request(client& client) {
     }
 
     client.connection.pending_request = static_cast<communication::request>(client.connection.collector.buffer()[0]);
-    client.connection.request_data.byte = client.connection.collector.buffer()[2];
+    client.connection.request_data.byte = client.connection.collector.buffer()[1];
     return true;
 }
 
 bool send_catch_fail(client& client, const uint8_t* const data, const uint32_t& size) {
-    if (send(client.connection.socket, reinterpret_cast<const char* const>(data), size, 0) == sockets::ERROR_RESULT) {
+    if (send(client.connection.socket, reinterpret_cast<const char* const>(data), static_cast<int>(size), 0) == sockets::ERROR_RESULT) {
         if (sockets::last_error() != sockets::errors::SE_EWOULDBLOCK) {
             console_log(SCS_LOG_TYPE_error, IDENTSTR(send_catch_fail), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
         }
@@ -84,22 +85,30 @@ bool process_client(client& client) {
         return true;
     }
 
+    static vector<uint8_t> response = vector<uint8_t>(2);
+    static vector<uint8_t> encoded_response;
+
     switch (client.connection.pending_request) {
     case request::telemetry_id: {
-        console_log(SCS_LOG_TYPE_warning, IDENTSTR(process_client), "Line " + to_string(__LINE__) + ": Not properly implemented.");
-        //Send dummy response for now:
-        constexpr const uint8_t response[] = {
-            request::telemetry_id,
-            telemetry_id::invalid
-        };
+        response.resize(2);
+        response[0] = client.connection.pending_request;
+        response[1] = client.connection.request_data.request_telemetry_id;
 
-        uint8_t encoded_response[as_collected_size(static_cast<nsize_int>(sizeof(response)))];
+        const metadata::metadata_value& meta = metadata::metadata_value_of(client.connection.request_data.request_telemetry_id);
+        debug_assert(meta.id != telemetry_id::invalid);
+        //Assume trailer index 0 for now.
+        debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), metadata::master_offset_of(meta.id, 0)), response));
+
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
         encode_with_size(
-            response,
-            encoded_response
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
         );
 
-        if (!send_catch_fail(client, encoded_response, sizeof(encoded_response))) {
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
             return false;
         }
         break;
