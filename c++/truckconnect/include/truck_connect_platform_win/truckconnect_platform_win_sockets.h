@@ -23,7 +23,7 @@ namespace truckconnect {
 
             static bool nonblocking(socket socket) {
                 u_long mode = 1;
-                return ioctlsocket(socket, FIONBIO, &mode);
+                return ioctlsocket(socket, FIONBIO, &mode) != ERROR_RESULT;
             }
             
             static bool deinitialize() {
