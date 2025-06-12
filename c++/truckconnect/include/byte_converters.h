@@ -1,5 +1,6 @@
 #pragma once
 #include "master_structure.h"
+#include "telemetry_metadata.h"
 
 namespace truckconnect {
     template <typename T>
@@ -49,6 +50,8 @@ namespace truckconnect {
     void append_bytes(const master_storage::configuration_storage& configuration, std::vector<uint8_t>& out);
 
     void append_bytes(const master_storage& master, std::vector<uint8_t>& out);
+
+    bool append_bytes(const telemetry_id& id, const void* const data, std::vector<uint8_t>& out);
 
     bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info, const uint32_t offset, uint32_t& read);
 
