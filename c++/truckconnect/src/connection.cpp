@@ -8,10 +8,10 @@ using std::string;
 
 namespace truckconnect {
     namespace communication {
-        constexpr const uint8_t require_connect = static_cast<uint8_t>(-1);
+        constexpr const uint16_t require_connect = 0xFFFF;
 
         connection::connection(const string& address)
-            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request::none), request_data({ require_connect })
+            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request::none), request_data(require_connect)
         {
             addr.sin_family = AF_INET;
             if (address != "") {
@@ -25,7 +25,7 @@ namespace truckconnect {
         }
 
         communication_result connect(connection& connection) {
-            if (connection.socket != sockets::INVALID && connection.request_data.byte != require_connect) {
+            if (connection.socket != sockets::INVALID && connection.request_data != require_connect) {
                 return communication_result::already_connected;
             }
 
@@ -40,16 +40,20 @@ namespace truckconnect {
             }
 
             connection.pending_request = request::none;
-            connection.request_data.request_telemetry_id = telemetry_id::invalid;
+            connection.request_data_telemetry_id() = telemetry_id::invalid;
             return communication_result::success;
         }
 
-        communication_result send_request_for(connection& connection, const telemetry_id& id) {
+        communication_result send_request_for(connection& connection, const telemetry_id& id, const uint8_t& trailer_index) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
 
-            const std::array<uint8_t, 2> request_data = form_telemetry_request(id);
+            if (SCS_TELEMETRY_trailers_count <= trailer_index) {
+                return communication_result::invalid_trailer_index;
+            }
+
+            const std::array<uint8_t, 3> request_data = form_telemetry_request(id, trailer_index);
             std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
             encode_with_size(
                 request_data.begin(),
@@ -64,7 +68,7 @@ namespace truckconnect {
             }
 
             connection.pending_request = request::telemetry_id;
-            connection.request_data.request_telemetry_id = id;
+            connection.request_data_telemetry_id() = id;
             return communication_result::success;
         }
 

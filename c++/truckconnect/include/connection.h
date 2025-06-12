@@ -2,6 +2,7 @@
 #include "truckconnect_platform.h"
 #include "vector_collector.h"
 #include "telemetry_metadata.h"
+#include "byte_converters.h"
 #include <string>
 #include <functional>
 
@@ -26,11 +27,17 @@ namespace truckconnect {
             socklen_t addr_len;
             vector_collector collector;
             request pending_request;
-            union {
-                uint8_t byte;
-                telemetry_id request_telemetry_id;
-            } request_data;
-            static_assert(sizeof(request_data) == 1, "Messages must be exactly 2 bytes { request, data-identification }");
+            uint16_t request_data;
+
+            static constexpr const uint32_t DATA_START = sizeof(pending_request) + sizeof(request_data);
+
+            inline telemetry_id& request_data_telemetry_id() {
+                return apply_offset<telemetry_id>(&request_data, 0);
+            }
+
+            inline uint8_t& request_data_trailer_index() {
+                return apply_offset<uint8_t>(&request_data, 1);
+            }
 
             connection(const std::string& address = "");
 
@@ -48,14 +55,16 @@ namespace truckconnect {
                 disconnected,
                 incomplete,
                 collector_error,
-                no_pending_request
+                no_pending_request,
+                invalid_trailer_index
             };
         }
 
-        constexpr const std::array<uint8_t, 2> form_telemetry_request(const telemetry_id& id) {
+        constexpr const std::array<uint8_t, 3> form_telemetry_request(const telemetry_id& id, const uint8_t trailer_index = 1) {
             return {
                 request::telemetry_id,
-                id
+                id,
+                trailer_index
             };
         }
 
@@ -63,7 +72,7 @@ namespace truckconnect {
 
         communication_result connect(connection& connection);
 
-        communication_result send_request_for(connection& connection, const telemetry_id& id);
+        communication_result send_request_for(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0);
 
         communication_result receive_one(connection& connection);
 

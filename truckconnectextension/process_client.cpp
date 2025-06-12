@@ -62,7 +62,7 @@ bool read_new_pending_request(client& client) {
     }
 
     client.connection.pending_request = static_cast<communication::request>(client.connection.collector.buffer()[0]);
-    client.connection.request_data.byte = client.connection.collector.buffer()[1];
+    client.connection.request_data = apply_offset<uint16_t>(client.connection.collector.buffer().data(), 1);
     return true;
 }
 
@@ -90,14 +90,17 @@ bool process_client(client& client) {
 
     switch (client.connection.pending_request) {
     case request::telemetry_id: {
-        response.resize(2);
+        response.resize(3);
         response[0] = client.connection.pending_request;
-        response[1] = client.connection.request_data.request_telemetry_id;
+        apply_offset<telemetry_id>(response.data(), 1) = client.connection.request_data_telemetry_id();
+        apply_offset<uint8_t>(response.data(), 2) = client.connection.request_data_trailer_index();
 
-        const metadata::metadata_value& meta = metadata::metadata_value_of(client.connection.request_data.request_telemetry_id);
+        const metadata::metadata_value& meta = metadata::metadata_value_of(client.connection.request_data_telemetry_id());
         debug_assert(meta.id != telemetry_id::invalid);
-        //Assume trailer index 0 for now.
-        debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), metadata::master_offset_of(meta.id, 0)), response));
+
+        const uint32_t& offset = metadata::master_offset_of(meta.id, client.connection.request_data_trailer_index());
+        debug_assert(offset != metadata::INVALID_OFFSET);
+        debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
 
         encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
         encode_with_size(
