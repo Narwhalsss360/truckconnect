@@ -11,7 +11,7 @@ using truckconnect::communication::connection;
 using truckconnect::telemetry_id;
 using truckconnect::communication::connect;
 using truckconnect::communication::send_request_for;
-using truckconnect::communication::receive_all;
+using truckconnect::communication::receive_for_request;
 using truckconnect::communication::disconnect;
 using truckconnect::value_storage;
 using truckconnect::apply_offset;
@@ -34,18 +34,18 @@ int busy_request_test() {
     while (true) {
         if (!local_scale.initialized) {
             debug_assert(communication_result::success == (result = send_request_for(connection, telemetry_id::channel_local_scale)));
-            debug_assert(communication_result::success == (result = receive_all(connection)));
+            debug_assert(communication_result::success == (result = receive_for_request(connection, telemetry_id::channel_local_scale)));
             debug_assert(truckconnect::from_bytes(connection.collector.buffer(), local_scale, connection::DATA_START));
         }
 
         debug_assert(communication_result::success == (result = send_request_for(connection, telemetry_id::channel_game_time)));
-        debug_assert(communication_result::success == (result = receive_all(connection)));
+        debug_assert(communication_result::success == (result = receive_for_request(connection, telemetry_id::channel_game_time)));
         truckconnect::metadata::channel_game_time::storage_type game_time;
         debug_assert(truckconnect::from_bytes(connection.collector.buffer(), game_time, connection::DATA_START));
 
         for (int i = 0; i < SCS_TELEMETRY_trailers_count; i++) {
             debug_assert(communication_result::success == (result = send_request_for(connection, telemetry_id::trailer_channel_connected, i)));
-            debug_assert(communication_result::success == (result = receive_all(connection)));
+            debug_assert(communication_result::success == (result = receive_for_request(connection, telemetry_id::trailer_channel_connected, i)));
             debug_assert(truckconnect::from_bytes(connection.collector.buffer(), trailer_connected[i], connection::DATA_START));
         }
 

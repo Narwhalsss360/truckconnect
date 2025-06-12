@@ -1,4 +1,6 @@
 #include "connection.h"
+#include "packed_size.h"
+#include "metadata_functions.h"
 
 using nstreamcom::collector_states;
 using nstreamcom::as_collected_size;
@@ -53,6 +55,10 @@ namespace truckconnect {
                 return communication_result::invalid_trailer_index;
             }
 
+            if (connection.pending_request != request::none) {
+                return communication_result::other_request_pending;
+            }
+
             const std::array<uint8_t, 3> request_data = form_telemetry_request(id, trailer_index);
             std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
             encode_with_size(
@@ -69,6 +75,7 @@ namespace truckconnect {
 
             connection.pending_request = request::telemetry_id;
             connection.request_data_telemetry_id() = id;
+            connection.request_data_trailer_index() = trailer_index;
             return communication_result::success;
         }
 
@@ -94,7 +101,6 @@ namespace truckconnect {
 
             switch (connection.collector.dynamic_collect(data)) {
             case collector_states::COLLECTED:
-                connection.pending_request = request::none;
                 return communication_result::success;
             case collector_states::MISSING_SIZE:
             case collector_states::MISSING_DATA:
@@ -122,11 +128,45 @@ namespace truckconnect {
             return result;
         }
 
-        communication_result receive_for_request(connection& connection, const telemetry_id& id) {
+        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
-            
+
+            if (connection.pending_request != request::telemetry_id) {
+                return communication_result::other_request_pending;
+            }
+
+            if (connection.request_data_telemetry_id() != id) {
+                return communication_results::other_telemetry_id_pending;
+            }
+
+            if (metadata::is_trailer_channel(id) && connection.request_data_trailer_index() != trailer_index) {
+                return communication_result::other_trailer_index_request_pending;
+            }
+
+            communication_result result = receive_all(connection);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            if (apply_offset<request>(connection.collector.buffer().data(), 0) != connection.pending_request) {
+                return communication_result::received_other_response;
+            }
+
+            if (apply_offset<telemetry_id>(connection.collector.buffer().data(), 1) != connection.request_data_telemetry_id()) {
+                return communication_result::received_other_telemetry;
+            }
+
+            if (metadata::is_trailer_channel(id) && apply_offset<telemetry_id>(connection.collector.buffer().data(), 2) != connection.request_data_trailer_index()) {
+                return communication_result::received_other_trailer_index;
+            }
+
+            if (connection.collector.next_size() < metadata::packed_size_of(id)) {
+                return communication_result::unknown_data;
+            }
+
+            connection.clear_pending_request();
             return communication_result::success;
         }
 

@@ -39,6 +39,10 @@ namespace truckconnect {
                 return apply_offset<uint8_t>(&request_data, 1);
             }
 
+            inline void clear_pending_request() {
+                pending_request = request::none;
+            }
+
             connection(const std::string& address = "");
 
             operator const bool() const;
@@ -56,7 +60,14 @@ namespace truckconnect {
                 incomplete,
                 collector_error,
                 no_pending_request,
-                invalid_trailer_index
+                invalid_trailer_index,
+                other_request_pending,
+                other_telemetry_id_pending,
+                other_trailer_index_request_pending,
+                received_other_response,
+                received_other_telemetry,
+                received_other_trailer_index,
+                unknown_data
             };
         }
 
@@ -82,7 +93,11 @@ namespace truckconnect {
             return receive_all(connection, [](const std::vector<uint8_t>&) {});
         }
 
-        communication_result receive_for_request(connection& connection, const telemetry_id& id);
+        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index = 0);
+
+        static inline communication_result receive_for_request(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0) {
+            return receive_for_request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
+        }
 
         communication_result disconnect(connection& connection);
     }
