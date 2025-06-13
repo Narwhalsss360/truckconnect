@@ -284,7 +284,7 @@ namespace truckconnect {
             return communication_result::success;
         }
 
-        communication_result receive_for_request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback) {
+        communication_result receive_for_request(connection& connection, const data::data_definition_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
@@ -310,12 +310,12 @@ namespace truckconnect {
                 return communication_result::unknown_data;
             }
 
-            received_callback(connection.collector.buffer().data() + connection::DEFINED_DATA_DATA_START);
+            received_callback(connection.collector.buffer());
 
             return communication_result::success;
         }
 
-        communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback) {
+        communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback) {
             communication_result result = send_request_for(connection, id);
             if (result != communication_result::success) {
                 return result;

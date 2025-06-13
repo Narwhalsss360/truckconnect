@@ -2,6 +2,7 @@
 #include "telemetry_metadata.h"
 #include "metadata_functions.h"
 #include "packed_size.h"
+#include "byte_converters.h"
 
 namespace truckconnect {
     namespace data {
@@ -212,6 +213,48 @@ namespace truckconnect {
             );
 
             return from_bytes(bytes, member, offset, i + 1);
+        }
+
+        static inline bool arrange_unsafe(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, void* const out) {
+            uint32_t at = offset;
+            uint32_t read;
+            for (const data_member& member : defintition.members) {
+                const uint32_t size = metadata::packed_size_of(member.telemetry_id);
+                if (at + size > data.size()) {
+                    return false;
+                }
+
+                if (!truckconnect::from_bytes(member.telemetry_id, data, &apply_offset<uint8_t>(out, member.offset), at, read)) {
+                    return false;
+                }
+                at += size;
+            }
+
+            return true;
+        }
+
+        static inline bool arrange(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, std::vector<uint8_t>& out) {
+            uint32_t at = offset;
+            uint32_t read;
+            for (const data_member& member : defintition.members) {
+                const uint32_t size = metadata::packed_size_of(member.telemetry_id);
+                if (at + size > data.size()) {
+                    return false;
+                }
+
+                if (out.size() <= member.offset) {
+                    out.resize(out.size() + member.offset + size);
+                } else if (out.size() <= member.offset + size) {
+                    out.resize(out.size() + member.offset + size);
+                }
+
+                if (!truckconnect::from_bytes(member.telemetry_id, data, out.data() + member.offset, at, read)) {
+                    return false;
+                }
+                at += size;
+            }
+
+            return true;
         }
     }
 }

@@ -237,14 +237,35 @@ namespace truckconnect {
 
         communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count);
 
+        static inline bool get_definition(connection& connection, const data::data_definition_id& id, data::data_definition_value& definition) {
+            if (connection.data_definitions.size() == 0) {
+                return false;
+            }
+
+            const auto find_it = std::find_if(
+                connection.data_definitions.begin(),
+                connection.data_definitions.end(),
+                [&id](const data::data_definition_value& definition) {
+                    return definition.id == id;
+                }
+            );
+
+            if (find_it == connection.data_definitions.end()) {
+                return false;
+            }
+
+            definition = *find_it;
+            return true;
+        }
+
         communication_result send_request_for(connection& connection, const data::data_definition_id& id);
 
-        communication_result receive_for_request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback);
+        communication_result receive_for_request(connection& connection, const data::data_definition_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback);
 
-        communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback);
+        communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback);
 
         static inline communication_result request(connection& connection, const data::data_definition_id& id) {
-            return request(connection, id, [](const void* const) {});
+            return request(connection, id, [](const std::vector<uint8_t>&) {});
         }
 
         communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id);

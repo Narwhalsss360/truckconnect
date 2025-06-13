@@ -1,6 +1,7 @@
 #include <truckconnect>
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 using std::cout;
 using std::to_string;
@@ -25,6 +26,7 @@ struct gauge_cluster {
         cout <<
             (game_time.initialized ? to_string(game_time.value) : "-") << "min | " <<
             (engine_rpm.initialized ? to_string(engine_rpm.value) : "-") << "rpm | " <<
+            (speed.initialized ? to_string(speed.value) : "-") << "kmh | " <<
             (odometer.initialized ? to_string(odometer.value) : "-") << "km | " <<
             (fuel.initialized ? to_string(fuel.value) : "-") << "L | " <<
             (oil_temperature.initialized ? to_string(oil_temperature.value) : "-") << "C | " <<
@@ -63,8 +65,17 @@ int data_definition_test() {
         _countof(data_definition<gauge_cluster>::members
     ))));
 
+    data_definition_value gauge_cluster_definition;
+    debug_assert(get_definition(connection, gauge_cluster_id, gauge_cluster_definition));
+
+    gauge_cluster cluster;
     while (true) {
         debug_assert(communication_result::success == (result = request(connection, gauge_cluster_id)));
+        data::arrange_unsafe(gauge_cluster_definition, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &cluster);
+        cluster.print();
+        cout << "\n";
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(25ms);
     }
 
     debug_assert(communication_result::success == (result = unregister_data_definition(connection, gauge_cluster_id)));
