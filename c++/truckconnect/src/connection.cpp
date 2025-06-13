@@ -13,7 +13,7 @@ namespace truckconnect {
         constexpr const uint16_t require_connect = 0xFFFF;
 
         connection::connection(const string& address)
-            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request::none), request_data(require_connect)
+            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request_type::none), request_data(require_connect)
         {
             addr.sin_family = AF_INET;
             if (address != "") {
@@ -41,7 +41,7 @@ namespace truckconnect {
                 return communication_result::generic_socket_error;
             }
 
-            connection.pending_request = request::none;
+            connection.pending_request = request_type::none;
             connection.request_data_telemetry_id() = telemetry_id::invalid;
             return communication_result::success;
         }
@@ -55,7 +55,7 @@ namespace truckconnect {
                 return communication_result::invalid_trailer_index;
             }
 
-            if (connection.pending_request != request::none) {
+            if (connection.pending_request != request_type::none) {
                 return communication_result::other_request_pending;
             }
 
@@ -73,7 +73,7 @@ namespace truckconnect {
                 return communication_result::generic_socket_error;
             }
 
-            connection.pending_request = request::telemetry_id;
+            connection.pending_request = request_type::telemetry_id;
             connection.request_data_telemetry_id() = id;
             connection.request_data_trailer_index() = trailer_index;
             return communication_result::success;
@@ -84,7 +84,7 @@ namespace truckconnect {
                 return communication_result::not_connected;
             }
 
-            if (connection.pending_request == request::none) {
+            if (connection.pending_request == request_type::none) {
                 return communication_result::no_pending_request;
             }
 
@@ -104,7 +104,7 @@ namespace truckconnect {
                 return communication_result::success;
             case collector_states::MISSING_SIZE:
             case collector_states::MISSING_DATA:
-                connection.pending_request = request::none;
+                connection.pending_request = request_type::none;
                 return communication_result::collector_error;
             case collector_states::WAITING_SIZE:
             case collector_states::WAITING_DATA:
@@ -133,7 +133,7 @@ namespace truckconnect {
                 return communication_result::not_connected;
             }
 
-            if (connection.pending_request != request::telemetry_id) {
+            if (connection.pending_request != request_type::telemetry_id) {
                 return communication_result::other_request_pending;
             }
 
@@ -150,7 +150,7 @@ namespace truckconnect {
                 return result;
             }
 
-            if (apply_offset<request>(connection.collector.buffer().data(), 0) != connection.pending_request) {
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
                 return communication_result::received_other_response;
             }
 
@@ -180,7 +180,7 @@ namespace truckconnect {
             }
             
             connection.collector.reset_and_resize(connection.collector.minimum_size);
-            connection.pending_request = request::none;
+            connection.pending_request = request_type::none;
             connection.socket = sockets::INVALID;
             return communication_result::success;
         }

@@ -22,10 +22,10 @@ bool read_new_pending_request(client& client) {
         client.connection.collector.state() == collector_states::MISSING_SIZE ||
         client.connection.collector.state() == collector_states::MISSING_DATA
     ) {
-        client.connection.pending_request = request::none;
+        client.connection.pending_request = request_type::none;
     }
     
-    if (client.connection.pending_request != request::none) {
+    if (client.connection.pending_request != request_type::none) {
         return true;
     }
 
@@ -61,7 +61,7 @@ bool read_new_pending_request(client& client) {
         return true;
     }
 
-    client.connection.pending_request = static_cast<communication::request>(client.connection.collector.buffer()[0]);
+    client.connection.pending_request = static_cast<communication::request_type>(client.connection.collector.buffer()[0]);
     client.connection.request_data = apply_offset<uint16_t>(client.connection.collector.buffer().data(), 1);
     return true;
 }
@@ -81,7 +81,7 @@ bool process_client(client& client) {
         return false;
     }
 
-    if (client.connection.pending_request == request::none) {
+    if (client.connection.pending_request == request_type::none) {
         return true;
     }
 
@@ -89,7 +89,7 @@ bool process_client(client& client) {
     static vector<uint8_t> encoded_response;
 
     switch (client.connection.pending_request) {
-    case request::telemetry_id: {
+    case request_type::telemetry_id: {
         response.resize(3);
         response[0] = client.connection.pending_request;
         apply_offset<telemetry_id>(response.data(), 1) = client.connection.request_data_telemetry_id();
@@ -121,6 +121,6 @@ bool process_client(client& client) {
         break;
     }
 
-    client.connection.pending_request = request::none;
+    client.connection.pending_request = request_type::none;
     return true;
 }

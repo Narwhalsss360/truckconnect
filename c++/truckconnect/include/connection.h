@@ -12,21 +12,21 @@ namespace truckconnect {
         
         using namespace platform;
         
-        namespace requests {
-            enum request : uint8_t {
+        namespace request_types {
+            enum request_type : uint8_t {
                 none,
                 telemetry_id
             };
         }
 
-        using requests::request;
+        using request_types::request_type;
 
         struct connection {
             sockets::socket socket;
             sockaddr_in addr;
             socklen_t addr_len;
             vector_collector collector;
-            request pending_request;
+            request_type pending_request;
             uint16_t request_data;
 
             static constexpr const uint32_t DATA_START = sizeof(pending_request) + sizeof(request_data);
@@ -40,7 +40,7 @@ namespace truckconnect {
             }
 
             inline void clear_pending_request() {
-                pending_request = request::none;
+                pending_request = request_type::none;
             }
 
             connection(const std::string& address = "");
@@ -73,7 +73,7 @@ namespace truckconnect {
 
         constexpr const std::array<uint8_t, 3> form_telemetry_request(const telemetry_id& id, const uint8_t trailer_index = 1) {
             return {
-                request::telemetry_id,
+                request_type::telemetry_id,
                 id,
                 trailer_index
             };
