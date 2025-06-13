@@ -125,6 +125,69 @@ bool process_client(client& client) {
         }
         break;
     }
+    case request_type::register_data_definition: {
+        const data::data_definition_id& id = client.connection.requst_data_data_definition_id();
+        debug_assert(std::find_if(
+                client.connection.data_definitions.begin(),
+                client.connection.data_definitions.end(),
+                [&id](const data::data_definition_value& definition) { return definition.id == id; }
+            ) == client.connection.data_definitions.end()
+        );
+        debug_assert((client.connection.collector.next_size() - connection::DATA_DEFINITION_DATA_START) % data::data_member_serialization_info::packed_size == 0);
+
+        const uint32_t count = (client.connection.collector.next_size() - connection::DATA_DEFINITION_DATA_START) / data::data_member_serialization_info::packed_size;
+        client.connection.data_definitions.emplace_back(client.connection.requst_data_data_definition_id());
+        data::data_definition_value& definition = client.connection.data_definitions.back();
+        
+        definition.members.resize(count);
+        for (uint32_t i = 0; i < count; i++) {
+            const uint32_t offset = connection::DATA_DEFINITION_DATA_START + i * data::data_member_serialization_info::packed_size;
+            data::from_bytes(client.connection.collector.buffer(), definition.members[i], offset);
+        }
+
+        response.resize(2);
+        response[0] = request_type::register_data_definition;
+        response[1] = definition.id;
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
+        encode_with_size(
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
+        );
+
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
+            return false;
+        }
+        break;
+    }
+    case request_type::unregister_data_definition: {
+        const data::data_definition_id& id = client.connection.requst_data_data_definition_id();
+        const auto find_it = std::find_if(
+            client.connection.data_definitions.begin(),
+            client.connection.data_definitions.end(),
+            [&id](const data::data_definition_value& definition) { return definition.id == id; }
+        );
+        debug_assert(find_it != client.connection.data_definitions.end());
+
+        client.connection.data_definitions.erase(find_it);
+        response.resize(2);
+        response[0] = request_type::unregister_data_definition;
+        response[1] = id;
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
+        encode_with_size(
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
+        );
+
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
+            return false;
+        }
+    }
     default:
         console_log(SCS_LOG_TYPE_error, IDENTSTR(process_client), "Received unkown request " + to_string((int)client.connection.pending_request) + " from: " + to_string(client.connection.addr));
         break;

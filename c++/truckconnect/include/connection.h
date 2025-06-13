@@ -3,6 +3,7 @@
 #include "vector_collector.h"
 #include "telemetry_metadata.h"
 #include "byte_converters.h"
+#include "data.h"
 #include <string>
 #include <functional>
 
@@ -15,7 +16,9 @@ namespace truckconnect {
         namespace request_types {
             enum request_type : uint8_t {
                 none,
-                telemetry_id
+                telemetry_id,
+                register_data_definition,
+                unregister_data_definition
             };
         }
 
@@ -51,8 +54,11 @@ namespace truckconnect {
             vector_collector collector;
             request_type pending_request;
             uint16_t request_data;
+            std::vector<data::data_definition_value> data_definitions;
 
-            static constexpr const uint32_t DATA_START = sizeof(pending_request) + sizeof(request_data);
+            static constexpr const uint32_t TELEMTRY_DATA_START = sizeof(pending_request) + sizeof(request_data);
+
+            static constexpr const uint32_t DATA_DEFINITION_DATA_START = sizeof(pending_request) + sizeof(data::data_definition_id);
 
             inline telemetry_id& request_data_telemetry_id() {
                 return apply_offset<telemetry_id>(&request_data, 0);
@@ -60,6 +66,10 @@ namespace truckconnect {
 
             inline trailer_index_or_count& request_data_trailer_index_or_count() {
                 return apply_offset<trailer_index_or_count>(&request_data, 1);
+            }
+
+            inline data::data_definition_id& requst_data_data_definition_id() {
+                return apply_offset<data::data_definition_id>(&request_data, 0);
             }
 
             inline void clear_pending_request() {
@@ -92,7 +102,11 @@ namespace truckconnect {
                 trailer_index_out_of_bounds,
                 trailer_count_out_of_bounds,
                 trailer_index_or_count_was_count,
-                unknown_data,
+                null_argument,
+                empty,
+                already_registered,
+                not_registered,
+                unknown_data
             };
         }
 
@@ -102,6 +116,15 @@ namespace truckconnect {
                 id,
                 *(const uint8_t* const)(&trailer_index_or_count)
             };
+        }
+
+        static inline void form_register_data_definition_request(const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count, std::vector<uint8_t>& formed) {
+            formed.reserve(1 + 1 + count * data::data_member_serialization_info::packed_size);
+            formed.emplace_back(request_type::register_data_definition);
+            formed.emplace_back(id);
+            for (uint32_t i = 0; i < count; i++) {
+                append_bytes(members[i], formed);
+            }
         }
 
         using communication_results::communication_result;
@@ -139,7 +162,7 @@ namespace truckconnect {
             communication_result result = request(connection, meta::id, trailer_index_or_count);
             if (result == communication_result::success) {
                 typename meta::storage_type destination;
-                if (from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
                     received_callback(destination);
                 } else {
                     result = communication_result::deserialization_failure;
@@ -152,7 +175,7 @@ namespace truckconnect {
         communication_result request(connection& connection, typename meta::storage_type& destination, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
             communication_result result = request(connection, meta::id, trailer_index_or_count);
             if (result == communication_result::success) {
-                if (!from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                if (!from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
                     result = communication_result::deserialization_failure;
                 }
             }
@@ -167,7 +190,7 @@ namespace truckconnect {
             communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
             if (result == communication_result::success) {
                 typename meta::storage_type destination[trailer_count];
-                if (from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
                     received_callback(destination);
                 } else {
                     result = communication_result::deserialization_failure;
@@ -187,7 +210,7 @@ namespace truckconnect {
                 if (!from_bytes(
                     connection.collector.buffer(),
                     array,
-                    connection::DATA_START)) {
+                    connection::TELEMTRY_DATA_START)) {
                     result = communication_result::deserialization_failure;
                 }
             }
@@ -201,6 +224,10 @@ namespace truckconnect {
                 *reinterpret_cast<typename meta::storage_type (* const)[trailer_count]>(array.data())
             );
         }
+
+        communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count);
+
+        communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id);
 
         communication_result disconnect(connection& connection);
     }

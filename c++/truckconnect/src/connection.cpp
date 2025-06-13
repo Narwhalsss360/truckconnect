@@ -13,7 +13,7 @@ namespace truckconnect {
         constexpr const uint16_t REQUIRE_CONNECT = 0xFFFF;
 
         connection::connection(const string& address)
-            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request_type::none), request_data(REQUIRE_CONNECT)
+            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request_type::none), request_data(REQUIRE_CONNECT), data_definitions({})
         {
             addr.sin_family = AF_INET;
             if (address != "") {
@@ -186,6 +186,118 @@ namespace truckconnect {
             return receive_for_request(connection, id, received_callback, trailer_index_or_count);
         }
 
+        communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count) {
+            if (connection.socket == sockets::INVALID) {
+                return communication_result::not_connected;
+            }
+
+            if (members == nullptr) {
+                return communication_result::null_argument;
+            }
+
+            if (count == 0) {
+                return communication_result::empty;
+            }
+
+            const auto find_it = std::find_if(
+                connection.data_definitions.begin(),
+                connection.data_definitions.end(),
+                [&id](const data::data_definition_value& definition) {
+                    return definition.id == id;
+                }
+            );
+
+            if (find_it != connection.data_definitions.end()) {
+                return communication_result::already_registered;
+            }
+
+            std::vector<uint8_t> request_data;
+            form_register_data_definition_request(id, members, count, request_data);
+            std::vector<uint8_t> encoded_request_data = std::vector<uint8_t>(as_collected_size(static_cast<nsize_int>(request_data.size())));
+            encode_with_size(
+                request_data.begin(),
+                request_data.end(),
+                static_cast<nsize_int>(request_data.size()),
+                encoded_request_data.begin(),
+                encoded_request_data.end()
+            );
+
+            if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
+                return communication_result::generic_socket_error;
+            }
+            connection.pending_request = request_type::register_data_definition;
+
+            communication_result result = receive_all(connection);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
+                return communication_result::received_other_response;
+            }
+
+            if (apply_offset<telemetry_id>(connection.collector.buffer().data(), 1) != id) {
+                return communication_result::unknown_data;
+            }
+
+            connection.data_definitions.emplace_back(id);
+            for (uint32_t i = 0; i < count; i++) {
+                connection.data_definitions.back().members.emplace_back(members[i]);
+            }
+
+            connection.pending_request = request_type::none;
+            return communication_result::success;
+        }
+
+        communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id) {
+            if (connection.socket == sockets::INVALID) {
+                return communication_result::not_connected;
+            }
+
+            const auto find_it = std::find_if(
+                connection.data_definitions.begin(),
+                connection.data_definitions.end(),
+                [&id](const data::data_definition_value& definition) {
+                    return definition.id == id;
+                }
+            );
+
+            if (find_it == connection.data_definitions.end()) {
+                return communication_result::not_registered;
+            }
+
+            const std::array<uint8_t, 2> request_data = { request_type::unregister_data_definition, id };
+            std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
+            encode_with_size(
+                request_data.begin(),
+                request_data.end(),
+                static_cast<nsize_int>(request_data.size()),
+                encoded_request_data.begin(),
+                encoded_request_data.end()
+            );
+
+            if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
+                return communication_result::generic_socket_error;
+            }
+            connection.pending_request = request_type::unregister_data_definition;
+
+            communication_result result = receive_all(connection);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
+                return communication_result::received_other_response;
+            }
+
+            if (apply_offset<telemetry_id>(connection.collector.buffer().data(), 1) != id) {
+                return communication_result::unknown_data;
+            }
+
+            //connection.data_definitions.erase(find_it);
+            return communication_result::success;
+        }
+
         communication_result disconnect(connection& connection) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
@@ -194,11 +306,12 @@ namespace truckconnect {
             if (closesocket(connection.socket) == sockets::ERROR_RESULT) {
                 return communication_result::generic_socket_error;
             }
-            
+
             connection.collector.reset_and_resize(connection.collector.minimum_size);
             connection.pending_request = request_type::none;
             connection.socket = sockets::INVALID;
             connection.request_data = REQUIRE_CONNECT;
+            connection.data_definitions.clear();
             return communication_result::success;
         }
     }
