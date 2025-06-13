@@ -3,6 +3,18 @@
 
 namespace truckconnect {
     namespace metadata {
+        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
+            return (
+                reversing ?
+                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
+                    count == 0 ?
+                        INVALID_OFFSET :
+                        '0' <= *cstr && *cstr <= '9' ?
+                            *cstr - '0' :
+                            extract_trailer_index(cstr - 1, false, count - 1)
+                );
+        }
+
         constexpr const telemetry_type& telemtry_type_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return master::telemetry_type;
@@ -508,7 +520,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::indexed;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::indexed;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::indexed;
-                default: return false;
+                default: return LIFETIME_FALSE;
             }
         }
 
@@ -734,7 +746,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::trailer_channel;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::trailer_channel;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::trailer_channel;
-                default: return false;
+                default: return LIFETIME_FALSE;
             }
         }
 
@@ -1300,132 +1312,132 @@ namespace truckconnect {
 
         constexpr const uint32_t size_of(const telemetry_id& id) {
             switch (id) {
-                case telemetry_id::master: return sizeof(master::storage_type);
-                case telemetry_id::configuration: return sizeof(configuration::storage_type);
-                case telemetry_id::gameplay: return sizeof(gameplay::storage_type);
-                case telemetry_id::channels: return sizeof(channels::storage_type);
-                case telemetry_id::general: return sizeof(general::storage_type);
-                case telemetry_id::truck: return sizeof(truck::storage_type);
-                case telemetry_id::trailer: return sizeof(trailer::storage_type);
-                case telemetry_id::configuration_substances_info: return sizeof(configuration_substances_info::storage_type);
-                case telemetry_id::configuration_controls_info: return sizeof(configuration_controls_info::storage_type);
-                case telemetry_id::configuration_hshifter_info: return sizeof(configuration_hshifter_info::storage_type);
-                case telemetry_id::configuration_truck_info: return sizeof(configuration_truck_info::storage_type);
-                case telemetry_id::configuration_trailer_info: return sizeof(configuration_trailer_info::storage_type);
-                case telemetry_id::configuration_job_info: return sizeof(configuration_job_info::storage_type);
-                case telemetry_id::gameplay_job_cancelled_info: return sizeof(gameplay_job_cancelled_info::storage_type);
-                case telemetry_id::gameplay_job_delivered_info: return sizeof(gameplay_job_delivered_info::storage_type);
-                case telemetry_id::gameplay_player_fined_info: return sizeof(gameplay_player_fined_info::storage_type);
-                case telemetry_id::gameplay_player_tollgate_paid_info: return sizeof(gameplay_player_tollgate_paid_info::storage_type);
-                case telemetry_id::gameplay_player_use_ferry_info: return sizeof(gameplay_player_use_ferry_info::storage_type);
-                case telemetry_id::gameplay_player_use_train_info: return sizeof(gameplay_player_use_train_info::storage_type);
-                case telemetry_id::channel_paused: return sizeof(channel_paused::storage_type);
-                case telemetry_id::channel_local_scale: return sizeof(channel_local_scale::storage_type);
-                case telemetry_id::channel_game_time: return sizeof(channel_game_time::storage_type);
-                case telemetry_id::channel_multiplayer_time_offset: return sizeof(channel_multiplayer_time_offset::storage_type);
-                case telemetry_id::channel_next_rest_stop: return sizeof(channel_next_rest_stop::storage_type);
-                case telemetry_id::job_channel_cargo_damage: return sizeof(job_channel_cargo_damage::storage_type);
-                case telemetry_id::trailer_channel_connected: return sizeof(trailer_channel_connected::storage_type);
-                case telemetry_id::trailer_channel_cargo_damage: return sizeof(trailer_channel_cargo_damage::storage_type);
-                case telemetry_id::trailer_channel_world_placement: return sizeof(trailer_channel_world_placement::storage_type);
-                case telemetry_id::trailer_channel_local_linear_velocity: return sizeof(trailer_channel_local_linear_velocity::storage_type);
-                case telemetry_id::trailer_channel_local_angular_velocity: return sizeof(trailer_channel_local_angular_velocity::storage_type);
-                case telemetry_id::trailer_channel_local_linear_acceleration: return sizeof(trailer_channel_local_linear_acceleration::storage_type);
-                case telemetry_id::trailer_channel_local_angular_acceleration: return sizeof(trailer_channel_local_angular_acceleration::storage_type);
-                case telemetry_id::trailer_channel_wear_body: return sizeof(trailer_channel_wear_body::storage_type);
-                case telemetry_id::trailer_channel_wear_chassis: return sizeof(trailer_channel_wear_chassis::storage_type);
-                case telemetry_id::trailer_channel_wear_wheels: return sizeof(trailer_channel_wear_wheels::storage_type);
-                case telemetry_id::trailer_channel_wheel_susp_deflection: return sizeof(trailer_channel_wheel_susp_deflection::storage_type);
-                case telemetry_id::trailer_channel_wheel_on_ground: return sizeof(trailer_channel_wheel_on_ground::storage_type);
-                case telemetry_id::trailer_channel_wheel_substance: return sizeof(trailer_channel_wheel_substance::storage_type);
-                case telemetry_id::trailer_channel_wheel_velocity: return sizeof(trailer_channel_wheel_velocity::storage_type);
-                case telemetry_id::trailer_channel_wheel_steering: return sizeof(trailer_channel_wheel_steering::storage_type);
-                case telemetry_id::trailer_channel_wheel_rotation: return sizeof(trailer_channel_wheel_rotation::storage_type);
-                case telemetry_id::trailer_channel_wheel_lift: return sizeof(trailer_channel_wheel_lift::storage_type);
-                case telemetry_id::trailer_channel_wheel_lift_offset: return sizeof(trailer_channel_wheel_lift_offset::storage_type);
-                case telemetry_id::truck_channel_world_placement: return sizeof(truck_channel_world_placement::storage_type);
-                case telemetry_id::truck_channel_local_linear_velocity: return sizeof(truck_channel_local_linear_velocity::storage_type);
-                case telemetry_id::truck_channel_local_angular_velocity: return sizeof(truck_channel_local_angular_velocity::storage_type);
-                case telemetry_id::truck_channel_local_linear_acceleration: return sizeof(truck_channel_local_linear_acceleration::storage_type);
-                case telemetry_id::truck_channel_local_angular_acceleration: return sizeof(truck_channel_local_angular_acceleration::storage_type);
-                case telemetry_id::truck_channel_cabin_offset: return sizeof(truck_channel_cabin_offset::storage_type);
-                case telemetry_id::truck_channel_cabin_angular_velocity: return sizeof(truck_channel_cabin_angular_velocity::storage_type);
-                case telemetry_id::truck_channel_cabin_angular_acceleration: return sizeof(truck_channel_cabin_angular_acceleration::storage_type);
-                case telemetry_id::truck_channel_head_offset: return sizeof(truck_channel_head_offset::storage_type);
-                case telemetry_id::truck_channel_speed: return sizeof(truck_channel_speed::storage_type);
-                case telemetry_id::truck_channel_engine_rpm: return sizeof(truck_channel_engine_rpm::storage_type);
-                case telemetry_id::truck_channel_engine_gear: return sizeof(truck_channel_engine_gear::storage_type);
-                case telemetry_id::truck_channel_displayed_gear: return sizeof(truck_channel_displayed_gear::storage_type);
-                case telemetry_id::truck_channel_input_steering: return sizeof(truck_channel_input_steering::storage_type);
-                case telemetry_id::truck_channel_input_throttle: return sizeof(truck_channel_input_throttle::storage_type);
-                case telemetry_id::truck_channel_input_brake: return sizeof(truck_channel_input_brake::storage_type);
-                case telemetry_id::truck_channel_input_clutch: return sizeof(truck_channel_input_clutch::storage_type);
-                case telemetry_id::truck_channel_effective_steering: return sizeof(truck_channel_effective_steering::storage_type);
-                case telemetry_id::truck_channel_effective_throttle: return sizeof(truck_channel_effective_throttle::storage_type);
-                case telemetry_id::truck_channel_effective_brake: return sizeof(truck_channel_effective_brake::storage_type);
-                case telemetry_id::truck_channel_effective_clutch: return sizeof(truck_channel_effective_clutch::storage_type);
-                case telemetry_id::truck_channel_cruise_control: return sizeof(truck_channel_cruise_control::storage_type);
-                case telemetry_id::truck_channel_hshifter_slot: return sizeof(truck_channel_hshifter_slot::storage_type);
-                case telemetry_id::truck_channel_hshifter_selector: return sizeof(truck_channel_hshifter_selector::storage_type);
-                case telemetry_id::truck_channel_parking_brake: return sizeof(truck_channel_parking_brake::storage_type);
-                case telemetry_id::truck_channel_motor_brake: return sizeof(truck_channel_motor_brake::storage_type);
-                case telemetry_id::truck_channel_retarder_level: return sizeof(truck_channel_retarder_level::storage_type);
-                case telemetry_id::truck_channel_brake_air_pressure: return sizeof(truck_channel_brake_air_pressure::storage_type);
-                case telemetry_id::truck_channel_brake_air_pressure_warning: return sizeof(truck_channel_brake_air_pressure_warning::storage_type);
-                case telemetry_id::truck_channel_brake_air_pressure_emergency: return sizeof(truck_channel_brake_air_pressure_emergency::storage_type);
-                case telemetry_id::truck_channel_brake_temperature: return sizeof(truck_channel_brake_temperature::storage_type);
-                case telemetry_id::truck_channel_fuel: return sizeof(truck_channel_fuel::storage_type);
-                case telemetry_id::truck_channel_fuel_warning: return sizeof(truck_channel_fuel_warning::storage_type);
-                case telemetry_id::truck_channel_fuel_average_consumption: return sizeof(truck_channel_fuel_average_consumption::storage_type);
-                case telemetry_id::truck_channel_fuel_range: return sizeof(truck_channel_fuel_range::storage_type);
-                case telemetry_id::truck_channel_adblue: return sizeof(truck_channel_adblue::storage_type);
-                case telemetry_id::truck_channel_adblue_warning: return sizeof(truck_channel_adblue_warning::storage_type);
-                case telemetry_id::truck_channel_oil_pressure: return sizeof(truck_channel_oil_pressure::storage_type);
-                case telemetry_id::truck_channel_oil_pressure_warning: return sizeof(truck_channel_oil_pressure_warning::storage_type);
-                case telemetry_id::truck_channel_oil_temperature: return sizeof(truck_channel_oil_temperature::storage_type);
-                case telemetry_id::truck_channel_water_temperature: return sizeof(truck_channel_water_temperature::storage_type);
-                case telemetry_id::truck_channel_water_temperature_warning: return sizeof(truck_channel_water_temperature_warning::storage_type);
-                case telemetry_id::truck_channel_battery_voltage: return sizeof(truck_channel_battery_voltage::storage_type);
-                case telemetry_id::truck_channel_battery_voltage_warning: return sizeof(truck_channel_battery_voltage_warning::storage_type);
-                case telemetry_id::truck_channel_electric_enabled: return sizeof(truck_channel_electric_enabled::storage_type);
-                case telemetry_id::truck_channel_engine_enabled: return sizeof(truck_channel_engine_enabled::storage_type);
-                case telemetry_id::truck_channel_lblinker: return sizeof(truck_channel_lblinker::storage_type);
-                case telemetry_id::truck_channel_rblinker: return sizeof(truck_channel_rblinker::storage_type);
-                case telemetry_id::truck_channel_hazard_warning: return sizeof(truck_channel_hazard_warning::storage_type);
-                case telemetry_id::truck_channel_light_lblinker: return sizeof(truck_channel_light_lblinker::storage_type);
-                case telemetry_id::truck_channel_light_rblinker: return sizeof(truck_channel_light_rblinker::storage_type);
-                case telemetry_id::truck_channel_light_parking: return sizeof(truck_channel_light_parking::storage_type);
-                case telemetry_id::truck_channel_light_low_beam: return sizeof(truck_channel_light_low_beam::storage_type);
-                case telemetry_id::truck_channel_light_high_beam: return sizeof(truck_channel_light_high_beam::storage_type);
-                case telemetry_id::truck_channel_light_aux_front: return sizeof(truck_channel_light_aux_front::storage_type);
-                case telemetry_id::truck_channel_light_aux_roof: return sizeof(truck_channel_light_aux_roof::storage_type);
-                case telemetry_id::truck_channel_light_beacon: return sizeof(truck_channel_light_beacon::storage_type);
-                case telemetry_id::truck_channel_light_brake: return sizeof(truck_channel_light_brake::storage_type);
-                case telemetry_id::truck_channel_light_reverse: return sizeof(truck_channel_light_reverse::storage_type);
-                case telemetry_id::truck_channel_wipers: return sizeof(truck_channel_wipers::storage_type);
-                case telemetry_id::truck_channel_dashboard_backlight: return sizeof(truck_channel_dashboard_backlight::storage_type);
-                case telemetry_id::truck_channel_differential_lock: return sizeof(truck_channel_differential_lock::storage_type);
-                case telemetry_id::truck_channel_lift_axle: return sizeof(truck_channel_lift_axle::storage_type);
-                case telemetry_id::truck_channel_lift_axle_indicator: return sizeof(truck_channel_lift_axle_indicator::storage_type);
-                case telemetry_id::truck_channel_trailer_lift_axle: return sizeof(truck_channel_trailer_lift_axle::storage_type);
-                case telemetry_id::truck_channel_trailer_lift_axle_indicator: return sizeof(truck_channel_trailer_lift_axle_indicator::storage_type);
-                case telemetry_id::truck_channel_wear_engine: return sizeof(truck_channel_wear_engine::storage_type);
-                case telemetry_id::truck_channel_wear_transmission: return sizeof(truck_channel_wear_transmission::storage_type);
-                case telemetry_id::truck_channel_wear_cabin: return sizeof(truck_channel_wear_cabin::storage_type);
-                case telemetry_id::truck_channel_wear_chassis: return sizeof(truck_channel_wear_chassis::storage_type);
-                case telemetry_id::truck_channel_wear_wheels: return sizeof(truck_channel_wear_wheels::storage_type);
-                case telemetry_id::truck_channel_odometer: return sizeof(truck_channel_odometer::storage_type);
-                case telemetry_id::truck_channel_navigation_distance: return sizeof(truck_channel_navigation_distance::storage_type);
-                case telemetry_id::truck_channel_navigation_time: return sizeof(truck_channel_navigation_time::storage_type);
-                case telemetry_id::truck_channel_navigation_speed_limit: return sizeof(truck_channel_navigation_speed_limit::storage_type);
-                case telemetry_id::truck_channel_wheel_susp_deflection: return sizeof(truck_channel_wheel_susp_deflection::storage_type);
-                case telemetry_id::truck_channel_wheel_on_ground: return sizeof(truck_channel_wheel_on_ground::storage_type);
-                case telemetry_id::truck_channel_wheel_substance: return sizeof(truck_channel_wheel_substance::storage_type);
-                case telemetry_id::truck_channel_wheel_velocity: return sizeof(truck_channel_wheel_velocity::storage_type);
-                case telemetry_id::truck_channel_wheel_steering: return sizeof(truck_channel_wheel_steering::storage_type);
-                case telemetry_id::truck_channel_wheel_rotation: return sizeof(truck_channel_wheel_rotation::storage_type);
-                case telemetry_id::truck_channel_wheel_lift: return sizeof(truck_channel_wheel_lift::storage_type);
-                case telemetry_id::truck_channel_wheel_lift_offset: return sizeof(truck_channel_wheel_lift_offset::storage_type);
+                case telemetry_id::master: return master::storage_type_size;
+                case telemetry_id::configuration: return configuration::storage_type_size;
+                case telemetry_id::gameplay: return gameplay::storage_type_size;
+                case telemetry_id::channels: return channels::storage_type_size;
+                case telemetry_id::general: return general::storage_type_size;
+                case telemetry_id::truck: return truck::storage_type_size;
+                case telemetry_id::trailer: return trailer::storage_type_size;
+                case telemetry_id::configuration_substances_info: return configuration_substances_info::storage_type_size;
+                case telemetry_id::configuration_controls_info: return configuration_controls_info::storage_type_size;
+                case telemetry_id::configuration_hshifter_info: return configuration_hshifter_info::storage_type_size;
+                case telemetry_id::configuration_truck_info: return configuration_truck_info::storage_type_size;
+                case telemetry_id::configuration_trailer_info: return configuration_trailer_info::storage_type_size;
+                case telemetry_id::configuration_job_info: return configuration_job_info::storage_type_size;
+                case telemetry_id::gameplay_job_cancelled_info: return gameplay_job_cancelled_info::storage_type_size;
+                case telemetry_id::gameplay_job_delivered_info: return gameplay_job_delivered_info::storage_type_size;
+                case telemetry_id::gameplay_player_fined_info: return gameplay_player_fined_info::storage_type_size;
+                case telemetry_id::gameplay_player_tollgate_paid_info: return gameplay_player_tollgate_paid_info::storage_type_size;
+                case telemetry_id::gameplay_player_use_ferry_info: return gameplay_player_use_ferry_info::storage_type_size;
+                case telemetry_id::gameplay_player_use_train_info: return gameplay_player_use_train_info::storage_type_size;
+                case telemetry_id::channel_paused: return channel_paused::storage_type_size;
+                case telemetry_id::channel_local_scale: return channel_local_scale::storage_type_size;
+                case telemetry_id::channel_game_time: return channel_game_time::storage_type_size;
+                case telemetry_id::channel_multiplayer_time_offset: return channel_multiplayer_time_offset::storage_type_size;
+                case telemetry_id::channel_next_rest_stop: return channel_next_rest_stop::storage_type_size;
+                case telemetry_id::job_channel_cargo_damage: return job_channel_cargo_damage::storage_type_size;
+                case telemetry_id::trailer_channel_connected: return trailer_channel_connected::storage_type_size;
+                case telemetry_id::trailer_channel_cargo_damage: return trailer_channel_cargo_damage::storage_type_size;
+                case telemetry_id::trailer_channel_world_placement: return trailer_channel_world_placement::storage_type_size;
+                case telemetry_id::trailer_channel_local_linear_velocity: return trailer_channel_local_linear_velocity::storage_type_size;
+                case telemetry_id::trailer_channel_local_angular_velocity: return trailer_channel_local_angular_velocity::storage_type_size;
+                case telemetry_id::trailer_channel_local_linear_acceleration: return trailer_channel_local_linear_acceleration::storage_type_size;
+                case telemetry_id::trailer_channel_local_angular_acceleration: return trailer_channel_local_angular_acceleration::storage_type_size;
+                case telemetry_id::trailer_channel_wear_body: return trailer_channel_wear_body::storage_type_size;
+                case telemetry_id::trailer_channel_wear_chassis: return trailer_channel_wear_chassis::storage_type_size;
+                case telemetry_id::trailer_channel_wear_wheels: return trailer_channel_wear_wheels::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_susp_deflection: return trailer_channel_wheel_susp_deflection::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_on_ground: return trailer_channel_wheel_on_ground::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_substance: return trailer_channel_wheel_substance::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_velocity: return trailer_channel_wheel_velocity::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_steering: return trailer_channel_wheel_steering::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_rotation: return trailer_channel_wheel_rotation::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_lift: return trailer_channel_wheel_lift::storage_type_size;
+                case telemetry_id::trailer_channel_wheel_lift_offset: return trailer_channel_wheel_lift_offset::storage_type_size;
+                case telemetry_id::truck_channel_world_placement: return truck_channel_world_placement::storage_type_size;
+                case telemetry_id::truck_channel_local_linear_velocity: return truck_channel_local_linear_velocity::storage_type_size;
+                case telemetry_id::truck_channel_local_angular_velocity: return truck_channel_local_angular_velocity::storage_type_size;
+                case telemetry_id::truck_channel_local_linear_acceleration: return truck_channel_local_linear_acceleration::storage_type_size;
+                case telemetry_id::truck_channel_local_angular_acceleration: return truck_channel_local_angular_acceleration::storage_type_size;
+                case telemetry_id::truck_channel_cabin_offset: return truck_channel_cabin_offset::storage_type_size;
+                case telemetry_id::truck_channel_cabin_angular_velocity: return truck_channel_cabin_angular_velocity::storage_type_size;
+                case telemetry_id::truck_channel_cabin_angular_acceleration: return truck_channel_cabin_angular_acceleration::storage_type_size;
+                case telemetry_id::truck_channel_head_offset: return truck_channel_head_offset::storage_type_size;
+                case telemetry_id::truck_channel_speed: return truck_channel_speed::storage_type_size;
+                case telemetry_id::truck_channel_engine_rpm: return truck_channel_engine_rpm::storage_type_size;
+                case telemetry_id::truck_channel_engine_gear: return truck_channel_engine_gear::storage_type_size;
+                case telemetry_id::truck_channel_displayed_gear: return truck_channel_displayed_gear::storage_type_size;
+                case telemetry_id::truck_channel_input_steering: return truck_channel_input_steering::storage_type_size;
+                case telemetry_id::truck_channel_input_throttle: return truck_channel_input_throttle::storage_type_size;
+                case telemetry_id::truck_channel_input_brake: return truck_channel_input_brake::storage_type_size;
+                case telemetry_id::truck_channel_input_clutch: return truck_channel_input_clutch::storage_type_size;
+                case telemetry_id::truck_channel_effective_steering: return truck_channel_effective_steering::storage_type_size;
+                case telemetry_id::truck_channel_effective_throttle: return truck_channel_effective_throttle::storage_type_size;
+                case telemetry_id::truck_channel_effective_brake: return truck_channel_effective_brake::storage_type_size;
+                case telemetry_id::truck_channel_effective_clutch: return truck_channel_effective_clutch::storage_type_size;
+                case telemetry_id::truck_channel_cruise_control: return truck_channel_cruise_control::storage_type_size;
+                case telemetry_id::truck_channel_hshifter_slot: return truck_channel_hshifter_slot::storage_type_size;
+                case telemetry_id::truck_channel_hshifter_selector: return truck_channel_hshifter_selector::storage_type_size;
+                case telemetry_id::truck_channel_parking_brake: return truck_channel_parking_brake::storage_type_size;
+                case telemetry_id::truck_channel_motor_brake: return truck_channel_motor_brake::storage_type_size;
+                case telemetry_id::truck_channel_retarder_level: return truck_channel_retarder_level::storage_type_size;
+                case telemetry_id::truck_channel_brake_air_pressure: return truck_channel_brake_air_pressure::storage_type_size;
+                case telemetry_id::truck_channel_brake_air_pressure_warning: return truck_channel_brake_air_pressure_warning::storage_type_size;
+                case telemetry_id::truck_channel_brake_air_pressure_emergency: return truck_channel_brake_air_pressure_emergency::storage_type_size;
+                case telemetry_id::truck_channel_brake_temperature: return truck_channel_brake_temperature::storage_type_size;
+                case telemetry_id::truck_channel_fuel: return truck_channel_fuel::storage_type_size;
+                case telemetry_id::truck_channel_fuel_warning: return truck_channel_fuel_warning::storage_type_size;
+                case telemetry_id::truck_channel_fuel_average_consumption: return truck_channel_fuel_average_consumption::storage_type_size;
+                case telemetry_id::truck_channel_fuel_range: return truck_channel_fuel_range::storage_type_size;
+                case telemetry_id::truck_channel_adblue: return truck_channel_adblue::storage_type_size;
+                case telemetry_id::truck_channel_adblue_warning: return truck_channel_adblue_warning::storage_type_size;
+                case telemetry_id::truck_channel_oil_pressure: return truck_channel_oil_pressure::storage_type_size;
+                case telemetry_id::truck_channel_oil_pressure_warning: return truck_channel_oil_pressure_warning::storage_type_size;
+                case telemetry_id::truck_channel_oil_temperature: return truck_channel_oil_temperature::storage_type_size;
+                case telemetry_id::truck_channel_water_temperature: return truck_channel_water_temperature::storage_type_size;
+                case telemetry_id::truck_channel_water_temperature_warning: return truck_channel_water_temperature_warning::storage_type_size;
+                case telemetry_id::truck_channel_battery_voltage: return truck_channel_battery_voltage::storage_type_size;
+                case telemetry_id::truck_channel_battery_voltage_warning: return truck_channel_battery_voltage_warning::storage_type_size;
+                case telemetry_id::truck_channel_electric_enabled: return truck_channel_electric_enabled::storage_type_size;
+                case telemetry_id::truck_channel_engine_enabled: return truck_channel_engine_enabled::storage_type_size;
+                case telemetry_id::truck_channel_lblinker: return truck_channel_lblinker::storage_type_size;
+                case telemetry_id::truck_channel_rblinker: return truck_channel_rblinker::storage_type_size;
+                case telemetry_id::truck_channel_hazard_warning: return truck_channel_hazard_warning::storage_type_size;
+                case telemetry_id::truck_channel_light_lblinker: return truck_channel_light_lblinker::storage_type_size;
+                case telemetry_id::truck_channel_light_rblinker: return truck_channel_light_rblinker::storage_type_size;
+                case telemetry_id::truck_channel_light_parking: return truck_channel_light_parking::storage_type_size;
+                case telemetry_id::truck_channel_light_low_beam: return truck_channel_light_low_beam::storage_type_size;
+                case telemetry_id::truck_channel_light_high_beam: return truck_channel_light_high_beam::storage_type_size;
+                case telemetry_id::truck_channel_light_aux_front: return truck_channel_light_aux_front::storage_type_size;
+                case telemetry_id::truck_channel_light_aux_roof: return truck_channel_light_aux_roof::storage_type_size;
+                case telemetry_id::truck_channel_light_beacon: return truck_channel_light_beacon::storage_type_size;
+                case telemetry_id::truck_channel_light_brake: return truck_channel_light_brake::storage_type_size;
+                case telemetry_id::truck_channel_light_reverse: return truck_channel_light_reverse::storage_type_size;
+                case telemetry_id::truck_channel_wipers: return truck_channel_wipers::storage_type_size;
+                case telemetry_id::truck_channel_dashboard_backlight: return truck_channel_dashboard_backlight::storage_type_size;
+                case telemetry_id::truck_channel_differential_lock: return truck_channel_differential_lock::storage_type_size;
+                case telemetry_id::truck_channel_lift_axle: return truck_channel_lift_axle::storage_type_size;
+                case telemetry_id::truck_channel_lift_axle_indicator: return truck_channel_lift_axle_indicator::storage_type_size;
+                case telemetry_id::truck_channel_trailer_lift_axle: return truck_channel_trailer_lift_axle::storage_type_size;
+                case telemetry_id::truck_channel_trailer_lift_axle_indicator: return truck_channel_trailer_lift_axle_indicator::storage_type_size;
+                case telemetry_id::truck_channel_wear_engine: return truck_channel_wear_engine::storage_type_size;
+                case telemetry_id::truck_channel_wear_transmission: return truck_channel_wear_transmission::storage_type_size;
+                case telemetry_id::truck_channel_wear_cabin: return truck_channel_wear_cabin::storage_type_size;
+                case telemetry_id::truck_channel_wear_chassis: return truck_channel_wear_chassis::storage_type_size;
+                case telemetry_id::truck_channel_wear_wheels: return truck_channel_wear_wheels::storage_type_size;
+                case telemetry_id::truck_channel_odometer: return truck_channel_odometer::storage_type_size;
+                case telemetry_id::truck_channel_navigation_distance: return truck_channel_navigation_distance::storage_type_size;
+                case telemetry_id::truck_channel_navigation_time: return truck_channel_navigation_time::storage_type_size;
+                case telemetry_id::truck_channel_navigation_speed_limit: return truck_channel_navigation_speed_limit::storage_type_size;
+                case telemetry_id::truck_channel_wheel_susp_deflection: return truck_channel_wheel_susp_deflection::storage_type_size;
+                case telemetry_id::truck_channel_wheel_on_ground: return truck_channel_wheel_on_ground::storage_type_size;
+                case telemetry_id::truck_channel_wheel_substance: return truck_channel_wheel_substance::storage_type_size;
+                case telemetry_id::truck_channel_wheel_velocity: return truck_channel_wheel_velocity::storage_type_size;
+                case telemetry_id::truck_channel_wheel_steering: return truck_channel_wheel_steering::storage_type_size;
+                case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::storage_type_size;
+                case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::storage_type_size;
+                case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::storage_type_size;
                 default: return INVALID_SIZE;
             }
         }
@@ -1750,24 +1762,6 @@ namespace truckconnect {
             }
         }
 
-        constexpr const uint32_t event_info_latest_offset(const telemetry_id& id) {
-            switch (id) {
-                case telemetry_id::configuration_substances_info: return offsetof(configuration_substances_info::storage_type, latest);
-                case telemetry_id::configuration_controls_info: return offsetof(configuration_controls_info::storage_type, latest);
-                case telemetry_id::configuration_hshifter_info: return offsetof(configuration_hshifter_info::storage_type, latest);
-                case telemetry_id::configuration_truck_info: return offsetof(configuration_truck_info::storage_type, latest);
-                case telemetry_id::configuration_trailer_info: return offsetof(configuration_trailer_info::storage_type, latest);
-                case telemetry_id::configuration_job_info: return offsetof(configuration_job_info::storage_type, latest);
-                case telemetry_id::gameplay_job_cancelled_info: return offsetof(gameplay_job_cancelled_info::storage_type, latest);
-                case telemetry_id::gameplay_job_delivered_info: return offsetof(gameplay_job_delivered_info::storage_type, latest);
-                case telemetry_id::gameplay_player_fined_info: return offsetof(gameplay_player_fined_info::storage_type, latest);
-                case telemetry_id::gameplay_player_tollgate_paid_info: return offsetof(gameplay_player_tollgate_paid_info::storage_type, latest);
-                case telemetry_id::gameplay_player_use_ferry_info: return offsetof(gameplay_player_use_ferry_info::storage_type, latest);
-                case telemetry_id::gameplay_player_use_train_info: return offsetof(gameplay_player_use_train_info::storage_type, latest);
-                default: return INVALID_OFFSET;
-            }
-        }
-
         constexpr const bool event_info_member_indexed(const telemetry_id& id, const char* const member) {
             switch (id) {
                 case telemetry_id::configuration_substances_info:
@@ -1824,7 +1818,25 @@ namespace truckconnect {
                 case telemetry_id::gameplay_player_use_train_info:
                     return
                         false;
-                default: return false;
+                default: return LIFETIME_FALSE;
+            }
+        }
+
+        constexpr const uint32_t event_info_latest_offset(const telemetry_id& id) {
+            switch (id) {
+                case telemetry_id::configuration_substances_info: return offsetof(configuration_substances_info::storage_type, latest);
+                case telemetry_id::configuration_controls_info: return offsetof(configuration_controls_info::storage_type, latest);
+                case telemetry_id::configuration_hshifter_info: return offsetof(configuration_hshifter_info::storage_type, latest);
+                case telemetry_id::configuration_truck_info: return offsetof(configuration_truck_info::storage_type, latest);
+                case telemetry_id::configuration_trailer_info: return offsetof(configuration_trailer_info::storage_type, latest);
+                case telemetry_id::configuration_job_info: return offsetof(configuration_job_info::storage_type, latest);
+                case telemetry_id::gameplay_job_cancelled_info: return offsetof(gameplay_job_cancelled_info::storage_type, latest);
+                case telemetry_id::gameplay_job_delivered_info: return offsetof(gameplay_job_delivered_info::storage_type, latest);
+                case telemetry_id::gameplay_player_fined_info: return offsetof(gameplay_player_fined_info::storage_type, latest);
+                case telemetry_id::gameplay_player_tollgate_paid_info: return offsetof(gameplay_player_tollgate_paid_info::storage_type, latest);
+                case telemetry_id::gameplay_player_use_ferry_info: return offsetof(gameplay_player_use_ferry_info::storage_type, latest);
+                case telemetry_id::gameplay_player_use_train_info: return offsetof(gameplay_player_use_train_info::storage_type, latest);
+                default: return INVALID_OFFSET;
             }
         }
 
@@ -1979,7 +1991,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const bool is_custom_channel(const telemetry_id& id) {
+        constexpr const bool& is_custom_channel(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::custom_channel;
                 case telemetry_id::channel_local_scale: return channel_local_scale::custom_channel;
@@ -2088,7 +2100,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::custom_channel;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::custom_channel;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::custom_channel;
-                default: return false;
+                default: return LIFETIME_FALSE;
             }
         }
 
@@ -2221,138 +2233,6 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::metadata_value;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::metadata_value;
                 default: return INVALID_METADATA;
-            }
-        }
-
-        constexpr const char* const id_name(const telemetry_id& id) {
-            switch (id) {
-                case telemetry_id::master: return "master";
-                case telemetry_id::configuration: return "configuration";
-                case telemetry_id::gameplay: return "gameplay";
-                case telemetry_id::channels: return "channels";
-                case telemetry_id::general: return "general";
-                case telemetry_id::truck: return "truck";
-                case telemetry_id::trailer: return "trailer";
-                case telemetry_id::configuration_substances_info: return "configuration_substances_info";
-                case telemetry_id::configuration_controls_info: return "configuration_controls_info";
-                case telemetry_id::configuration_hshifter_info: return "configuration_hshifter_info";
-                case telemetry_id::configuration_truck_info: return "configuration_truck_info";
-                case telemetry_id::configuration_trailer_info: return "configuration_trailer_info";
-                case telemetry_id::configuration_job_info: return "configuration_job_info";
-                case telemetry_id::gameplay_job_cancelled_info: return "gameplay_job_cancelled_info";
-                case telemetry_id::gameplay_job_delivered_info: return "gameplay_job_delivered_info";
-                case telemetry_id::gameplay_player_fined_info: return "gameplay_player_fined_info";
-                case telemetry_id::gameplay_player_tollgate_paid_info: return "gameplay_player_tollgate_paid_info";
-                case telemetry_id::gameplay_player_use_ferry_info: return "gameplay_player_use_ferry_info";
-                case telemetry_id::gameplay_player_use_train_info: return "gameplay_player_use_train_info";
-                case telemetry_id::channel_paused: return "channel_paused";
-                case telemetry_id::channel_local_scale: return "channel_local_scale";
-                case telemetry_id::channel_game_time: return "channel_game_time";
-                case telemetry_id::channel_multiplayer_time_offset: return "channel_multiplayer_time_offset";
-                case telemetry_id::channel_next_rest_stop: return "channel_next_rest_stop";
-                case telemetry_id::job_channel_cargo_damage: return "job_channel_cargo_damage";
-                case telemetry_id::trailer_channel_connected: return "trailer_channel_connected";
-                case telemetry_id::trailer_channel_cargo_damage: return "trailer_channel_cargo_damage";
-                case telemetry_id::trailer_channel_world_placement: return "trailer_channel_world_placement";
-                case telemetry_id::trailer_channel_local_linear_velocity: return "trailer_channel_local_linear_velocity";
-                case telemetry_id::trailer_channel_local_angular_velocity: return "trailer_channel_local_angular_velocity";
-                case telemetry_id::trailer_channel_local_linear_acceleration: return "trailer_channel_local_linear_acceleration";
-                case telemetry_id::trailer_channel_local_angular_acceleration: return "trailer_channel_local_angular_acceleration";
-                case telemetry_id::trailer_channel_wear_body: return "trailer_channel_wear_body";
-                case telemetry_id::trailer_channel_wear_chassis: return "trailer_channel_wear_chassis";
-                case telemetry_id::trailer_channel_wear_wheels: return "trailer_channel_wear_wheels";
-                case telemetry_id::trailer_channel_wheel_susp_deflection: return "trailer_channel_wheel_susp_deflection";
-                case telemetry_id::trailer_channel_wheel_on_ground: return "trailer_channel_wheel_on_ground";
-                case telemetry_id::trailer_channel_wheel_substance: return "trailer_channel_wheel_substance";
-                case telemetry_id::trailer_channel_wheel_velocity: return "trailer_channel_wheel_velocity";
-                case telemetry_id::trailer_channel_wheel_steering: return "trailer_channel_wheel_steering";
-                case telemetry_id::trailer_channel_wheel_rotation: return "trailer_channel_wheel_rotation";
-                case telemetry_id::trailer_channel_wheel_lift: return "trailer_channel_wheel_lift";
-                case telemetry_id::trailer_channel_wheel_lift_offset: return "trailer_channel_wheel_lift_offset";
-                case telemetry_id::truck_channel_world_placement: return "truck_channel_world_placement";
-                case telemetry_id::truck_channel_local_linear_velocity: return "truck_channel_local_linear_velocity";
-                case telemetry_id::truck_channel_local_angular_velocity: return "truck_channel_local_angular_velocity";
-                case telemetry_id::truck_channel_local_linear_acceleration: return "truck_channel_local_linear_acceleration";
-                case telemetry_id::truck_channel_local_angular_acceleration: return "truck_channel_local_angular_acceleration";
-                case telemetry_id::truck_channel_cabin_offset: return "truck_channel_cabin_offset";
-                case telemetry_id::truck_channel_cabin_angular_velocity: return "truck_channel_cabin_angular_velocity";
-                case telemetry_id::truck_channel_cabin_angular_acceleration: return "truck_channel_cabin_angular_acceleration";
-                case telemetry_id::truck_channel_head_offset: return "truck_channel_head_offset";
-                case telemetry_id::truck_channel_speed: return "truck_channel_speed";
-                case telemetry_id::truck_channel_engine_rpm: return "truck_channel_engine_rpm";
-                case telemetry_id::truck_channel_engine_gear: return "truck_channel_engine_gear";
-                case telemetry_id::truck_channel_displayed_gear: return "truck_channel_displayed_gear";
-                case telemetry_id::truck_channel_input_steering: return "truck_channel_input_steering";
-                case telemetry_id::truck_channel_input_throttle: return "truck_channel_input_throttle";
-                case telemetry_id::truck_channel_input_brake: return "truck_channel_input_brake";
-                case telemetry_id::truck_channel_input_clutch: return "truck_channel_input_clutch";
-                case telemetry_id::truck_channel_effective_steering: return "truck_channel_effective_steering";
-                case telemetry_id::truck_channel_effective_throttle: return "truck_channel_effective_throttle";
-                case telemetry_id::truck_channel_effective_brake: return "truck_channel_effective_brake";
-                case telemetry_id::truck_channel_effective_clutch: return "truck_channel_effective_clutch";
-                case telemetry_id::truck_channel_cruise_control: return "truck_channel_cruise_control";
-                case telemetry_id::truck_channel_hshifter_slot: return "truck_channel_hshifter_slot";
-                case telemetry_id::truck_channel_hshifter_selector: return "truck_channel_hshifter_selector";
-                case telemetry_id::truck_channel_parking_brake: return "truck_channel_parking_brake";
-                case telemetry_id::truck_channel_motor_brake: return "truck_channel_motor_brake";
-                case telemetry_id::truck_channel_retarder_level: return "truck_channel_retarder_level";
-                case telemetry_id::truck_channel_brake_air_pressure: return "truck_channel_brake_air_pressure";
-                case telemetry_id::truck_channel_brake_air_pressure_warning: return "truck_channel_brake_air_pressure_warning";
-                case telemetry_id::truck_channel_brake_air_pressure_emergency: return "truck_channel_brake_air_pressure_emergency";
-                case telemetry_id::truck_channel_brake_temperature: return "truck_channel_brake_temperature";
-                case telemetry_id::truck_channel_fuel: return "truck_channel_fuel";
-                case telemetry_id::truck_channel_fuel_warning: return "truck_channel_fuel_warning";
-                case telemetry_id::truck_channel_fuel_average_consumption: return "truck_channel_fuel_average_consumption";
-                case telemetry_id::truck_channel_fuel_range: return "truck_channel_fuel_range";
-                case telemetry_id::truck_channel_adblue: return "truck_channel_adblue";
-                case telemetry_id::truck_channel_adblue_warning: return "truck_channel_adblue_warning";
-                case telemetry_id::truck_channel_oil_pressure: return "truck_channel_oil_pressure";
-                case telemetry_id::truck_channel_oil_pressure_warning: return "truck_channel_oil_pressure_warning";
-                case telemetry_id::truck_channel_oil_temperature: return "truck_channel_oil_temperature";
-                case telemetry_id::truck_channel_water_temperature: return "truck_channel_water_temperature";
-                case telemetry_id::truck_channel_water_temperature_warning: return "truck_channel_water_temperature_warning";
-                case telemetry_id::truck_channel_battery_voltage: return "truck_channel_battery_voltage";
-                case telemetry_id::truck_channel_battery_voltage_warning: return "truck_channel_battery_voltage_warning";
-                case telemetry_id::truck_channel_electric_enabled: return "truck_channel_electric_enabled";
-                case telemetry_id::truck_channel_engine_enabled: return "truck_channel_engine_enabled";
-                case telemetry_id::truck_channel_lblinker: return "truck_channel_lblinker";
-                case telemetry_id::truck_channel_rblinker: return "truck_channel_rblinker";
-                case telemetry_id::truck_channel_hazard_warning: return "truck_channel_hazard_warning";
-                case telemetry_id::truck_channel_light_lblinker: return "truck_channel_light_lblinker";
-                case telemetry_id::truck_channel_light_rblinker: return "truck_channel_light_rblinker";
-                case telemetry_id::truck_channel_light_parking: return "truck_channel_light_parking";
-                case telemetry_id::truck_channel_light_low_beam: return "truck_channel_light_low_beam";
-                case telemetry_id::truck_channel_light_high_beam: return "truck_channel_light_high_beam";
-                case telemetry_id::truck_channel_light_aux_front: return "truck_channel_light_aux_front";
-                case telemetry_id::truck_channel_light_aux_roof: return "truck_channel_light_aux_roof";
-                case telemetry_id::truck_channel_light_beacon: return "truck_channel_light_beacon";
-                case telemetry_id::truck_channel_light_brake: return "truck_channel_light_brake";
-                case telemetry_id::truck_channel_light_reverse: return "truck_channel_light_reverse";
-                case telemetry_id::truck_channel_wipers: return "truck_channel_wipers";
-                case telemetry_id::truck_channel_dashboard_backlight: return "truck_channel_dashboard_backlight";
-                case telemetry_id::truck_channel_differential_lock: return "truck_channel_differential_lock";
-                case telemetry_id::truck_channel_lift_axle: return "truck_channel_lift_axle";
-                case telemetry_id::truck_channel_lift_axle_indicator: return "truck_channel_lift_axle_indicator";
-                case telemetry_id::truck_channel_trailer_lift_axle: return "truck_channel_trailer_lift_axle";
-                case telemetry_id::truck_channel_trailer_lift_axle_indicator: return "truck_channel_trailer_lift_axle_indicator";
-                case telemetry_id::truck_channel_wear_engine: return "truck_channel_wear_engine";
-                case telemetry_id::truck_channel_wear_transmission: return "truck_channel_wear_transmission";
-                case telemetry_id::truck_channel_wear_cabin: return "truck_channel_wear_cabin";
-                case telemetry_id::truck_channel_wear_chassis: return "truck_channel_wear_chassis";
-                case telemetry_id::truck_channel_wear_wheels: return "truck_channel_wear_wheels";
-                case telemetry_id::truck_channel_odometer: return "truck_channel_odometer";
-                case telemetry_id::truck_channel_navigation_distance: return "truck_channel_navigation_distance";
-                case telemetry_id::truck_channel_navigation_time: return "truck_channel_navigation_time";
-                case telemetry_id::truck_channel_navigation_speed_limit: return "truck_channel_navigation_speed_limit";
-                case telemetry_id::truck_channel_wheel_susp_deflection: return "truck_channel_wheel_susp_deflection";
-                case telemetry_id::truck_channel_wheel_on_ground: return "truck_channel_wheel_on_ground";
-                case telemetry_id::truck_channel_wheel_substance: return "truck_channel_wheel_substance";
-                case telemetry_id::truck_channel_wheel_velocity: return "truck_channel_wheel_velocity";
-                case telemetry_id::truck_channel_wheel_steering: return "truck_channel_wheel_steering";
-                case telemetry_id::truck_channel_wheel_rotation: return "truck_channel_wheel_rotation";
-                case telemetry_id::truck_channel_wheel_lift: return "truck_channel_wheel_lift";
-                case telemetry_id::truck_channel_wheel_lift_offset: return "truck_channel_wheel_lift_offset";
-                default: return "invalid";
             }
         }
     }
