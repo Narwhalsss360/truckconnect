@@ -128,4 +128,6 @@ namespace truckconnect {
     bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage& master, const uint32_t offset, uint32_t& read);
 
     static bool from_bytes(const std::vector<uint8_t>& as_bytes, master_storage& master) { uint32_t read; return from_bytes(as_bytes, master, 0, read); }
+
+    bool from_bytes(const telemetry_id& id, const std::vector<uint8_t>& as_bytes, void* const out, const uint32_t& offset, uint32_t& read);
 }
