@@ -27,17 +27,17 @@ int busy_request_test() {
 
     while (true) {
         if (!local_scale.initialized) {
-            debug_assert(communication_result::success == (result = request(connection, telemetry_id::channel_local_scale)));
+            debug_assert(communication_result::success == (result = request<metadata::channel_local_scale>(
+                connection,
+                [&](const metadata::channel_local_scale::storage_type& received) {
+                    local_scale = received;
+                }
+            )));
             debug_assert(from_bytes(connection.collector.buffer(), local_scale, connection::DATA_START));
         }
 
-        debug_assert(communication_result::success == (result = request(connection, telemetry_id::channel_game_time)));
-        debug_assert(from_bytes(connection.collector.buffer(), game_time, connection::DATA_START));
-
-        for (int i = 0; i < SCS_TELEMETRY_trailers_count; i++) {
-            debug_assert(communication_result::success == (result = request(connection, telemetry_id::trailer_channel_connected, i)));
-            debug_assert(from_bytes(connection.collector.buffer(), trailer_connected[i], connection::DATA_START));
-        }
+        debug_assert(communication_result::success == (result = request<metadata::channel_game_time>(connection, game_time)));
+        debug_assert(communication_result::success == (result = request<metadata::trailer_channel_connected>(connection, trailer_connected)));
 
         if (!start_game_time.initialized) {
             start_game_time = game_time;

@@ -65,7 +65,9 @@ namespace truckconnect {
                 received_other_response,
                 received_other_telemetry,
                 received_other_trailer_index,
-                unknown_data
+                deserialization_failure,
+                trailer_index_out_of_bounds,
+                unknown_data,
             };
         }
 
@@ -101,6 +103,52 @@ namespace truckconnect {
 
         static inline communication_result request(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0) {
             return request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
+        }
+
+        template <typename meta>
+        communication_result request(connection& connection, std::function<void(const typename meta::storage_type&)> received_callback, const uint8_t& trailer_index = 0) {
+            communication_result result;
+            result = request(connection, meta::id, [&connection, &received_callback, &result] (const std::vector<uint8_t>& buffer) {
+                typename meta::storage_type destination;
+                if (from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                    received_callback(destination);
+                } else {
+                    result = communication_result::deserialization_failure;
+                }
+            }, trailer_index);
+
+            return result;
+        }
+
+        template <typename meta>
+        communication_result request(connection& connection, typename meta::storage_type& destination, const uint8_t& trailer_index = 0) {
+            communication_result result = request(connection, meta::id, trailer_index);
+            if (result == communication_result::success) {
+                if (!from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                    result = communication_result::deserialization_failure;
+                }
+            }
+            return result;
+        }
+
+        template <typename meta, uint32_t trailer_count>
+        communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
+            communication_result result;
+            for (uint8_t i = 0; i < trailer_count; i++) {
+                if (communication_result::success != (result = request<meta>(connection, array[i], i))) {
+                    return result;
+                }
+            }
+
+            return result;
+        }
+
+        template <typename meta, uint32_t trailer_count>
+        communication_result request(connection& connection, std::array<typename meta::storage_type, trailer_count>& array) {
+            return request<meta, trailer_count>(
+                connection,
+                *reinterpret_cast<typename meta::storage_type (* const)[trailer_count]>(array.data())
+            );
         }
 
         communication_result disconnect(connection& connection);
