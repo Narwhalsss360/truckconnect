@@ -64,7 +64,7 @@ int data_definition_test() {
     ))));
 
     while (true) {
-
+        debug_assert(communication_result::success == (result = request(connection, gauge_cluster_id)));
     }
 
     debug_assert(communication_result::success == (result = unregister_data_definition(connection, gauge_cluster_id)));

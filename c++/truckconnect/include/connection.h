@@ -18,6 +18,7 @@ namespace truckconnect {
                 none,
                 telemetry_id,
                 register_data_definition,
+                defined_data,
                 unregister_data_definition
             };
         }
@@ -59,6 +60,8 @@ namespace truckconnect {
             static constexpr const uint32_t TELEMTRY_DATA_START = sizeof(pending_request) + sizeof(request_data);
 
             static constexpr const uint32_t DATA_DEFINITION_DATA_START = sizeof(pending_request) + sizeof(data::data_definition_id);
+
+            static constexpr const uint32_t DEFINED_DATA_DATA_START = sizeof(pending_request) + sizeof(data::data_definition_id);
 
             inline telemetry_id& request_data_telemetry_id() {
                 return apply_offset<telemetry_id>(&request_data, 0);
@@ -105,6 +108,7 @@ namespace truckconnect {
                 null_argument,
                 empty,
                 already_registered,
+                other_defined_data_pending,
                 not_registered,
                 unknown_data
             };
@@ -125,6 +129,13 @@ namespace truckconnect {
             for (uint32_t i = 0; i < count; i++) {
                 append_bytes(members[i], formed);
             }
+        }
+
+        static inline std::array<uint8_t, 2> form_defined_data_request(const data::data_definition_id& id) {
+            return {
+                request_type::defined_data,
+                id
+            };
         }
 
         using communication_results::communication_result;
@@ -199,7 +210,6 @@ namespace truckconnect {
             return result;
         }
 
-
         template <typename meta, uint32_t trailer_count>
         communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
             static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'trailer_count' is over the trailer count limit.");
@@ -226,6 +236,16 @@ namespace truckconnect {
         }
 
         communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count);
+
+        communication_result send_request_for(connection& connection, const data::data_definition_id& id);
+
+        communication_result receive_for_request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback);
+
+        communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const void* const)> received_callback);
+
+        static inline communication_result request(connection& connection, const data::data_definition_id& id) {
+            return request(connection, id, [](const void* const) {});
+        }
 
         communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id);
 

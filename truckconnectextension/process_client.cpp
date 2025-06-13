@@ -162,6 +162,53 @@ bool process_client(client& client) {
         }
         break;
     }
+    case request_type::defined_data: {
+        const data::data_definition_id& id = client.connection.requst_data_data_definition_id();
+        const auto find_it = std::find_if(
+            client.connection.data_definitions.begin(),
+            client.connection.data_definitions.end(),
+            [&id](const data::data_definition_value& definition) { return definition.id == id; }
+        );
+        debug_assert(find_it != client.connection.data_definitions.end());
+
+        response.resize(2);
+        response[0] = request_type::defined_data;
+        response[1] = id;
+
+        for (const data::data_member& member : find_it->members) {
+            const trailer_index_or_count& trailer_count = member.trailer_count;
+
+            const metadata::metadata_value& meta = metadata::metadata_value_of(member.telemetry_id);
+            debug_assert(meta.id != telemetry_id::invalid);
+
+            if (meta.trailer_channel) {
+                debug_assert(member.trailer_count <= SCS_TELEMETRY_trailers_count);
+                for (uint8_t i = 0; i < member.trailer_count; i++) {
+                    const uint32_t& offset = metadata::master_offset_of(meta.id, i);
+                    debug_assert(offset != metadata::INVALID_OFFSET);
+                    debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
+                }
+            } else {
+                const uint32_t& offset = metadata::master_offset_of(meta.id);
+                debug_assert(offset != metadata::INVALID_OFFSET);
+                debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
+            }
+        }
+
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
+        encode_with_size(
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
+        );
+
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
+            return false;
+        }
+        break;
+    }
     case request_type::unregister_data_definition: {
         const data::data_definition_id& id = client.connection.requst_data_data_definition_id();
         const auto find_it = std::find_if(
