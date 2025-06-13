@@ -8,4 +8,5 @@
 #include "packed_size.h"
 #include "byte_converters.h"
 #include "vector_collector.h"
+#include "data.h"
 #include "connection.h"

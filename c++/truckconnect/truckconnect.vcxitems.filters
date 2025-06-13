@@ -126,6 +126,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)include\connection.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\data.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp">

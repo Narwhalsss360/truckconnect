@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)include\byte_converters.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\connection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)include\data.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\master_structure.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\metadata_functions.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)include\packed_size.h" />
