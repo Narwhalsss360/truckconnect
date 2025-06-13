@@ -170,6 +170,15 @@ namespace truckconnect {
             return communication_result::success;
         }
 
+        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index) {
+            communication_result result = send_request_for(connection, id, trailer_index);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            return receive_for_request(connection, id, received_callback, trailer_index);
+        }
+
         communication_result disconnect(connection& connection) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;

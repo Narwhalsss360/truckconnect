@@ -99,6 +99,12 @@ namespace truckconnect {
             return receive_for_request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
         }
 
+        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index = 0);
+
+        static inline communication_result request(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0) {
+            return request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
+        }
+
         communication_result disconnect(connection& connection);
     }
 }
