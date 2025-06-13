@@ -136,6 +136,11 @@ namespace truckconnect {
             static constexpr const bool& overlapping_members = truckconnect::data::overlapping_members(data_definition<data_structure>::members);
             static_assert(is_offset_strictly_monotonically_increasing ? !overlapping_members : true, "Data member sizes/offsets overlap.");
         };
+
+        template <typename meta>
+        constexpr const data_member member(const uint32_t& offset, const uint8_t& trailer_index = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX)) {
+            return data_member(meta::metadata_value, offset, trailer_index);
+        }
     }
 }
 
