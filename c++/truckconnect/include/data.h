@@ -1,54 +1,77 @@
 #pragma once
 #include "telemetry_metadata.h"
 #include "metadata_functions.h"
+#include "packed_size.h"
 
 namespace truckconnect {
     namespace data {
         using data_definition_id = uint8_t;
 
+        constexpr const data_definition_id& INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
+
         struct data_member {
-            const metadata::metadata_value& metadata;
+            telemetry_id telemetry_id;
 
-            const uint32_t offset;
+            uint32_t offset;
 
-            const uint8_t trailer_index;
+            uint8_t trailer_count;
 
-            constexpr data_member(const metadata::metadata_value& metadata, const uint32_t& offset = 0, const uint8_t trailer_index = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX))
-                : metadata(metadata), offset(offset), trailer_index(trailer_index) {}
+            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = metadata::LIFETIME_INVALID_ID, const uint32_t& offset = 0, const uint8_t trailer_count = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX))
+                : telemetry_id(telemetry_id), offset(offset), trailer_count(trailer_count) {}
         };
 
-        constexpr const data_member& INVALID_DATA_MEMBER = data_member(metadata::INVALID_METADATA);
+        struct data_member_serialization_info {
+            static constexpr const bool constant_size = true;
+
+            static constexpr const uint32_t ordered_sizes[] = {
+                sizeof(data_member::telemetry_id),
+                sizeof(data_member::offset),
+                sizeof(data_member::trailer_count)
+            };
+
+            static constexpr const uint32_t ordered_offsets[] = {
+                offsetof(data_member, telemetry_id),
+                offsetof(data_member, offset),
+                offsetof(data_member, trailer_count)
+            };
+
+            static constexpr const uint32_t packed_size = sum(ordered_sizes);
+
+            static constexpr const uint32_t count = countof(ordered_sizes);
+
+            static_assert(countof(ordered_sizes) == countof(ordered_offsets), "sizes and offsets must be equal count");
+        };
+
+        constexpr const data_member& INVALID_DATA_MEMBER = data_member(telemetry_id::invalid);
 
         template <typename data_structure>
         struct data_definition;
 
         template<>
         struct data_definition<void> {
-            const data_definition_id& id;
+            data_definition_id id;
 
-            const data_member* const& members;
+            std::vector<data_member> members;
 
-            const uint32_t count;
-
-            constexpr data_definition(const data_definition_id& id, const metadata::metadata_value& metadata, const uint32_t& count)
-                : id(id), members(members), count(count) {}
+            data_definition(const data_definition_id& id = INVALID_DATA_DEFINITION_ID, const std::vector<data_member>& members = {})
+                : id(id), members(members) {}
         };
 
         using data_definition_value = data_definition<void>;
 
         template <uint32_t count>
         constexpr const uint32_t packed_size_of(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? 0 : metadata::packed_size_of(members[i].metadata.id) + packed_size_of(members, i + 1);
+            return i == count ? 0 : 1 + packed_size_of(members, i + 1);
         }
 
         template <uint32_t count>
         constexpr const bool constant_sized(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? true : (members[i].metadata.constant_size ? constant_sized(members, i + 1) : false);
+            return false; //Not implemented i == count ? true : (members[i].metadata.constant_size ? constant_sized(members, i + 1) : false);
         }
 
         template <uint32_t count>
         constexpr const uint32_t sum_of_sizes(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? 0 : members[i].metadata.storage_size + sum_of_sizes(members, i + 1);
+            return i == count ? 0 : metadata::size_of(members[i].telemetry_id) + sum_of_sizes(members, i + 1);
         }
 
         template <uint32_t count>
@@ -71,7 +94,7 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const bool contains_invalid_data_member(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? false : (members[i].metadata.id == telemetry_id::invalid ? true : contains_invalid_data_member(members, i + 1));
+            return i == count ? false : (members[i].telemetry_id == telemetry_id::invalid ? true : contains_invalid_data_member(members, i + 1));
         }
 
         template <uint32_t count>
@@ -98,7 +121,7 @@ namespace truckconnect {
                 i + 1 == count ? (
                     false
                 ) : (
-                    members[i].offset + members[i].metadata.storage_size <= members[i + 1].offset ? (
+                    members[i].offset + metadata::size_of(members[i].telemetry_id) <= members[i + 1].offset ? (
                         overlapping_members(members, i + 1)
                     ) : (
                         true
@@ -128,7 +151,7 @@ namespace truckconnect {
             static constexpr const uint32_t& sum_of_sizes = ::truckconnect::data::sum_of_sizes(data_definition<data_structure>::members);
 
             static constexpr const data_member& last_member_in_memory = truckconnect::data::last_member_in_memory(data_definition<data_structure>::members);
-            static_assert(last_member_in_memory.offset + last_member_in_memory.metadata.storage_size <= sizeof(data_structure), "Last member is past structure memory bounds.");
+            static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.telemetry_id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
 
             static constexpr const bool& is_offset_strictly_monotonically_increasing = truckconnect::data::is_offset_strictly_monotonically_increasing(data_definition<data_structure>::members);
 
@@ -138,8 +161,57 @@ namespace truckconnect {
         };
 
         template <typename meta>
-        constexpr const data_member member(const uint32_t& offset, const uint8_t& trailer_index = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX)) {
-            return data_member(meta::metadata_value, offset, trailer_index);
+        constexpr const data_member member(const uint32_t& offset, const uint8_t& trailer_count = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX)) {
+            return data_member(meta::id, offset, trailer_count);
+        }
+        
+        constexpr const size_t data_member_ordered_size(const uint32_t& i) {
+            return data_member_serialization_info::ordered_sizes[i];
+        }
+
+        static inline const uint8_t* const data_member_ordered_offset(const data_member& member, const uint32_t& i) {
+            return reinterpret_cast<const uint8_t* const>(&member) + data_member_serialization_info::ordered_offsets[i];
+        }
+
+        static inline uint8_t* const data_member_ordered_offset(data_member& member, const uint32_t& i) {
+            return reinterpret_cast<uint8_t* const>(&member) + data_member_serialization_info::ordered_offsets[i];
+        }
+
+        constexpr const uint32_t data_member_packed_size() {
+            return data_member_serialization_info::packed_size;
+        }
+
+        static inline void append_bytes(const data_member& member, std::vector<uint8_t>& out, const uint32_t& i = 0) {
+            if ifconstexpr (i >= data_member_serialization_info::count) {
+                return;
+            } else if ifconstexpr (i == 0) {
+                if (out.capacity() - out.size() < data_member_serialization_info::packed_size) {
+                    out.reserve(out.size() + data_member_serialization_info::packed_size);
+                }
+            }
+
+            out.resize(out.size() + data_member_ordered_size(i));
+            std::copy(data_member_ordered_offset(member, i), data_member_ordered_offset(member, i) + data_member_ordered_size(i), out.end() - data_member_ordered_size(i));
+            append_bytes(member, out, i + 1);
+        }
+
+        static inline bool from_bytes(const std::vector<uint8_t>& bytes, data_member& member, const uint32_t& offset = 0, const uint32_t& i = 0) {
+            constexpr const uint32_t (&ordered_sizes)[data_member_serialization_info::count] = data_member_serialization_info::ordered_sizes;
+            if ifconstexpr (i >= data_member_serialization_info::count) {
+                return true;
+            } else if ifconstexpr (i == 0) {
+                if (bytes.size() - offset < data_member_serialization_info::packed_size) {
+                    return false;
+                }
+            }
+
+            std::copy(
+                bytes.cbegin() + offset + sum(ordered_sizes, i),
+                bytes.cbegin() + offset + sum(ordered_sizes, i + 1),
+                data_member_ordered_offset(member, i)
+            );
+
+            return from_bytes(bytes, member, offset, i + 1);
         }
     }
 }
