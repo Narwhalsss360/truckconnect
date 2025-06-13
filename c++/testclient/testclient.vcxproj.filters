@@ -21,6 +21,9 @@
     <ClCompile Include="busy_request_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="data_definition_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests.h">

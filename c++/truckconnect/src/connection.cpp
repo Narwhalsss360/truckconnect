@@ -294,7 +294,7 @@ namespace truckconnect {
                 return communication_result::unknown_data;
             }
 
-            //connection.data_definitions.erase(find_it);
+            connection.data_definitions.erase(find_it);
             return communication_result::success;
         }
 
