@@ -48,8 +48,6 @@ namespace truckconnect {
             operator const bool() const;
         };
 
-        constexpr const uint32_t DATA_START = 2;
-
         namespace communication_results {
             enum communication_result {
                 success,
