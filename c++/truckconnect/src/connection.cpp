@@ -10,10 +10,10 @@ using std::string;
 
 namespace truckconnect {
     namespace communication {
-        constexpr const uint16_t require_connect = 0xFFFF;
+        constexpr const uint16_t REQUIRE_CONNECT = 0xFFFF;
 
         connection::connection(const string& address)
-            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request_type::none), request_data(require_connect)
+            : socket(sockets::INVALID), addr({}), addr_len(sizeof(addr)), collector({}), pending_request(request_type::none), request_data(REQUIRE_CONNECT)
         {
             addr.sin_family = AF_INET;
             if (address != "") {
@@ -27,7 +27,7 @@ namespace truckconnect {
         }
 
         communication_result connect(connection& connection) {
-            if (connection.socket != sockets::INVALID && connection.request_data != require_connect) {
+            if (connection.socket != sockets::INVALID && connection.request_data != REQUIRE_CONNECT) {
                 return communication_result::already_connected;
             }
 
@@ -46,20 +46,26 @@ namespace truckconnect {
             return communication_result::success;
         }
 
-        communication_result send_request_for(connection& connection, const telemetry_id& id, const uint8_t& trailer_index) {
+        communication_result send_request_for(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
 
-            if (SCS_TELEMETRY_trailers_count <= trailer_index) {
-                return communication_result::invalid_trailer_index;
+            if (trailer_index_or_count.is_count)  {
+                if (SCS_TELEMETRY_trailers_count < trailer_index_or_count.index_or_count) {
+                    return communication_result::trailer_count_out_of_bounds;
+                }
+            } else {
+                if (SCS_TELEMETRY_trailers_count <= trailer_index_or_count.index_or_count) {
+                    return communication_result::invalid_trailer_index;
+                }
             }
 
             if (connection.pending_request != request_type::none) {
                 return communication_result::other_request_pending;
             }
 
-            const std::array<uint8_t, 3> request_data = form_telemetry_request(id, trailer_index);
+            const std::array<uint8_t, 3> request_data = form_telemetry_request(id, trailer_index_or_count);
             std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
             encode_with_size(
                 request_data.begin(),
@@ -75,7 +81,7 @@ namespace truckconnect {
 
             connection.pending_request = request_type::telemetry_id;
             connection.request_data_telemetry_id() = id;
-            connection.request_data_trailer_index() = trailer_index;
+            connection.request_data_trailer_index_or_count() = trailer_index_or_count;
             return communication_result::success;
         }
 
@@ -128,7 +134,7 @@ namespace truckconnect {
             return result;
         }
 
-        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index) {
+        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const trailer_index_or_count& trailer_index_or_count) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
@@ -141,7 +147,7 @@ namespace truckconnect {
                 return communication_results::other_telemetry_id_pending;
             }
 
-            if (metadata::is_trailer_channel(id) && connection.request_data_trailer_index() != trailer_index) {
+            if (metadata::is_trailer_channel(id) && connection.request_data_trailer_index_or_count() != trailer_index_or_count) {
                 return communication_result::other_trailer_index_request_pending;
             }
 
@@ -158,11 +164,12 @@ namespace truckconnect {
                 return communication_result::received_other_telemetry;
             }
 
-            if (metadata::is_trailer_channel(id) && apply_offset<telemetry_id>(connection.collector.buffer().data(), 2) != connection.request_data_trailer_index()) {
+            if (metadata::is_trailer_channel(id) && apply_offset<communication::trailer_index_or_count>(connection.collector.buffer().data(), 2) != connection.request_data_trailer_index_or_count()) {
                 return communication_result::received_other_trailer_index;
             }
 
-            if (connection.collector.next_size() < metadata::packed_size_of(id)) {
+            const uint32_t minimum_size = metadata::packed_size_of(id) * (connection.request_data_trailer_index_or_count().is_count ? connection.request_data_trailer_index_or_count().index_or_count : 1);
+            if (connection.collector.next_size() < minimum_size) {
                 return communication_result::unknown_data;
             }
 
@@ -170,13 +177,13 @@ namespace truckconnect {
             return communication_result::success;
         }
 
-        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index) {
-            communication_result result = send_request_for(connection, id, trailer_index);
+        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const trailer_index_or_count& trailer_index_or_count) {
+            communication_result result = send_request_for(connection, id, trailer_index_or_count);
             if (result != communication_result::success) {
                 return result;
             }
 
-            return receive_for_request(connection, id, received_callback, trailer_index);
+            return receive_for_request(connection, id, received_callback, trailer_index_or_count);
         }
 
         communication_result disconnect(connection& connection) {
@@ -191,6 +198,7 @@ namespace truckconnect {
             connection.collector.reset_and_resize(connection.collector.minimum_size);
             connection.pending_request = request_type::none;
             connection.socket = sockets::INVALID;
+            connection.request_data = REQUIRE_CONNECT;
             return communication_result::success;
         }
     }

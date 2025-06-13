@@ -49,6 +49,7 @@ int busy_request_test() {
             << "Local Scale: " << (local_scale.initialized ? to_string(local_scale.value) : "---") << " "
             << "Game time: " << (game_time.initialized ? to_string(game_time.value) : "---") << " min ";
 
+        cout << '|';
         for (int i = 0; i < SCS_TELEMETRY_trailers_count; i++) {
             cout
                 << (trailer_connected[i].initialized ?

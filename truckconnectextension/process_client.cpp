@@ -85,7 +85,7 @@ bool process_client(client& client) {
         return true;
     }
 
-    static vector<uint8_t> response = vector<uint8_t>(2);
+    static vector<uint8_t> response = vector<uint8_t>(3);
     static vector<uint8_t> encoded_response;
 
     switch (client.connection.pending_request) {
@@ -93,14 +93,23 @@ bool process_client(client& client) {
         response.resize(3);
         response[0] = client.connection.pending_request;
         apply_offset<telemetry_id>(response.data(), 1) = client.connection.request_data_telemetry_id();
-        apply_offset<uint8_t>(response.data(), 2) = client.connection.request_data_trailer_index();
+        apply_offset<trailer_index_or_count>(response.data(), 2) = client.connection.request_data_trailer_index_or_count();
+        const trailer_index_or_count& trailer_index_or_count = client.connection.request_data_trailer_index_or_count();
 
         const metadata::metadata_value& meta = metadata::metadata_value_of(client.connection.request_data_telemetry_id());
         debug_assert(meta.id != telemetry_id::invalid);
 
-        const uint32_t& offset = metadata::master_offset_of(meta.id, client.connection.request_data_trailer_index());
-        debug_assert(offset != metadata::INVALID_OFFSET);
-        debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
+        if (meta.trailer_channel && trailer_index_or_count.is_count) {
+            for (uint8_t i = 0; i < trailer_index_or_count.index_or_count; i++) {
+                const uint32_t& offset = metadata::master_offset_of(meta.id, i);
+                debug_assert(offset != metadata::INVALID_OFFSET);
+                debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
+            }
+        } else {
+            const uint32_t& offset = metadata::master_offset_of(meta.id, trailer_index_or_count.index_or_count);
+            debug_assert(offset != metadata::INVALID_OFFSET);
+            debug_assert(append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response));
+        }
 
         encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
         encode_with_size(

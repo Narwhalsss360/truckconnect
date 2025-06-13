@@ -21,6 +21,29 @@ namespace truckconnect {
 
         using request_types::request_type;
 
+        struct trailer_index_or_count {
+            bool is_count : 1;
+            uint8_t index_or_count : 7;
+
+            constexpr trailer_index_or_count(const uint8_t& index)
+                : is_count(false), index_or_count(index) {}
+
+            explicit constexpr trailer_index_or_count(const bool& is_count, const uint8_t& index_or_count)
+                : is_count(is_count), index_or_count(index_or_count) {}
+
+            inline const bool operator==(const trailer_index_or_count& other) const {
+                return is_count == other.is_count && index_or_count == other.index_or_count;
+            }
+
+            inline const bool operator!=(const trailer_index_or_count& other) const {
+                return !(*this == other);
+            }
+        };
+
+        constexpr const trailer_index_or_count& INVALID_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX));
+
+        constexpr const trailer_index_or_count& DEFAULT_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, 0);
+
         struct connection {
             sockets::socket socket;
             sockaddr_in addr;
@@ -35,8 +58,8 @@ namespace truckconnect {
                 return apply_offset<telemetry_id>(&request_data, 0);
             }
 
-            inline uint8_t& request_data_trailer_index() {
-                return apply_offset<uint8_t>(&request_data, 1);
+            inline trailer_index_or_count& request_data_trailer_index_or_count() {
+                return apply_offset<trailer_index_or_count>(&request_data, 1);
             }
 
             inline void clear_pending_request() {
@@ -67,15 +90,17 @@ namespace truckconnect {
                 received_other_trailer_index,
                 deserialization_failure,
                 trailer_index_out_of_bounds,
+                trailer_count_out_of_bounds,
+                trailer_index_or_count_was_count,
                 unknown_data,
             };
         }
 
-        constexpr const std::array<uint8_t, 3> form_telemetry_request(const telemetry_id& id, const uint8_t trailer_index = 1) {
+        constexpr const std::array<uint8_t, 3> form_telemetry_request(const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count) {
             return {
                 request_type::telemetry_id,
                 id,
-                trailer_index
+                *(const uint8_t* const)(&trailer_index_or_count)
             };
         }
 
@@ -83,7 +108,7 @@ namespace truckconnect {
 
         communication_result connect(connection& connection);
 
-        communication_result send_request_for(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0);
+        communication_result send_request_for(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT);
 
         communication_result receive_one(connection& connection);
 
@@ -93,36 +118,39 @@ namespace truckconnect {
             return receive_all(connection, [](const std::vector<uint8_t>&) {});
         }
 
-        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index = 0);
+        communication_result receive_for_request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT);
 
-        static inline communication_result receive_for_request(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0) {
-            return receive_for_request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
+        static inline communication_result receive_for_request(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
+            return receive_for_request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index_or_count);
         }
 
-        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const uint8_t& trailer_index = 0);
+        communication_result request(connection& connection, const telemetry_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT);
 
-        static inline communication_result request(connection& connection, const telemetry_id& id, const uint8_t& trailer_index = 0) {
-            return request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index);
+        static inline communication_result request(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
+            return request(connection, id, [](const std::vector<uint8_t>&) {}, trailer_index_or_count);
         }
 
         template <typename meta>
-        communication_result request(connection& connection, std::function<void(const typename meta::storage_type&)> received_callback, const uint8_t& trailer_index = 0) {
-            communication_result result;
-            result = request(connection, meta::id, [&connection, &received_callback, &result] (const std::vector<uint8_t>& buffer) {
+        communication_result request(connection& connection, std::function<void(const typename meta::storage_type&)> received_callback, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
+            if (trailer_index_or_count.is_count) {
+                return communication_result::trailer_index_or_count_was_count;
+            }
+
+            communication_result result = request(connection, meta::id, trailer_index_or_count);
+            if (result == communication_result::success) {
                 typename meta::storage_type destination;
                 if (from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
                     received_callback(destination);
                 } else {
                     result = communication_result::deserialization_failure;
                 }
-            }, trailer_index);
-
+            }
             return result;
         }
-
+        
         template <typename meta>
-        communication_result request(connection& connection, typename meta::storage_type& destination, const uint8_t& trailer_index = 0) {
-            communication_result result = request(connection, meta::id, trailer_index);
+        communication_result request(connection& connection, typename meta::storage_type& destination, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
+            communication_result result = request(connection, meta::id, trailer_index_or_count);
             if (result == communication_result::success) {
                 if (!from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
                     result = communication_result::deserialization_failure;
@@ -132,14 +160,37 @@ namespace truckconnect {
         }
 
         template <typename meta, uint32_t trailer_count>
-        communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
-            communication_result result;
-            for (uint8_t i = 0; i < trailer_count; i++) {
-                if (communication_result::success != (result = request<meta>(connection, array[i], i))) {
-                    return result;
+        communication_result request(connection& connection, std::function<void(const typename meta::storage_type (&)[trailer_count])> received_callback) {
+            static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'count' is over the trailer count limit.");
+            static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
+
+            communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
+            if (result == communication_result::success) {
+                typename meta::storage_type destination[trailer_count];
+                if (from_bytes(connection.collector.buffer(), destination, connection::DATA_START)) {
+                    received_callback(destination);
+                } else {
+                    result = communication_result::deserialization_failure;
                 }
             }
+            return result;
+        }
 
+
+        template <typename meta, uint32_t trailer_count>
+        communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
+            static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'trailer_count' is over the trailer count limit.");
+            static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
+
+            communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
+            if (result == communication_result::success) {
+                if (!from_bytes(
+                    connection.collector.buffer(),
+                    array,
+                    connection::DATA_START)) {
+                    result = communication_result::deserialization_failure;
+                }
+            }
             return result;
         }
 
