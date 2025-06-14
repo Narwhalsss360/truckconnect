@@ -10,9 +10,9 @@
 namespace truckconnect {
     namespace communication {
         constexpr const uint16_t PORT = 52878;
-        
+
         using namespace platform;
-        
+
         namespace request_types {
             enum request_type : uint8_t {
                 none,
@@ -110,6 +110,7 @@ namespace truckconnect {
                 already_registered,
                 other_defined_data_pending,
                 not_registered,
+                arrange_error,
                 unknown_data
             };
         }
@@ -181,7 +182,7 @@ namespace truckconnect {
             }
             return result;
         }
-        
+
         template <typename meta>
         communication_result request(connection& connection, typename meta::storage_type& destination, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
             communication_result result = request(connection, meta::id, trailer_index_or_count);
@@ -237,6 +238,14 @@ namespace truckconnect {
 
         communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count);
 
+        template <typename data_structure>
+        communication_result register_data_definition(connection& connection) {
+            using definition = data::data_definition<data_structure>;
+            using member_info = data::data_member_info_container<data_structure>;
+            member_info info;
+            return register_data_definition(connection, info.id, definition::members, info.member_count);
+        }
+
         static inline bool get_definition(connection& connection, const data::data_definition_id& id, data::data_definition_value& definition) {
             if (connection.data_definitions.size() == 0) {
                 return false;
@@ -264,11 +273,37 @@ namespace truckconnect {
 
         communication_result request(connection& connection, const data::data_definition_id& id, std::function<void(const std::vector<uint8_t>&)> received_callback);
 
+        template <typename data_structure>
+        communication_result request(connection& connection, data_structure& out) {
+            using member_info = data::data_member_info_container<data_structure>;
+            member_info info;
+
+            communication_result result = request(connection, info.id);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            data::data_definition_value definition;
+            get_definition(connection, info.id, definition);
+            if (!data::arrange_unsafe(definition, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &out)) {
+                return communication_result::arrange_error;
+            }
+
+            return  communication_result::success;
+        }
+
         static inline communication_result request(connection& connection, const data::data_definition_id& id) {
             return request(connection, id, [](const std::vector<uint8_t>&) {});
         }
 
         communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id);
+
+        template <typename data_structure>
+        communication_result unregister_data_definition(connection& connection) {
+            using member_info = data::data_member_info_container<data_structure>;
+            member_info info;
+            return unregister_data_definition(connection, info.id);
+        }
 
         communication_result disconnect(connection& connection);
     }

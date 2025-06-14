@@ -26,7 +26,7 @@ struct gauge_cluster {
         cout <<
             (game_time.initialized ? to_string(game_time.value) : "-") << "min | " <<
             (engine_rpm.initialized ? to_string(engine_rpm.value) : "-") << "rpm | " <<
-            (speed.initialized ? to_string(speed.value) : "-") << "kmh | " <<
+            (speed.initialized ? to_string(speed.value * (60 * 60) / 1000) : "-") << "kmh | " <<
             (odometer.initialized ? to_string(odometer.value) : "-") << "km | " <<
             (fuel.initialized ? to_string(fuel.value) : "-") << "L | " <<
             (oil_temperature.initialized ? to_string(oil_temperature.value) : "-") << "C | " <<
@@ -70,15 +70,14 @@ int data_definition_test() {
 
     gauge_cluster cluster;
     while (true) {
-        debug_assert(communication_result::success == (result = request(connection, gauge_cluster_id)));
-        data::arrange_unsafe(gauge_cluster_definition, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &cluster);
+        debug_assert((communication_result::success == (result = request(connection, cluster))));
         cluster.print();
         cout << "\n";
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(25ms);
     }
 
-    debug_assert(communication_result::success == (result = unregister_data_definition(connection, gauge_cluster_id)));
+    debug_assert(communication_result::success == (result = unregister_data_definition<gauge_cluster>(connection)));
     debug_assert(communication_result::success == (result = disconnect(connection)));
     debug_assert(sockets::deinitialize());
     return 0;

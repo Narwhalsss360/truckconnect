@@ -132,9 +132,15 @@ namespace truckconnect {
 
         template <typename data_structure>
         struct data_member_info_container {
+            using definition = data_definition<data_structure>;
+
             static_assert(data_definition<data_structure>::id == 0 ? true : true, "'id' must be a member of a data_definition.");
 
             static_assert(data_definition<data_structure>::members == 0 ? true : true, "'members' must be a member of a data_definition.");
+
+            static constexpr const data_definition_id id = definition::id;
+
+            static constexpr const uint32_t& member_count = sizeof(definition::members) / sizeof(definition::members[0]);
 
             static constexpr const bool& contains_invalid_data_member = truckconnect::data::contains_invalid_data_member(data_definition<data_structure>::members);
             static_assert(!contains_invalid_data_member, "A data member is invalid.");
