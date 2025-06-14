@@ -53,6 +53,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\byte_converters.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\connection.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\value_storage.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\vector_collector.cpp" />
   </ItemGroup>
   <ItemGroup>

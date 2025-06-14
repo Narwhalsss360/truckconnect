@@ -16,7 +16,7 @@
 #endif
 
 namespace truckconnect {
-    #pragma region constant expression utility
+#pragma region constant expression utility
     template <typename T, uint32_t count>
     constexpr const T sum(const T(&array)[count], const uint32_t& end = count, const uint32_t& start = 0) {
         return start >= end || start >= count ? 0 : array[start] + sum(array, end, start + 1);
@@ -35,9 +35,20 @@ namespace truckconnect {
     constexpr const TR cieldiv(const T1& numerator, const T2& denominator) {
         return (numerator + denominator - 1) / denominator;
     }
-    #pragma endregion
+#pragma endregion
 
-    #pragma region storage types
+#pragma region string serialization
+    void append_bytes(const std::string& string, std::vector<uint8_t>& out);
+
+    bool from_bytes(const std::vector<uint8_t>& as_bytes, std::string& out, uint32_t& read, const uint32_t& offset = 0);
+
+    static inline bool from_bytes(const std::vector<uint8_t>& as_bytes, std::string& out, const uint32_t& offset = 0) {
+        uint32_t read;
+        return from_bytes(as_bytes, out, read, offset);
+    }
+#pragma endregion
+
+#pragma region storage types
     struct scs_invalid_t;
 
     template <typename T>
@@ -136,12 +147,11 @@ namespace truckconnect {
         }
 
         void append_bytes(std::vector<uint8_t>& out) const {
-            const uint32_t count = static_cast<uint32_t>(value.size() + 1);
-            out.resize(out.size() + sizeof(initialized) + count);
-
+            out.resize(out.size() + sizeof(initialized));
             const uint8_t* const& initialized_start = reinterpret_cast<const uint8_t* const>(&initialized);
-            std::copy(initialized_start, initialized_start + sizeof(initialized), out.end() - count - sizeof(initialized));
-            std::copy(value.c_str(), value.c_str() + count, out.end() - count);
+
+            std::copy(initialized_start, initialized_start + sizeof(initialized), out.end() - sizeof(initialized));
+            truckconnect::append_bytes(value, out);
         }
 
         bool from_bytes(const std::vector<uint8_t>& bytes, const uint32_t& offset, uint32_t& read) {
@@ -149,22 +159,14 @@ namespace truckconnect {
                 return false;
             }
 
-            uint32_t end = offset;
-            for (int i = offset + sizeof(bool); i < bytes.size(); i++) {
-                if (bytes[i] == 0) {
-                    end = i;
-                    break;
-                }
-            }
-            if (end == offset) {
+            if (!truckconnect::from_bytes(bytes, value, read, offset + sizeof(bool))) {
                 return false;
             }
 
-            const uint8_t* const& bytes_start = &bytes[0];
+            const uint8_t* const& bytes_start = &bytes[offset];
             initialized = *reinterpret_cast<const bool*>(bytes_start);
-            value.resize(end - sizeof(initialized) - offset + 1);
-            std::copy(bytes.cbegin() + offset + sizeof(initialized), bytes.cbegin() + offset + sizeof(initialized) + value.size(), value.begin());
-            read = sizeof(initialized) + end - offset;
+            read += sizeof(bool);
+
             return true;
         }
     };
@@ -275,11 +277,8 @@ namespace truckconnect {
 
             std::copy(initialized_start, initialized_start + sizeof(initialized), out.end() - sizeof(count) - sizeof(initialized));
             std::copy(count_start, count_start + sizeof(initialized), out.end() - sizeof(count));
-
-            for (uint32_t i = 0; i < count; i++) {
-                const uint32_t size = static_cast<uint32_t>(values[i].size() + 1);
-                out.resize(out.size() + size);
-                std::copy(values[i].c_str(), values[i].c_str() + size, out.end() - size);
+            for (const std::string& string : values) {
+                truckconnect::append_bytes(string, out);
             }
         }
 
@@ -288,7 +287,7 @@ namespace truckconnect {
                 return false;
             }
 
-            const uint8_t* const& bytes_start = &bytes[0];
+            const uint8_t* const& bytes_start = &bytes[offset];
 
             const bool& initialized = *reinterpret_cast<const bool*>(bytes_start);
             const uint32_t& count = *reinterpret_cast<const uint32_t*>(bytes_start + sizeof(initialized));
@@ -297,19 +296,16 @@ namespace truckconnect {
                 return false;
             }
 
+            const uint32_t str_offset = offset + sizeof(initialized) + sizeof(count);
             read = 0;
-            const uint8_t* const& back = &bytes.back();
-            const uint8_t* str_start = bytes_start + sizeof(initialized) + sizeof(count);
-            for (uint32_t i = 0; i < count; i++) {
-                if (str_start > back) {
+            uint32_t this_str = 0;
+            for (uint32_t i = 0; i < max_count; i++) {
+                if (!truckconnect::from_bytes(bytes, values[i], this_str, str_offset + read)) {
                     return false;
                 }
-                values[i] = std::string(reinterpret_cast<const char* const>(str_start));
-                const uint32_t szlength = static_cast<uint32_t>(values[i].size() + 1);
-                str_start += szlength;
-                read += szlength;
+                read += this_str;
             }
-            
+
             read += sizeof(initialized) + sizeof(count);
             this->initialized = initialized;
             this->count = count;
@@ -338,10 +334,10 @@ namespace truckconnect {
         void append_bytes(std::vector<uint8_t>& out) const {
             const uint32_t lcount = count();
             const uint8_t* const& count_start = reinterpret_cast<const uint8_t* const>(&lcount);
-            
+
             const uint32_t size = lcount * sizeof(T);
             out.resize(out.size() + sizeof(lcount) + size);
-            
+
             std::copy(count_start, count_start + sizeof(lcount), out.end() - size - sizeof(lcount));
 
             if (size != 0) {
@@ -394,9 +390,7 @@ namespace truckconnect {
             out.resize(out.size() + sizeof(lcount));
             std::copy(count_start, count_start + sizeof(lcount), out.end() - sizeof(lcount));
             for (const std::string& value : values) {
-                const uint32_t size = static_cast<uint32_t>(value.size() + 1);
-                out.resize(out.size() + size);
-                std::copy(value.c_str(), value.c_str() + size, out.end() - size);
+                truckconnect::append_bytes(value, out);
             }
         }
 
@@ -408,23 +402,20 @@ namespace truckconnect {
             const uint8_t* const bytes_start = &bytes[offset];
             const uint32_t& count = *reinterpret_cast<const uint32_t* const>(bytes_start);
 
-            const uint8_t* const& back = &bytes.back();
-            const uint8_t* str_start = bytes_start + sizeof(count);
+            const uint32_t& str_offset = offset + sizeof(count);
             values.clear();
-            values.reserve(count);
+            values.resize(count);
+
             read = 0;
+            uint32_t this_str = 0;
             for (uint32_t i = 0; i < count; i++) {
-                if (str_start > back) {
+                if (!truckconnect::from_bytes(bytes, values[i], this_str, str_offset + read)) {
                     return false;
                 }
-                values.resize(values.size() + 1);
-                values.back() = std::string(reinterpret_cast<const char* const>(str_start));
-                const uint32_t szlength = static_cast<uint32_t>(values[i].size() + 1);
-                str_start += szlength;
-                read += szlength;
+                read += this_str;
             }
-            read += sizeof(count);
 
+            read += sizeof(count);
             return true;
         }
     };
@@ -499,9 +490,9 @@ namespace truckconnect {
             return true;
         }
     };
-    #pragma endregion
+#pragma endregion
 
-    #pragma region append/from bytes overloads
+#pragma region append/from bytes overloads
     template <typename T>
     void append_bytes(const value_storage<T>& value, std::vector<uint8_t>& out) {
         value.append_bytes(out);
@@ -606,5 +597,5 @@ namespace truckconnect {
         uint32_t read, count;
         return from_bytes(bytes, out, 0);
     }
-    #pragma endregion
+#pragma endregion
 }
