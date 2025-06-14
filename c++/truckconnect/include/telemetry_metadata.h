@@ -142,7 +142,7 @@ namespace truckconnect {
             structure,
             event_info,
             channel,
-            invalid = static_cast<telemetry_type>(-1),
+            invalid = static_cast<uint8_t>(-1),
         };
 
         constexpr const uint32_t& INVALID_OFFSET = static_cast<uint32_t>(-1);
