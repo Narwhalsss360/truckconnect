@@ -38,6 +38,8 @@ namespace truckconnect {
                 constexpr const error_int SE_ECONNRESET = WSAECONNRESET;
 
                 constexpr const error_int SE_EALREADY = WSAEALREADY;
+
+                constexpr const error_int SE_ECONNABORTED = WSAECONNABORTED;
             }
         }
     }

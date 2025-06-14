@@ -17,6 +17,35 @@ void cleanup_client(client& client) {
     client.connection.socket = sockets::INVALID;
 }
 
+void catch_and_print_recv_error(client& client) {
+    switch (sockets::last_error()) {
+        case sockets::errors::SE_EWOULDBLOCK:
+        case sockets::errors::SE_ECONNRESET:
+            break;
+        case sockets::errors::SE_ECONNABORTED:
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
+            break;
+        default:
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "recv(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
+            break;
+    }
+}
+
+void catch_and_print_send_error(client& client) {
+    switch (sockets::last_error()) {
+        case sockets::errors::SE_EWOULDBLOCK:
+        case sockets::errors::SE_ECONNRESET:
+            break;
+        case sockets::errors::SE_ECONNABORTED:
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
+            break;
+        default:
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(send_catch_fail), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
+            break;
+    }
+}
+
+
 bool read_new_pending_request(client& client) {
     if (
         client.connection.collector.state() == collector_states::MISSING_SIZE ||
@@ -41,10 +70,7 @@ bool read_new_pending_request(client& client) {
             if (sockets::last_error() == sockets::errors::SE_EWOULDBLOCK) {
                 return true;
             }
-
-            if (sockets::last_error() != 0) {
-                console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "recv(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
-            }
+            catch_and_print_recv_error(client);
             cleanup_client(client);
             return false;
         }
@@ -69,10 +95,12 @@ bool read_new_pending_request(client& client) {
 bool send_catch_fail(client& client, const uint8_t* const data, const uint32_t& size) {
     if (send(client.connection.socket, reinterpret_cast<const char* const>(data), static_cast<int>(size), 0) == sockets::ERROR_RESULT) {
         if (sockets::last_error() != sockets::errors::SE_EWOULDBLOCK) {
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(send_catch_fail), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
+            catch_and_print_send_error(client);
+            cleanup_client(client);
+            return false;
         }
-        cleanup_client(client);
     }
+
     return true;
 }
 
