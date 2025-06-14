@@ -33,12 +33,12 @@ namespace truckconnect {
 
             if (connection.socket == sockets::INVALID) {
                 if ((connection.socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == sockets::INVALID) {
-                    return communication_result::generic_socket_error;
+                    return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
                 }
             }
 
             if (::connect(connection.socket, reinterpret_cast<sockaddr*>(&connection.addr), connection.addr_len) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
 
             connection.pending_request = request_type::none;
@@ -76,7 +76,7 @@ namespace truckconnect {
             );
 
             if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
 
             connection.pending_request = request_type::telemetry_id;
@@ -102,7 +102,7 @@ namespace truckconnect {
             }
 
             if (received < 0) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
 
             switch (connection.collector.dynamic_collect(data)) {
@@ -223,7 +223,7 @@ namespace truckconnect {
             );
 
             if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
             connection.pending_request = request_type::register_data_definition;
 
@@ -277,7 +277,7 @@ namespace truckconnect {
             );
 
             if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
             connection.pending_request = request_type::defined_data;
             connection.requst_data_data_definition_id() = id;
@@ -352,7 +352,7 @@ namespace truckconnect {
             );
 
             if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
             connection.pending_request = request_type::unregister_data_definition;
 
@@ -379,7 +379,7 @@ namespace truckconnect {
             }
 
             if (closesocket(connection.socket) == sockets::ERROR_RESULT) {
-                return communication_result::generic_socket_error;
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
 
             connection.collector.reset_and_resize(connection.collector.minimum_size);
