@@ -275,6 +275,7 @@ namespace truckconnect {
 
         template <typename data_structure>
         communication_result request(connection& connection, data_structure& out) {
+            using definition = data::data_definition<data_structure>;
             using member_info = data::data_member_info_container<data_structure>;
             member_info info;
 
@@ -283,9 +284,7 @@ namespace truckconnect {
                 return result;
             }
 
-            data::data_definition_value definition;
-            get_definition(connection, info.id, definition);
-            if (!data::arrange_unsafe(definition, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &out)) {
+            if (!data::arrange_unsafe(definition::members, info.member_count, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &out)) {
                 return communication_result::arrange_error;
             }
 

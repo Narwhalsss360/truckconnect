@@ -221,22 +221,26 @@ namespace truckconnect {
             return from_bytes(bytes, member, offset, i + 1);
         }
 
-        static inline bool arrange_unsafe(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, void* const out) {
+        static inline bool arrange_unsafe(const data_member* const& members, const uint32_t& count, const std::vector<uint8_t>& data, const uint32_t& offset, void* const out) {
             uint32_t at = offset;
             uint32_t read;
-            for (const data_member& member : defintition.members) {
-                const uint32_t size = metadata::packed_size_of(member.telemetry_id);
+            for (uint32_t i = 0; i < count; i++) {
+                const uint32_t size = metadata::packed_size_of(members[i].telemetry_id);
                 if (at + size > data.size()) {
                     return false;
                 }
 
-                if (!truckconnect::from_bytes(member.telemetry_id, data, &apply_offset<uint8_t>(out, member.offset), at, read)) {
+                if (!truckconnect::from_bytes(members[i].telemetry_id, data, &apply_offset<uint8_t>(out, members[i].offset), at, read)) {
                     return false;
                 }
                 at += size;
             }
 
             return true;
+        }
+
+        static inline bool arrange_unsafe(const data_definition_value& definition, const std::vector<uint8_t>& data, const uint32_t& offset, void* const out) {
+            return arrange_unsafe(definition.members.data(), static_cast<uint32_t>(definition.members.size()), data, offset, out);
         }
 
         static inline bool arrange(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, std::vector<uint8_t>& out) {
