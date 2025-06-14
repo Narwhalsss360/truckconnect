@@ -6,6 +6,7 @@
 #include "telemetry_metadata.h"
 #include "metadata_functions.h"
 #include "packed_size.h"
+#include "size_of_scs_type.h"
 #include "byte_converters.h"
 #include "vector_collector.h"
 #include "data.h"
