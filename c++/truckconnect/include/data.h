@@ -243,6 +243,26 @@ namespace truckconnect {
             return arrange_unsafe(definition.members.data(), static_cast<uint32_t>(definition.members.size()), data, offset, out);
         }
 
+        template <typename data_structure>
+        bool arrange(const std::vector<uint8_t>& bytes, const uint32_t& offset, data_structure& out, const uint32_t& i = 0) {
+            using definition = data_definition<data_structure>;
+            using member_info = data_member_info_container<data_structure>;
+            constexpr const member_info& info = {};
+            uint8_t* const& out_start = reinterpret_cast<uint8_t* const>(&out);
+            const data_member& member = definition::members[i];
+
+            if ifconstexpr (i == info.member_count) {
+                return true;
+            }
+
+            uint32_t read;
+            if (!truckconnect::from_bytes(member.telemetry_id, bytes, out_start + member.offset, offset, read)) {
+                return false;
+            }
+
+            return arrange(bytes, offset + read, out, i + 1);
+        }
+
         static inline bool arrange(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, std::vector<uint8_t>& out) {
             uint32_t at = offset;
             uint32_t read;

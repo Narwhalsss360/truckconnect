@@ -61,7 +61,8 @@ int data_definition_test() {
 
     debug_assert(communication_result::success == (result = register_data_definition(
         connection,
-        gauge_cluster_id, data_definition<gauge_cluster>::members,
+        gauge_cluster_id,
+        data_definition<gauge_cluster>::members,
         _countof(data_definition<gauge_cluster>::members
     ))));
 

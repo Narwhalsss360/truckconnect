@@ -284,7 +284,7 @@ namespace truckconnect {
                 return result;
             }
 
-            if (!data::arrange_unsafe(definition::members, info.member_count, connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, &out)) {
+            if (!data::arrange(connection.collector.buffer(), connection::DEFINED_DATA_DATA_START, out)) {
                 return communication_result::arrange_error;
             }
 
