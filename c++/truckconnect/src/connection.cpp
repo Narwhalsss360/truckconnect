@@ -341,7 +341,7 @@ namespace truckconnect {
                 return communication_result::not_registered;
             }
 
-            const std::array<uint8_t, 2> request_data = { request_type::unregister_data_definition, id };
+            const std::array<uint8_t, 2> request_data = form_unregister_data_definition_request(id);
             std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
             encode_with_size(
                 request_data.begin(),

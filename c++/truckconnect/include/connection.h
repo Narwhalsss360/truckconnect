@@ -139,6 +139,13 @@ namespace truckconnect {
             };
         }
 
+        static inline std::array<uint8_t, 2> form_unregister_data_definition_request(const data::data_definition_id& id) {
+            return {
+                request_type::unregister_data_definition,
+                id
+            };
+        }
+
         using communication_results::communication_result;
 
         communication_result connect(connection& connection);
