@@ -5,7 +5,9 @@
 namespace truckconnect {
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_train_storage& gameplay_player_use_train_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_player_use_train_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_player_use_train_info.latest, out);
         append_bytes(gameplay_player_use_train_info.pay_amount, out);
         append_bytes(gameplay_player_use_train_info.source_name, out);
@@ -16,7 +18,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_use_ferry_storage& gameplay_player_use_ferry_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_player_use_ferry_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_player_use_ferry_info.latest, out);
         append_bytes(gameplay_player_use_ferry_info.pay_amount, out);
         append_bytes(gameplay_player_use_ferry_info.source_name, out);
@@ -27,14 +31,18 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_tollgate_paid_storage& gameplay_player_tollgate_paid_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_player_tollgate_paid_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_player_tollgate_paid_info.latest, out);
         append_bytes(gameplay_player_tollgate_paid_info.pay_amount, out);
     }
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_player_fined_storage& gameplay_player_fined_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_player_fined_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_player_fined_info.latest, out);
         append_bytes(gameplay_player_fined_info.fine_offence, out);
         append_bytes(gameplay_player_fined_info.fine_amount, out);
@@ -42,7 +50,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_job_delivered_storage& gameplay_job_delivered_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_job_delivered_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_job_delivered_info.latest, out);
         append_bytes(gameplay_job_delivered_info.revenue, out);
         append_bytes(gameplay_job_delivered_info.earned_xp, out);
@@ -55,14 +65,18 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::gameplay_storage::gameplay_job_cancelled_storage& gameplay_job_cancelled_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay_job_cancelled_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay_job_cancelled_info.latest, out);
         append_bytes(gameplay_job_cancelled_info.cancel_penalty, out);
     }
 
     void append_bytes(const master_storage::configuration_storage::configuration_job_storage& configuration_job_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_job_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_job_info.latest, out);
         append_bytes(configuration_job_info.cargo_id, out);
         append_bytes(configuration_job_info.cargo, out);
@@ -87,7 +101,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::configuration_storage::configuration_trailer_storage& configuration_trailer_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_trailer_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_trailer_info.latest, out);
         append_bytes(configuration_trailer_info.id, out);
         append_bytes(configuration_trailer_info.cargo_accessory_id, out);
@@ -111,7 +127,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::configuration_storage::configuration_truck_storage& configuration_truck_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_truck_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_truck_info.latest, out);
         append_bytes(configuration_truck_info.brand_id, out);
         append_bytes(configuration_truck_info.brand, out);
@@ -150,7 +168,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::configuration_storage::configuration_hshifter_storage& configuration_hshifter_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_hshifter_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_hshifter_info.latest, out);
         append_bytes(configuration_hshifter_info.selector_count, out);
         append_bytes(configuration_hshifter_info.slot_gear, out);
@@ -160,21 +180,27 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::configuration_storage::configuration_controls_storage& configuration_controls_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_controls_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_controls_info.latest, out);
         append_bytes(configuration_controls_info.shifter_type, out);
     }
 
     void append_bytes(const master_storage::configuration_storage::configuration_substances_storage& configuration_substances_info, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration_substances_info);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration_substances_info.latest, out);
         append_bytes(configuration_substances_info.id, out);
     }
 
     void append_bytes(const master_storage::channels_storage::trailer_storage& trailer, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::trailer);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         //reserve the packed size of the structure.
         append_bytes(trailer.trailer_channel_connected, out);
         append_bytes(trailer.trailer_channel_cargo_damage, out);
@@ -198,7 +224,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::channels_storage::truck_storage& truck, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::truck);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         //reserve the packed size of the structure.
         append_bytes(truck.truck_channel_world_placement, out);
         append_bytes(truck.truck_channel_local_linear_velocity, out);
@@ -287,7 +315,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::channels_storage::general_storage& general, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::general);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         //reserve the packed size of the structure.
         append_bytes(general.channel_paused, out);
         append_bytes(general.channel_local_scale, out);
@@ -299,7 +329,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::channels_storage& channels, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::channels);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         //reserve the packed size of the structure.
         append_bytes(channels.general, out);
         append_bytes(channels.truck, out);
@@ -308,7 +340,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::gameplay_storage& gameplay, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::gameplay);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(gameplay.gameplay_job_cancelled_info, out);
         append_bytes(gameplay.gameplay_job_delivered_info, out);
         append_bytes(gameplay.gameplay_player_fined_info, out);
@@ -319,7 +353,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage::configuration_storage& configuration, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::configuration);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(configuration.configuration_substances_info, out);
         append_bytes(configuration.configuration_controls_info, out);
         append_bytes(configuration.configuration_hshifter_info, out);
@@ -330,7 +366,9 @@ namespace truckconnect {
 
     void append_bytes(const master_storage& master, std::vector<uint8_t>& out) {
         constexpr const uint32_t& packed_size = metadata::packed_size_of(telemetry_id::master);
-        out.reserve(packed_size);
+        if (out.capacity() - out.size() < packed_size) {
+            out.reserve(packed_size);
+        }
         append_bytes(master.configuration, out);
         append_bytes(master.gameplay, out);
         append_bytes(master.channels, out);
