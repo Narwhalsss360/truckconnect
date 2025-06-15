@@ -16,9 +16,9 @@ namespace truckconnect {
 
             uint32_t offset;
 
-            uint8_t trailer_count;
+            trailer_index_uint trailer_count;
 
-            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = metadata::LIFETIME_INVALID_ID, const uint32_t& offset = 0, const uint8_t trailer_count = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX))
+            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = metadata::LIFETIME_INVALID_ID, const uint32_t& offset = 0, const trailer_index_uint trailer_count = metadata::INVALID_TRAILER_INDEX)
                 : telemetry_id(telemetry_id), offset(offset), trailer_count(trailer_count) {}
         };
 
@@ -234,7 +234,7 @@ namespace truckconnect {
         };
 
         template <typename meta>
-        constexpr const data_member member(const uint32_t& offset, const uint8_t& trailer_count = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX)) {
+        constexpr const data_member member(const uint32_t& offset, const trailer_index_uint& trailer_count = metadata::INVALID_TRAILER_INDEX) {
             return data_member(meta::id, offset, trailer_count);
         }
 

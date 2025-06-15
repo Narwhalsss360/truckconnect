@@ -63,12 +63,12 @@ namespace truckconnect {
 
         struct trailer_index_or_count {
             bool is_count : 1;
-            uint8_t index_or_count : 7;
+            trailer_index_uint index_or_count : 7;
 
-            constexpr trailer_index_or_count(const uint8_t& index)
+            constexpr trailer_index_or_count(const trailer_index_uint& index)
                 : is_count(false), index_or_count(index) {}
 
-            explicit constexpr trailer_index_or_count(const bool& is_count, const uint8_t& index_or_count)
+            explicit constexpr trailer_index_or_count(const bool& is_count, const trailer_index_uint& index_or_count)
                 : is_count(is_count), index_or_count(index_or_count) {}
 
             inline const bool operator==(const trailer_index_or_count& other) const {
@@ -80,7 +80,7 @@ namespace truckconnect {
             }
         };
 
-        constexpr const trailer_index_or_count& INVALID_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX));
+        constexpr const trailer_index_or_count& INVALID_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, static_cast<trailer_index_uint>(metadata::INVALID_TRAILER_INDEX));
 
         constexpr const trailer_index_or_count& DEFAULT_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, 0);
 
@@ -128,7 +128,7 @@ namespace truckconnect {
             return {
                 request_type::telemetry_id,
                 id,
-                *(const uint8_t* const)(&trailer_index_or_count)
+                *(const trailer_index_uint* const)(&trailer_index_or_count)
             };
         }
 
@@ -208,7 +208,7 @@ namespace truckconnect {
             return result;
         }
 
-        template <typename meta, uint32_t trailer_count>
+        template <typename meta, trailer_index_uint trailer_count>
         communication_result request(connection& connection, std::function<void(const typename meta::storage_type (&)[trailer_count])> received_callback) {
             static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'count' is over the trailer count limit.");
             static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
@@ -225,7 +225,7 @@ namespace truckconnect {
             return result;
         }
 
-        template <typename meta, uint32_t trailer_count>
+        template <typename meta, trailer_index_uint trailer_count>
         communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
             static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'trailer_count' is over the trailer count limit.");
             static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
@@ -242,7 +242,7 @@ namespace truckconnect {
             return result;
         }
 
-        template <typename meta, uint32_t trailer_count>
+        template <typename meta, trailer_index_uint trailer_count>
         communication_result request(connection& connection, std::array<typename meta::storage_type, trailer_count>& array) {
             return request<meta, trailer_count>(
                 connection,

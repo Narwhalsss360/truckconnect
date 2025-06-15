@@ -16,6 +16,8 @@
 #endif
 
 namespace truckconnect {
+    using trailer_index_uint = uint8_t;
+
 #pragma region constant expression utility
     template <typename T, uint32_t count>
     constexpr const T sum(const T(&array)[count], const uint32_t& end = count, const uint32_t& start = 0) {

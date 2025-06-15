@@ -1067,7 +1067,7 @@ namespace truckconnect {
         read += single_read;
         if (!from_bytes(as_bytes, channels.truck, offset + read, single_read)) return false;
         read += single_read;
-        for (uint32_t i = 0; i < SCS_TELEMETRY_trailers_count; i++){
+        for (trailer_index_uint i = 0; i < SCS_TELEMETRY_trailers_count; i++){
             if (!from_bytes(as_bytes, channels.trailer[i], offset + read, single_read)) return false;
             read += single_read;
         }
@@ -1107,7 +1107,7 @@ namespace truckconnect {
         read += single_read;
         if (!from_bytes(as_bytes, configuration.configuration_truck_info, offset + read, single_read)) return false;
         read += single_read;
-        for (uint32_t i = 0; i < SCS_TELEMETRY_trailers_count; i++){
+        for (trailer_index_uint i = 0; i < SCS_TELEMETRY_trailers_count; i++){
             if (!from_bytes(as_bytes, configuration.configuration_trailer_info[i], offset + read, single_read)) return false;
             read += single_read;
         }

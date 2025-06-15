@@ -147,7 +147,7 @@ namespace truckconnect {
 
         constexpr const uint32_t& INVALID_OFFSET = static_cast<uint32_t>(-1);
 
-        constexpr const uint32_t& INVALID_TRAILER_INDEX = static_cast<uint32_t>(-1);
+        constexpr const trailer_index_uint& INVALID_TRAILER_INDEX = static_cast<trailer_index_uint>(-1);
 
         constexpr const uint32_t& INVALID_SIZE = 0;
 
