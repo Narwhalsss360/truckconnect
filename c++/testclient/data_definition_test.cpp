@@ -1,3 +1,11 @@
+// Pack structures for reinterpret_cast
+#include <ppltasks.h>
+#ifdef _WIN32
+#pragma pack(push, 1)
+#include <master_structure.h>
+#pragma pack(pop)
+#endif
+
 #include <truckconnect>
 #include <iostream>
 #include <chrono>
@@ -12,6 +20,9 @@ using namespace truckconnect::data;
 
 constexpr const data_definition_id& gauge_cluster_id = 0;
 
+#ifdef _WIN32
+#pragma pack(push, 1)
+#endif
 struct gauge_cluster {
     metadata::channel_game_time::storage_type game_time;
     metadata::truck_channel_engine_rpm::storage_type engine_rpm;
@@ -21,8 +32,9 @@ struct gauge_cluster {
     metadata::truck_channel_oil_temperature::storage_type oil_temperature;
     metadata::truck_channel_light_lblinker::storage_type light_lblinker;
     metadata::truck_channel_light_rblinker::storage_type light_rblinker;
+    std::array<metadata::trailer_channel_connected::storage_type, SCS_TELEMETRY_trailers_count> trailer_channel_connected;
 
-    void print() {
+    void print() const {
         cout <<
             (game_time.initialized ? to_string(game_time.value) : "-") << "min | " <<
             (engine_rpm.initialized ? to_string(engine_rpm.value) : "-") << "rpm | " <<
@@ -31,9 +43,26 @@ struct gauge_cluster {
             (fuel.initialized ? to_string(fuel.value) : "-") << "L | " <<
             (oil_temperature.initialized ? to_string(oil_temperature.value) : "-") << "C | " <<
             (light_lblinker.initialized ? (light_lblinker.value ? "<" : "-") : "_") << "-" <<
-            (light_rblinker.initialized ? (light_rblinker.value ? ">" : "-") : "_");
+            (light_rblinker.initialized ? (light_rblinker.value ? ">" : "-") : "_") <<
+            " | Trailers: ";
+
+        for (const metadata::trailer_channel_connected::storage_type& connected : trailer_channel_connected) {
+            cout << (
+                connected.initialized ?
+                    connected.value ? (
+                        "Y"
+                    ) : (
+                        "N"
+                    ) : (
+                    "-"
+                )
+            );
+        }
     }
 };
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
 
 template<>
 struct data_definition<gauge_cluster> {
@@ -47,7 +76,8 @@ struct data_definition<gauge_cluster> {
         member<metadata::truck_channel_fuel>(offsetof(gauge_cluster, fuel)),
         member<metadata::truck_channel_oil_temperature>(offsetof(gauge_cluster, oil_temperature)),
         member<metadata::truck_channel_light_lblinker>(offsetof(gauge_cluster, light_lblinker)),
-        member<metadata::truck_channel_light_rblinker>(offsetof(gauge_cluster, light_rblinker))
+        member<metadata::truck_channel_light_rblinker>(offsetof(gauge_cluster, light_rblinker)),
+        member<metadata::trailer_channel_connected>(offsetof(gauge_cluster, trailer_channel_connected), SCS_TELEMETRY_trailers_count)
     };
 
     static constexpr const data_member_info_container<gauge_cluster> info = {};

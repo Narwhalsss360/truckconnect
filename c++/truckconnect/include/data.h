@@ -1,4 +1,5 @@
 #pragma once
+#include "scssdk/common/scssdk_telemetry_common_configs.h"
 #include "telemetry_metadata.h"
 #include "metadata_functions.h"
 #include "packed_size.h"
@@ -62,7 +63,17 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const uint32_t packed_size_of(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? 0 : 1 + packed_size_of(members, i + 1);
+            return
+                i == count ? (
+                    0
+                ) : (
+                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                        metadata::packed_size_of(members[i].telemetry_id) * members[i].trailer_count
+                    ) : (
+                        metadata::packed_size_of(members[i].telemetry_id)
+                    )
+                    + packed_size_of(members, i + 1)
+                );
         }
 
         template <uint32_t count>
@@ -71,8 +82,54 @@ namespace truckconnect {
         }
 
         template <uint32_t count>
+        constexpr const bool has_valid_trailer_count_for_trailer_channels(const data_member (&members)[count], const uint32_t& i = 0) {
+            return
+                i == count ? (
+                    true
+                ) : (
+                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                        members[i].trailer_count > SCS_TELEMETRY_trailers_count ? (
+                            false
+                        ) : (
+                            has_valid_trailer_count_for_trailer_channels(members, i + 1)
+                        )
+                    ) : (
+                        has_valid_trailer_count_for_trailer_channels(members, i + 1)
+                    )
+                );
+        }
+
+        template <uint32_t count>
+        constexpr const bool has_invalid_trailer_count_for_non_trailer_channels(const data_member (&members)[count], const uint32_t& i = 0) {
+            return
+                i == count ? (
+                    true
+                ) : (
+                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                        has_invalid_trailer_count_for_non_trailer_channels(members, i + 1)
+                    ) : (
+                        members[i].trailer_count == static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX) ? (
+                            has_invalid_trailer_count_for_non_trailer_channels(members, i + 1)
+                        ) : (
+                            false
+                        )
+                    )
+                );
+        }
+
+        template <uint32_t count>
         constexpr const uint32_t sum_of_sizes(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? 0 : metadata::size_of(members[i].telemetry_id) + sum_of_sizes(members, i + 1);
+            return
+                i == count ? (
+                    0
+                ) : (
+                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                        metadata::size_of(members[i].telemetry_id) * members[i].trailer_count
+                    ) : (
+                        metadata::size_of(members[i].telemetry_id)
+                    )
+                    + sum_of_sizes(members, i + 1)
+                );
         }
 
         template <uint32_t count>
@@ -149,7 +206,23 @@ namespace truckconnect {
             static_assert(unique_offsets, "Data members do not have unique offsets.");
 
             static constexpr const uint32_t& packed_size = packed_size_of(data_definition<data_structure>::members);
-            static_assert(packed_size < sizeof(data_structure), "Size of members is bigger than structure.");
+            static_assert(packed_size <= sizeof(data_structure), "Size of members is bigger than structure.");
+
+            static constexpr const data_member& last_member_in_memory = truckconnect::data::last_member_in_memory(data_definition<data_structure>::members);
+            static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.telemetry_id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
+
+            static constexpr const bool& has_invalid_trailer_count_for_non_trailer_channels = truckconnect::data::has_invalid_trailer_count_for_non_trailer_channels(data_definition<data_structure>::members);
+            static_assert(has_invalid_trailer_count_for_non_trailer_channels, "A non-trailer channel has a 'trailer_count' specified.");
+
+            static constexpr const bool& has_valid_trailer_count_for_trailer_channels = truckconnect::data::has_valid_trailer_count_for_trailer_channels(data_definition<data_structure>::members);
+            static_assert(has_valid_trailer_count_for_trailer_channels, "A trailer channel has a 'trailer_count' which is invalid.");
+
+            static constexpr const bool& is_offset_strictly_monotonically_increasing = truckconnect::data::is_offset_strictly_monotonically_increasing(data_definition<data_structure>::members);
+
+            static constexpr const bool& overlapping_members = truckconnect::data::overlapping_members(data_definition<data_structure>::members);
+
+            //Not implemented for non-is_offset_strictly_monotonically_increasing
+            static_assert(is_offset_strictly_monotonically_increasing ? !overlapping_members : true, "Data member sizes/offsets overlap.");
 
             static constexpr const bool& is_packed = packed_size == sizeof(data_structure);
 
@@ -157,16 +230,7 @@ namespace truckconnect {
 
             static constexpr const uint32_t& sum_of_sizes = ::truckconnect::data::sum_of_sizes(data_definition<data_structure>::members);
 
-            static constexpr const data_member& last_member_in_memory = truckconnect::data::last_member_in_memory(data_definition<data_structure>::members);
-            static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.telemetry_id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
-
-            static constexpr const bool& is_offset_strictly_monotonically_increasing = truckconnect::data::is_offset_strictly_monotonically_increasing(data_definition<data_structure>::members);
-
-            //Not implemented for non-is_offset_strictly_monotonically_increasing
-            static constexpr const bool& overlapping_members = truckconnect::data::overlapping_members(data_definition<data_structure>::members);
-            static_assert(is_offset_strictly_monotonically_increasing ? !overlapping_members : true, "Data member sizes/offsets overlap.");
-
-            static constexpr const bool& reinterpretable = is_constant_size && is_packed && sum_of_sizes == sizeof(data_structure);
+            static constexpr const bool& reinterpretable = is_offset_strictly_monotonically_increasing && is_constant_size && is_packed && sum_of_sizes == sizeof(data_structure);
         };
 
         template <typename meta>
@@ -246,9 +310,10 @@ namespace truckconnect {
         }
 
         template <typename data_structure>
-        bool arrange(const std::vector<uint8_t>& bytes, const uint32_t& offset, data_structure& out, const uint32_t& i = 0) {
+        bool arrange_recursive(const std::vector<uint8_t>& bytes, const uint32_t& offset, data_structure& out, const uint32_t& i) {
             using definition = data_definition<data_structure>;
             using member_info = data_member_info_container<data_structure>;
+
             constexpr const member_info& info = {};
             uint8_t* const& out_start = reinterpret_cast<uint8_t* const>(&out);
             const data_member& member = definition::members[i];
@@ -262,7 +327,23 @@ namespace truckconnect {
                 return false;
             }
 
-            return arrange(bytes, offset + read, out, i + 1);
+            return arrange_recursive(bytes, offset + read, out, i + 1);
+        }
+
+
+        template <typename data_structure>
+        bool arrange(const std::vector<uint8_t>& bytes, const uint32_t& offset, data_structure& out) {
+            using member_info = data_member_info_container<data_structure>;
+
+
+            if ifconstexpr (member_info::reinterpretable) {
+                if (bytes.size() - offset >= sizeof(data_structure)) {
+                    out = apply_offset<data_structure>(bytes.data(), offset);
+                    return true;
+                }
+            }
+
+            return arrange_recursive(bytes, offset, out, 0);
         }
 
         static inline bool arrange(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, std::vector<uint8_t>& out) {
