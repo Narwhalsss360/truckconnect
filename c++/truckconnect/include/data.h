@@ -171,7 +171,7 @@ namespace truckconnect {
         constexpr const data_member member(const uint32_t& offset, const uint8_t& trailer_count = static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX)) {
             return data_member(meta::id, offset, trailer_count);
         }
-        
+
         constexpr const size_t data_member_ordered_size(const uint32_t& i) {
             return data_member_serialization_info::ordered_sizes[i];
         }
