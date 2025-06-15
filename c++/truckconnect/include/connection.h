@@ -19,11 +19,47 @@ namespace truckconnect {
                 telemetry_id,
                 register_data_definition,
                 defined_data,
-                unregister_data_definition
+                unregister_data_definition,
+                error_response
             };
         }
 
         using request_types::request_type;
+
+        namespace communication_results {
+            enum communication_result : uint8_t {
+                success,
+                generic_socket_error,
+                already_connected,
+                not_connected,
+                disconnected,
+                incomplete,
+                collector_error,
+                no_pending_request,
+                invalid_telemetry,
+                invalid_trailer_index,
+                other_request_pending,
+                other_telemetry_id_pending,
+                other_trailer_index_request_pending,
+                received_other_response,
+                received_other_telemetry,
+                received_other_trailer_index,
+                deserialization_failure,
+                trailer_index_out_of_bounds,
+                trailer_count_out_of_bounds,
+                trailer_index_or_count_was_count,
+                null_argument,
+                empty,
+                already_registered,
+                other_defined_data_pending,
+                not_registered,
+                arrange_error,
+                badly_formed,
+                unknown_data
+            };
+        }
+
+        using communication_results::communication_result;
 
         struct trailer_index_or_count {
             bool is_count : 1;
@@ -75,6 +111,10 @@ namespace truckconnect {
                 return apply_offset<data::data_definition_id>(&request_data, 0);
             }
 
+            inline const communication_result last_error() const {
+                return pending_request == request_type::error_response ? apply_offset<communication_result>(&request_data, 0) : communication_result::success;
+            }
+
             inline void clear_pending_request() {
                 pending_request = request_type::none;
             }
@@ -83,37 +123,6 @@ namespace truckconnect {
 
             operator const bool() const;
         };
-
-        namespace communication_results {
-            enum communication_result {
-                success,
-                generic_socket_error,
-                already_connected,
-                not_connected,
-                disconnected,
-                incomplete,
-                collector_error,
-                no_pending_request,
-                invalid_trailer_index,
-                other_request_pending,
-                other_telemetry_id_pending,
-                other_trailer_index_request_pending,
-                received_other_response,
-                received_other_telemetry,
-                received_other_trailer_index,
-                deserialization_failure,
-                trailer_index_out_of_bounds,
-                trailer_count_out_of_bounds,
-                trailer_index_or_count_was_count,
-                null_argument,
-                empty,
-                already_registered,
-                other_defined_data_pending,
-                not_registered,
-                arrange_error,
-                unknown_data
-            };
-        }
 
         constexpr const std::array<uint8_t, 3> form_telemetry_request(const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count) {
             return {
@@ -145,8 +154,6 @@ namespace truckconnect {
                 id
             };
         }
-
-        using communication_results::communication_result;
 
         communication_result connect(connection& connection);
 

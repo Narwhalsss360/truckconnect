@@ -156,6 +156,14 @@ namespace truckconnect {
                 return result;
             }
 
+            if (connection.collector.next_size() < 2) {
+                return communication_result::unknown_data;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) == request_type::error_response) {
+                return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
+            }
+
             if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
                 return communication_result::received_other_response;
             }
@@ -189,6 +197,10 @@ namespace truckconnect {
         communication_result register_data_definition(connection& connection, const data::data_definition_id& id, const data::data_member* const& members, const uint32_t& count) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
+            }
+
+            if (connection.pending_request != request_type::none) {
+                return communication_result::other_request_pending;
             }
 
             if (members == nullptr) {
@@ -232,6 +244,14 @@ namespace truckconnect {
                 return result;
             }
 
+            if (connection.collector.next_size() < 2) {
+                return communication_result::unknown_data;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) == request_type::error_response) {
+                return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
+            }
+
             if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
                 return communication_result::received_other_response;
             }
@@ -252,6 +272,10 @@ namespace truckconnect {
         communication_result send_request_for(connection& connection, const data::data_definition_id& id) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
+            }
+
+            if (connection.pending_request != request_type::none) {
+                return communication_result::other_request_pending;
             }
 
             const auto find_it = std::find_if(
@@ -302,6 +326,14 @@ namespace truckconnect {
                 return result;
             }
 
+            if (connection.collector.next_size() < 2) {
+                return communication_result::unknown_data;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) == request_type::error_response) {
+                return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
+            }
+
             if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
                 return communication_result::received_other_response;
             }
@@ -327,6 +359,10 @@ namespace truckconnect {
         communication_result unregister_data_definition(connection& connection, const data::data_definition_id& id) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
+            }
+
+            if (connection.pending_request != request_type::none) {
+                return communication_result::other_request_pending;
             }
 
             const auto find_it = std::find_if(
@@ -359,6 +395,14 @@ namespace truckconnect {
             communication_result result = receive_all(connection);
             if (result != communication_result::success) {
                 return result;
+            }
+
+            if (connection.collector.next_size() < 2) {
+                return communication_result::unknown_data;
+            }
+
+            if (apply_offset<request_type>(connection.collector.buffer().data(), 0) == request_type::error_response) {
+                return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
             }
 
             if (apply_offset<request_type>(connection.collector.buffer().data(), 0) != connection.pending_request) {
