@@ -344,6 +344,7 @@ namespace truckconnect {
 
             received_callback(connection.collector.buffer());
 
+            connection.pending_request = request_type::none;
             return communication_result::success;
         }
 
