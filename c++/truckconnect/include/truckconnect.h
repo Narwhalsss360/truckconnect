@@ -7,7 +7,9 @@
 #include "metadata_functions.h"
 #include "packed_size.h"
 #include "size_of_scs_type.h"
+#include "storage_type_of.h"
 #include "byte_converters.h"
 #include "vector_collector.h"
 #include "data.h"
 #include "connection.h"
+
