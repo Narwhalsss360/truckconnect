@@ -66,8 +66,8 @@ namespace truckconnect {
         }
 
         template <uint32_t count>
-        constexpr const bool constant_sized(const data_member (&members)[count], const uint32_t& i = 0) {
-            return false; //Not implemented i == count ? true : (members[i].metadata.constant_size ? constant_sized(members, i + 1) : false);
+        constexpr const bool is_constant_size(const data_member (&members)[count], const uint32_t& i = 0) {
+            return i == count ? true : (metadata::is_constant_size(members[i].telemetry_id) ? is_constant_size(members, i + 1) : false);
         }
 
         template <uint32_t count>
@@ -153,7 +153,7 @@ namespace truckconnect {
 
             static constexpr const bool& is_packed = packed_size == sizeof(data_structure);
 
-            static constexpr const bool& is_constant_size = constant_sized(data_definition<data_structure>::members);
+            static constexpr const bool& is_constant_size = truckconnect::data::is_constant_size(data_definition<data_structure>::members);
 
             static constexpr const uint32_t& sum_of_sizes = ::truckconnect::data::sum_of_sizes(data_definition<data_structure>::members);
 
@@ -165,6 +165,8 @@ namespace truckconnect {
             //Not implemented for non-is_offset_strictly_monotonically_increasing
             static constexpr const bool& overlapping_members = truckconnect::data::overlapping_members(data_definition<data_structure>::members);
             static_assert(is_offset_strictly_monotonically_increasing ? !overlapping_members : true, "Data member sizes/offsets overlap.");
+
+            static constexpr const bool& reinterpretable = is_constant_size && is_packed && sum_of_sizes == sizeof(data_structure);
         };
 
         template <typename meta>
