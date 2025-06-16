@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Generate truckconnect_telemetry",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scssdk-telemetry/truckconnect.py",
+            "cwd": "${workspaceFolder}/scssdk-telemetry",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Generate C++ Files",
             "type": "debugpy",
             "request": "launch",
