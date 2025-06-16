@@ -271,4 +271,6 @@ namespace truckconnect {
             }; std::array<trailer_storage, 10> trailer;
         } channels;
     };
+
+    const uint32_t memory_usage(const master_storage& master);
 }

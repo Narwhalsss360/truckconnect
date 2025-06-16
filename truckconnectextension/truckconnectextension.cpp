@@ -2,7 +2,7 @@
 #include "register_all.h"
 #include "clients.h"
 #include <scssdk/scssdk_telemetry_event.h>
-#include <chrono>
+#include <ctime>
 
 using std::string;
 using std::to_string;
@@ -47,16 +47,21 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
     using namespace truckconnect::platform::event_signal;
     constexpr const std::clock_t NOTIFY_LAP_INTERVAL = 5000;
+    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL = 5 * 60 * 1000;
+
+    static std::clock_t now;
     static std::clock_t last_lap = {};
+    static std::clock_t last_memory_notify = {};
     static uint32_t laps = 0;
 
+    now = std::clock();
     switch (signaled(frame_end_signal())) {
     case signal_state::signaled:
         laps++;
-        if (std::clock() - last_lap >= NOTIFY_LAP_INTERVAL) {
+        if (now - last_lap >= NOTIFY_LAP_INTERVAL) {
             console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher thread " + to_string(laps) + " times in the last " + to_string(NOTIFY_LAP_INTERVAL) + "ms.");
             laps = 0;
-            last_lap = std::clock();
+            last_lap = now;
         }
     case signal_state::not_signaled:
         if (!set(frame_end_signal())) {
@@ -68,6 +73,11 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
         break;
     default:
         console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal signaled(...) unknown result."); break;
+    }
+
+    if (now - last_memory_notify >= NOTIFY_MEMORY_USAGE_INTERVAL) {
+        console_log(SCS_LOG_TYPE_message, "Master structure memory usage: " + to_string(memory_usage(current_master())) + " bytes.");
+        last_memory_notify = now;
     }
 }
 

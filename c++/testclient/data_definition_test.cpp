@@ -102,23 +102,22 @@ int data_definition_test() {
     connection connection = ::connection("127.0.0.1");
     debug_assert(sockets::initialize());
     debug_assert(communication_result::success == (result = connect(connection)));
+    debug_assert(communication_result::success == (result = register_data_definition<gauge_cluster>(connection)));
 
-    debug_assert(communication_result::success == (result = register_data_definition(
-        connection,
-        gauge_cluster_id,
-        data_definition<gauge_cluster>::members,
-        _countof(data_definition<gauge_cluster>::members
-    ))));
-
-    data_definition_value gauge_cluster_definition;
-    debug_assert(get_definition(connection, gauge_cluster_id, gauge_cluster_definition));
-
+    metadata::channel_paused::storage_type paused;
     gauge_cluster cluster;
     while (true) {
+        using namespace std::chrono_literals;
+        debug_assert((communication_result::success == (result = request<metadata::channel_paused>(connection, paused))));
+        if (paused.initialized && paused.value) {
+            std::this_thread::sleep_for(65ms);
+            continue;
+        }
+
         debug_assert((communication_result::success == (result = request(connection, cluster))));
         cluster.print();
         cout << "\n";
-        using namespace std::chrono_literals;
+
         std::this_thread::sleep_for(25ms);
     }
 
