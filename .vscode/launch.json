@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Generate Files",
+            "name": "Generate C++ Files",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/scssdk-telemetry/truckconnect.py",
+            "program": "${workspaceFolder}/scssdk-telemetry/cpp.py",
             "cwd": "${workspaceFolder}/scssdk-telemetry",
             "console": "integratedTerminal"
         }
