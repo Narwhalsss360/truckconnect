@@ -24,7 +24,7 @@ namespace TruckConnect
 
 		public bool? CustomChannel { get; init; }
 
-		public static Metadata? ByID(TelemetryID id) => Array.Find(METADATA, metadata => metadata.id == id);
+		public static Metadata? ByID(TelemetryID id) => Array.Find(METADATA, metadata => metadata.ID == id);
 
 		public static readonly Metadata[] METADATA =
 		[
