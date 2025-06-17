@@ -2,7 +2,7 @@
 
 namespace TruckConnect
 {
-    struct ValueStorage<T> where T : new()
+    public struct ValueStorage<T> where T : new()
     {
         public bool Initialized;
 
@@ -16,7 +16,7 @@ namespace TruckConnect
         }
     }
 
-    struct ValueArrayStorage<T> where T : new()
+    public struct ValueArrayStorage<T> where T : new()
     {
         public bool Initialized;
 
@@ -30,7 +30,7 @@ namespace TruckConnect
         }
     }
 
-    struct ValueListStorage<T> where T : new()
+    public struct ValueListStorage<T> where T : new()
     {
         public List<T> Values;
 

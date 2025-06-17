@@ -32,6 +32,13 @@ namespace TruckConnect
 
         [FieldOffset(8)]
         public float Z;
+
+        public SCSValueFVector(float x = 0, float y = 0, float z = 0)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 24)]
@@ -45,6 +52,13 @@ namespace TruckConnect
 
         [FieldOffset(16)]
         public double Z;
+
+        public SCSValueDVector(double x = 0, double y = 0, double z = 0)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 24)]
@@ -58,6 +72,13 @@ namespace TruckConnect
 
         [FieldOffset(8)]
         public float Roll;
+
+        public SCSValueEuler(float heading = 0, float pitch = 0, float roll = 0)
+        {
+            Heading = heading;
+            Pitch = pitch;
+            Roll = roll;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 24)]
@@ -68,6 +89,12 @@ namespace TruckConnect
 
         [FieldOffset(12)]
         public SCSValueEuler Orientation;
+
+        public SCSValueFPlacement(SCSValueFVector position = default, SCSValueEuler orientiation = default)
+        {
+            Position = position;
+            Orientation = orientiation;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 40)]
@@ -78,6 +105,12 @@ namespace TruckConnect
 
         [FieldOffset(24)]
         public SCSValueEuler Orientation;
+
+        public SCSValueDPlacement(SCSValueDVector position = default, SCSValueEuler orientiation = default)
+        {
+            Position = position;
+            Orientation = orientiation;
+        }
     }
 
     public static class SCSValueTypeFunctions
@@ -130,6 +163,13 @@ namespace TruckConnect
             if (VALUE_TYPE_MAPPING.ContainsKey(valueType))
                 return VALUE_TYPE_MAPPING[valueType];
             throw new ArgumentException(nameof(valueType), "Type was not a valid scs type");
+        }
+
+        public static int Size(this SCSValueType valueType)
+        {
+            if (valueType == SCSValueType.SCS_VALUE_TYPE_string || valueType == SCSValueType.SCS_VALUE_TYPE_INVALID)
+                return 0;
+            return Marshal.SizeOf(valueType.GetTypeOfSCSValueType());
         }
     }
 }
