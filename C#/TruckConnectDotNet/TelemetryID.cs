@@ -127,7 +127,8 @@ namespace TruckConnect
 		TruckChannelWheelSteering,
 		TruckChannelWheelRotation,
 		TruckChannelWheelLift,
-		TruckChannelWheelLiftOffset
+		TruckChannelWheelLiftOffset,
+		Invalid = 255
 	}
 }
 
