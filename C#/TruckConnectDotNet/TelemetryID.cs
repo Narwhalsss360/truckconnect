@@ -1,6 +1,7 @@
 namespace TruckConnect
 {
-	public enum TelemetryID {
+	public enum TelemetryID
+    {
 		Master,
 		Configuration,
 		Gameplay,
