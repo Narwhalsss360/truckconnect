@@ -27,6 +27,38 @@ namespace TruckConnect
             ErrorResponse
         }
 
+        public enum CommunicationResult
+        {
+            Success,
+            GenericSocketError,
+            AlreadyConnected,
+            NotConnected,
+            Disconnected,
+            Incomplete,
+            CollectorError,
+            NoPendingRequest,
+            InvalidTelemetry,
+            InvalidTrailerIndex,
+            OtherRequestPending,
+            OtherTelemetryIDPending,
+            OtherTrailerIndexRequestPending,
+            ReceivedOtherResponse,
+            ReceivedOtherTelemetry,
+            ReceivedOtherTrailerIndex,
+            DeserializationFailure,
+            TrailerIndexOutOfBounds,
+            TrailerCountOutOfBounds,
+            TrailerIndexOrCountWasCount,
+            NullArgument,
+            Empty,
+            AlreadyRegistered,
+            OtherDefinedDataPending,
+            NotRegistered,
+            ArrangeError,
+            BadlyFormed,
+            UnknownData
+        }
+
         readonly private Socket m_socket;
 
         readonly private IPAddress m_ipAddress;
@@ -57,21 +89,24 @@ namespace TruckConnect
             ConnectAsync().Wait();
         }
 
-        public async Task SendRequestForAsync(TelemetryID id, TrailerIndexOrCount trailerIndexOrCount = default, CancellationToken cancellationToken = default)
+        public void ClearPendingRequest() => PendingRequest = RequestType.None;
+
+        public async Task SendRequestForAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default)
         {
+            trailerIndexOrCount ??= new();
             EnsureConnected(nameof(SendRequestForAsync));
             EnsurePendingRequest(RequestType.None, "Request already pending.");
             await m_socket.SendAsync(
                 NEncode.EncodeWithSize([
                     (byte)RequestType.TelemetryID,
                     (byte)id,
-                    trailerIndexOrCount.AsByte()
+                    trailerIndexOrCount.Value.AsByte()
                 ]),
                 cancellationToken
             );
             PendingRequest = RequestType.TelemetryID;
             m_pendingID = id;
-            m_pendingTrailerIndexOrCount = trailerIndexOrCount;
+            m_pendingTrailerIndexOrCount = trailerIndexOrCount.Value;
         }
 
         public void ReceiveOne()
@@ -93,7 +128,32 @@ namespace TruckConnect
                 await m_socket.ReceiveAsync(buffer);
                 Collector.Collect(buffer[0]);
             } while (Collector.State == Collector.States.WaitingSize || Collector.State == Collector.States.WaitingData);
-            PendingRequest = RequestType.None;
+        }
+
+        public async Task ReceiveForRequest(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null)
+        {
+            trailerIndexOrCount ??= new();
+            EnsureConnected(nameof(ReceiveForRequest));
+            EnsurePendingRequest(RequestType.TelemetryID, "There is another pending request.");
+            if (trailerIndexOrCount.Value != m_pendingTrailerIndexOrCount)
+                throw new InvalidOperationException("Other trailer index/count does is pending.");
+
+            await ReceiveAllAsync();
+            ClearPendingRequest();
+            if (Collector.Size < 2)
+                throw new InvalidDataException("Received unknown data.");
+
+            if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
+                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+
+            if ((RequestType)Collector.Data[0] != RequestType.TelemetryID)
+                throw new InvalidDataException("Received unexpected response.");
+
+            if ((TelemetryID)Collector.Data[1] != id)
+                throw new InvalidDataException("Received response for another telemetry.");
+
+            if (TrailerIndexOrCount.Parse(Collector.Data[2]) != trailerIndexOrCount)
+                throw new InvalidDataException("Received response for another trailer index/count");
         }
 
         public void Disconnect()
