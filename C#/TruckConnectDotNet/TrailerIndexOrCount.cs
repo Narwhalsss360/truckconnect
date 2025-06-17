@@ -1,16 +1,14 @@
 namespace TruckConnect
 {
-    public struct TrailerIndexOrCount
+    public struct TrailerIndexOrCount : IEquatable<TrailerIndexOrCount>
     {
         public bool IsCount;
 
         public int IndexOrCount;
 
         public TrailerIndexOrCount()
-        {
-            IsCount = false;
-            IndexOrCount = 0;
-        }
+            : this(true, 0)
+        {}
 
         public TrailerIndexOrCount(bool isCount, int indexOrCount)
         {
@@ -18,18 +16,22 @@ namespace TruckConnect
             IndexOrCount = (byte)indexOrCount;
         }
 
-        public static TrailerIndexOrCount Parse(byte data)
-        {
-            TrailerIndexOrCount indexOrCount;
-            indexOrCount.IsCount = (1 & (int)data) > 0;
-            indexOrCount.IndexOrCount = data >> 1;
-            return indexOrCount;
-        }
+        public static TrailerIndexOrCount Parse(byte data) =>
+            new((1 & data) > 0, data >> 1);
 
-        public byte AsByte()
-        {
-            return (byte)(1 | (IndexOrCount >> 1));
-        }
+        public byte AsByte() => (byte)(1 | (IndexOrCount >> 1));
+
+        public override int GetHashCode() => AsByte();
+
+        public bool Equals(TrailerIndexOrCount other) => IsCount == other.IsCount && IndexOrCount == other.IndexOrCount;
+
+        public override bool Equals(object? obj) =>
+            obj is not TrailerIndexOrCount other ? false :
+            IsCount == other.IsCount && IndexOrCount == other.IndexOrCount;
+
+        public static bool operator ==(TrailerIndexOrCount a, object? b) => a.Equals(b);
+
+        public static bool operator !=(TrailerIndexOrCount a, object? b) => !a.Equals(b);
     }
 }
 
