@@ -136,6 +136,16 @@
             return read;
         }
 
+        public static int StorageFromByes(this object[] storages, SCSValueType[] valueTypes, byte[] bytes, int offset = 0)
+        {
+            if (storages.Length != valueTypes.Length)
+                throw new ArgumentException("storages and valueTypes arrays are different lengths", nameof(valueTypes));
+            int totalRead = 0;
+            for (int i = 0; i < storages.Length; i++)
+                totalRead += storages[i].StorageFromBytes(valueTypes[i], bytes, offset + totalRead);
+            return totalRead;
+        }
+
         public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
         {
             ThrowIfInvalidTypeForSCSValueType(typeof(T), valueType);
@@ -176,5 +186,18 @@
 
         public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset = 0) =>
             ConstructStorage(bytes, metadata, offset, out int read);
+
+        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset, out int read) where T : struct
+        {
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException();
+            ThrowIfInvalidTypeForSCSValueType(typeof(T), metadata.SCSValueType!.Value);
+            T storage = default;
+            read = storage.StorageFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            return storage;
+        }
+
+        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset = 0) where T : struct =>
+            bytes.ConstructStorage<T>(metadata, offset, out int read);
     }
 }
