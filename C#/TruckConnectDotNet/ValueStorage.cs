@@ -133,7 +133,7 @@
                 throw new NotImplementedException();
             }
 
-            return 1 + read;
+            return read;
         }
 
         public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
