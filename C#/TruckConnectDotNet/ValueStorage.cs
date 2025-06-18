@@ -166,6 +166,14 @@
             return read;
         }
 
+        public static int StorageArrayFromBytes(this object[] storages, SCSValueType valueType, byte[] bytes, int offset = 0)
+        {
+            int totalRead = 0;
+            for (int i = 0; i < storages.Length; i++)
+                totalRead += storages[i].StorageFromBytes(valueType, bytes, offset + totalRead);
+            return totalRead;
+        }
+
         public static int StorageArrayFromBytes<T>(this T[] storages, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
         {
             int totalRead = 0;
@@ -214,6 +222,18 @@
 
         public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset = 0) where T : struct =>
             bytes.ConstructStorage<T>(metadata, offset, out int read);
+
+        public static object[] ConstructStorageArray(this byte[] bytes, int length, Metadata metadata, int offset, out int read)
+        {
+            object[] storages = new object[length];
+            for (int i = 0; i < length; i++)
+                storages[i] = ConstructStorage(metadata);
+            read = storages.StorageArrayFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            return storages;
+        }
+
+        public static object[] ConstructStorageArray(this byte[] bytes, int length, Metadata metadata, int offset = 0) =>
+            bytes.ConstructStorageArray(length, metadata, offset, out int read);
 
         public static T[] ConstructStorageArray<T>(this byte[] bytes, int length, Metadata metadata, int offset, out int read) where T : struct
         {
