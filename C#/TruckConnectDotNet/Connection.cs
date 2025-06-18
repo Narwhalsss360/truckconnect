@@ -236,8 +236,11 @@ namespace TruckConnect
                 throw new InvalidDataException("Received response for another definition.");
         }
 
-        public async Task RequestAsync(DataDefinition definition) =>
+        public async Task RequestAsync(DataDefinition definition)
+        {
             await RequestAsync(definition.DefinitionID);
+            definition.Store(Collector.Data, DEFINED_DATA_DATA_START);
+        }
 
         public async Task UnregisterDataDefinitionAsync(int definitionID)
         {

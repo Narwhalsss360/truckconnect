@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace TruckConnect
 {
     public class DataDefinition
@@ -6,29 +8,37 @@ namespace TruckConnect
 
         public readonly DataMember[] Members;
 
-        public readonly Metadata[] MemberMetadata;
-
-        protected DataDefinition()
+        private DataDefinition()
         {
-            throw new NotImplementedException();
+            DefinitionID = 256;
+            Members = Array.Empty<DataMember>();
+        }
+
+        protected DataDefinition(int definitionID)
+        {
+            if (definitionID < 0 || definitionID > 255)
+                throw new ArgumentException("A definition id must be within [0, 255]", nameof(definitionID));
+
+            List<DataMember> members = new();
+            foreach (PropertyInfo property in GetType().GetProperties())
+                if (property.GetCustomAttribute<DataDefinitionMemberAttribute>() is DataDefinitionMemberAttribute member)
+                    members.Add(new(member.ID, new(true, member.TrailerCount), property));
+            foreach (FieldInfo field in GetType().GetFields())
+                if (field.GetCustomAttribute<DataDefinitionMemberAttribute>() is DataDefinitionMemberAttribute member)
+                    members.Add(new(member.ID, new(true, member.TrailerCount), field));
+            Members = members.ToArray();
         }
 
         private DataDefinition(int definitionID, DataMember[] members)
         {
             if (definitionID < 0 || definitionID > 255)
                 throw new ArgumentException("A definition id must be within [0, 255]", nameof(definitionID));
-
+            DefinitionID = definitionID;
             Members = members;
-            MemberMetadata = new Metadata[members.Length];
-            for (int i = 0; i < Members.Length; i++)
-            {
-                if (Metadata.ByID(Members[i].ID) is not Metadata metadata)
-                    throw new ArgumentException("A member ID was invalid", nameof(members));
-                if (metadata.TelemetryType != TelemetryType.Channel)
-                    throw new NotImplementedException("Only channels are implemented.");
-                MemberMetadata[i] = metadata;
-            }
         }
+
+        public static DataDefinition Define(int definitionID, DataMember[] members) =>
+            new(definitionID, members);
 
         public int StoreInto(byte[] data, int offset, object[] storages)
         {
@@ -37,7 +47,22 @@ namespace TruckConnect
 
             int totalRead = 0;
             for (int i = 0; i < Members.Length; i++)
-                totalRead += storages[i].StorageFromBytes(MemberMetadata[i].SCSValueType!.Value, data, offset + totalRead);
+                totalRead += storages[i].StorageFromBytes(Members[i].Metadata.SCSValueType!.Value, data, offset + totalRead);
+            return totalRead;
+        }
+
+        public int Store(byte[] data, int offset)
+        {
+            Type thisType = GetType();
+            if (thisType == typeof(DataDefinition))
+                return 0;
+
+            int totalRead = 0;
+            foreach (DataMember member in Members)
+            {
+                member.Assign(this, data.ConstructStorage(member.Metadata, offset + totalRead, out int thisRead));
+                totalRead += thisRead;
+            }
             return totalRead;
         }
 
@@ -45,7 +70,7 @@ namespace TruckConnect
         {
             object[] storages = new object[Members.Length];
             for (int i = 0; i < storages.Length; i++)
-                storages[i] = MemberMetadata[i].ConstructStorage();
+                storages[i] = Members[i].Metadata.ConstructStorage();
             read = StoreInto(data, offset, storages);
             return storages;
         }
@@ -53,8 +78,8 @@ namespace TruckConnect
         public object[] Construct(byte[] data, int offset) =>
             Construct(data, offset, out int read);
 
-        public static DataDefinition Define(int definitionID, DataMember[] members) =>
-            new(definitionID, members);
+        protected async Task Request(Connection connection)
+            => await connection.RequestAsync(this);
 
         public byte[] FormRegistrationRequest()
         {
