@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using System.Collections.Generic;
 
 namespace TruckConnect
 {
@@ -61,7 +60,7 @@ namespace TruckConnect
         }
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 24)]
+    [StructLayout(LayoutKind.Explicit, Size = 12)]
     public struct SCSValueEuler
     {
         [FieldOffset(0)]
