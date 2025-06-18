@@ -2,6 +2,8 @@ namespace TruckConnect
 {
     public struct TrailerIndexOrCount : IEquatable<TrailerIndexOrCount>
     {
+        public static readonly int SCS_TELEMETRY_trailers_count = 10;
+
         public bool IsCount;
 
         public int IndexOrCount;
@@ -19,7 +21,7 @@ namespace TruckConnect
         public static TrailerIndexOrCount Parse(byte data) =>
             new((1 & data) > 0, data >> 1);
 
-        public byte AsByte() => (byte)(1 | (IndexOrCount >> 1));
+        public byte AsByte() => (byte)(1 | (IndexOrCount << 1));
 
         public override int GetHashCode() => AsByte();
 
