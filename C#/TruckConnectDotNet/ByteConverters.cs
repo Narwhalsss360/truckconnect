@@ -5,7 +5,7 @@ namespace TruckConnect
 {
     public static class ByteConverters
     {
-        public static int FromBytes(byte[] bytes, int offset , out bool result)
+        public static int FromBytes(this byte[] bytes, int offset , out bool result)
         {
             if (bytes.Length - offset < sizeof(bool))
                 throw new InvalidDataException("Not enough bytes.");
@@ -14,7 +14,7 @@ namespace TruckConnect
             return 1;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out Int32 result)
+        public static int FromBytes(this byte[] bytes, int offset , out Int32 result)
         {
             if (bytes.Length - offset < sizeof(Int32))
                 throw new InvalidDataException("Not enough bytes.");
@@ -23,7 +23,7 @@ namespace TruckConnect
             return sizeof(Int32);
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out UInt32 result)
+        public static int FromBytes(this byte[] bytes, int offset , out UInt32 result)
         {
             if (bytes.Length - offset < sizeof(UInt32))
                 throw new InvalidDataException("Not enough bytes.");
@@ -32,7 +32,7 @@ namespace TruckConnect
             return sizeof(UInt32);
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out UInt64 result)
+        public static int FromBytes(this byte[] bytes, int offset , out UInt64 result)
         {
             if (bytes.Length - offset < sizeof(UInt64))
                 throw new InvalidDataException("Not enough bytes.");
@@ -41,7 +41,7 @@ namespace TruckConnect
             return sizeof(UInt64);
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out float result)
+        public static int FromBytes(this byte[] bytes, int offset , out float result)
         {
             if (bytes.Length - offset < sizeof(float))
                 throw new InvalidDataException("Not enough bytes.");
@@ -50,7 +50,7 @@ namespace TruckConnect
             return sizeof(float);
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out double result)
+        public static int FromBytes(this byte[] bytes, int offset , out double result)
         {
             if (bytes.Length - offset < sizeof(double))
                 throw new InvalidDataException("Not enough bytes.");
@@ -59,7 +59,7 @@ namespace TruckConnect
             return sizeof(double);
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out SCSValueFVector result)
+        public static int FromBytes(this byte[] bytes, int offset , out SCSValueFVector result)
         {
             int size = Marshal.SizeOf<SCSValueFVector>();
             if (bytes.Length - offset < size)
@@ -73,7 +73,7 @@ namespace TruckConnect
             return size;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out SCSValueDVector result)
+        public static int FromBytes(this byte[] bytes, int offset , out SCSValueDVector result)
         {
             int size = Marshal.SizeOf<SCSValueDVector>();
             if (bytes.Length - offset < size)
@@ -87,7 +87,7 @@ namespace TruckConnect
             return size;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out SCSValueEuler result)
+        public static int FromBytes(this byte[] bytes, int offset , out SCSValueEuler result)
         {
             int size = Marshal.SizeOf<SCSValueEuler>();
             if (bytes.Length - offset < size)
@@ -101,7 +101,7 @@ namespace TruckConnect
             return size;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out SCSValueFPlacement result)
+        public static int FromBytes(this byte[] bytes, int offset , out SCSValueFPlacement result)
         {
             int size = Marshal.SizeOf<SCSValueFPlacement>();
             if (bytes.Length - offset < size)
@@ -116,7 +116,7 @@ namespace TruckConnect
             return size;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out SCSValueDPlacement result)
+        public static int FromBytes(this byte[] bytes, int offset , out SCSValueDPlacement result)
         {
             int size = Marshal.SizeOf<SCSValueDPlacement>();
             if (bytes.Length - offset < size)
@@ -131,7 +131,7 @@ namespace TruckConnect
             return size;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out string result)
+        public static int FromBytes(this byte[] bytes, int offset , out string result)
         {
             int end = offset;
             for (int i = offset; i < bytes.Length; i++)
@@ -151,7 +151,7 @@ namespace TruckConnect
             return szLength;
         }
 
-        public static int FromBytes(byte[] bytes, int offset , out Int64 result)
+        public static int FromBytes(this byte[] bytes, int offset , out Int64 result)
         {
             if (bytes.Length - offset < sizeof(Int64))
                 throw new InvalidDataException("Not enough bytes.");
@@ -160,7 +160,7 @@ namespace TruckConnect
             return sizeof(Int64);
         }
 
-        public static int FromBytes(this SCSValueType valueType, byte[] bytes, int offset, out object result)
+        public static int FromBytes(this byte[] bytes, SCSValueType valueType, int offset, out object result)
         {
             switch (valueType)
             {
