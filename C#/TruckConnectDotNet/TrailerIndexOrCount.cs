@@ -2,7 +2,7 @@ namespace TruckConnect
 {
     public struct TrailerIndexOrCount : IEquatable<TrailerIndexOrCount>
     {
-        public static readonly int SCS_TELEMETRY_trailers_count = 10;
+        public const int SCS_TELEMETRY_trailers_count = 10;
 
         public bool IsCount;
 
