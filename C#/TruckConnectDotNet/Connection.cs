@@ -146,19 +146,19 @@ namespace TruckConnect
             await ReceiveAllAsync();
             ClearPendingRequest();
             if (Collector.Size < 2)
-                throw new InvalidDataException("Received unknown data.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
 
             if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
-                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+                throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
 
             if ((RequestType)Collector.Data[0] != RequestType.TelemetryID)
-                throw new InvalidDataException("Received unexpected response.");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse , new InvalidDataException("Received unexpected response."));
 
             if ((TelemetryID)Collector.Data[1] != id)
-                throw new InvalidDataException("Received response for another telemetry.");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherTelemetry , new InvalidDataException("Received response for another telemetry."));
 
             if (TrailerIndexOrCount.Parse(Collector.Data[2]) != trailerIndexOrCount)
-                throw new InvalidDataException("Received response for another trailer index/count");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherTrailerIndex , new InvalidDataException("Received response for another trailer index/count"));
         }
 
         public async Task RequestAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default)
@@ -215,16 +215,16 @@ namespace TruckConnect
             ClearPendingRequest();
 
             if (Collector.Size < 2)
-                throw new InvalidDataException("Received unknown data.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received unknown data."));
 
             if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
-                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+                throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
 
             if ((RequestType)Collector.Data[0] != RequestType.RegisterDataDefinition)
-                throw new InvalidDataException("Received unexpected response.");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse , new InvalidDataException("Received unexpected response."));
 
             if (Collector.Data[1] != dataDefinition.DefinitionID)
-                throw new InvalidDataException("Received response for another definition.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received response for another definition."));
 
             m_definitions.Add(dataDefinition);
         }
@@ -242,16 +242,16 @@ namespace TruckConnect
             ClearPendingRequest();
 
             if (Collector.Size < 2)
-                throw new InvalidDataException("Received unknown data.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received unknown data."));
 
             if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
-                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+                throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
 
             if ((RequestType)Collector.Data[0] != RequestType.DefinedData)
-                throw new InvalidDataException("Received unexpected response.");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse , new InvalidDataException("Received unexpected response."));
 
             if (Collector.Data[1] != definitionID)
-                throw new InvalidDataException("Received response for another definition.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received response for another definition."));
         }
 
         public async Task RequestAsync(DataDefinition definition)
@@ -273,16 +273,16 @@ namespace TruckConnect
             ClearPendingRequest();
 
             if (Collector.Size < 2)
-                throw new InvalidDataException("Received unknown data.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
 
             if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
-                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+                throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
 
             if ((RequestType)Collector.Data[0] != RequestType.UnregisterDataDefinition)
-                throw new InvalidDataException("Received unexpected response.");
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse, new InvalidDataException("Received unexpected response."));
 
             if (Collector.Data[1] != dataDefinition.DefinitionID)
-                throw new InvalidDataException("Received response for another definition.");
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received response for another definition."));
 
             m_definitions.Remove(dataDefinition);
         }
