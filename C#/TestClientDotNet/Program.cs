@@ -35,6 +35,9 @@ class GameStatus : DataDefinition
     [DataDefinitionMember(TelemetryID.ChannelLocalScale)]
     public ValueStorage<float> LocalScale = default;
 
+    [DataDefinitionMember(TelemetryID.TrailerChannelConnected, 3)]
+    public ValueStorage<bool>[] TrailersConencted = new ValueStorage<bool>[3];
+
     public GameStatus()
         : base(1) {}
 }

@@ -1,3 +1,4 @@
+using System.Dynamic;
 using System.Reflection;
 
 namespace TruckConnect
@@ -50,18 +51,34 @@ namespace TruckConnect
 
         public void Assign(object obj, object value)
         {
-            if (IsProperty)
-                if (Metadata.TrailerChannel ?? false)
-                    throw new NotImplementedException();
+            if (value is object[] array)
+            {
+                Array? member;
+                if (IsProperty)
+                    member = MemberAsProperty.GetValue(obj) as Array;
+                else if (IsField)
+                    member = MemberAsField.GetValue(obj) as Array;
                 else
-                    MemberAsProperty.SetValue(obj, value);
-            else if (IsField)
-                if (Metadata.TrailerChannel ?? false)
-                    throw new NotImplementedException();
-                else
-                    MemberAsField.SetValue(obj, value);
+                    throw new InvalidOperationException("This DataMember is not associated with a field or a property");
+
+                if (member is null)
+                    throw new InvalidOperationException("This DataMember is not array");
+
+                if (member.Length != array.Length)
+                    throw new InvalidOperationException("The length of the arrays are not equal");
+
+                for (int i = 0; i < member.Length; i++)
+                    member.SetValue(array[i], i);
+            }
             else
-                throw new InvalidOperationException("This DataMember is not associated with a field or a property");
+            {
+                if (IsProperty)
+                    MemberAsProperty.SetValue(obj, value);
+                else if (IsField)
+                    MemberAsField.SetValue(obj, value);
+                else
+                    throw new InvalidOperationException("This DataMember is not associated with a field or a property");
+            }
         }
 
         public byte[] AsBytes()
@@ -79,13 +96,21 @@ namespace TruckConnect
             {
                 if (!field.IsPublic || field.IsInitOnly)
                     throw new ArgumentException("Member must be public", nameof(Member));
-                field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+
+                if (field.FieldType.IsArray)
+                    field.FieldType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                else
+                    field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
             }
             else if (Member is PropertyInfo property)
             {
                 if (!property.CanWrite)
                     throw new ArgumentException("Member must be public", nameof(Member));
-                property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+
+                if (property.PropertyType.IsArray)
+                    property.PropertyType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                else
+                    property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
             }
             else if (Member is not null)
             {

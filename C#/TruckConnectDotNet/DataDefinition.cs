@@ -51,7 +51,7 @@ namespace TruckConnect
             return totalRead;
         }
 
-        public int Store(byte[] data, int offset)
+        public int Store(byte[] data, int offset = 0)
         {
             Type thisType = GetType();
             if (thisType == typeof(DataDefinition))
@@ -60,7 +60,12 @@ namespace TruckConnect
             int totalRead = 0;
             foreach (DataMember member in Members)
             {
-                member.Assign(this, data.ConstructStorage(member.Metadata, offset + totalRead, out int thisRead));
+                int thisRead;
+                if (member.TrailerCount.IndexOrCount > 1)
+                    member.Assign(this, data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead));
+                else
+                    member.Assign(this, data.ConstructStorage(member.Metadata, offset + totalRead, out thisRead));
+
                 totalRead += thisRead;
             }
             return totalRead;
