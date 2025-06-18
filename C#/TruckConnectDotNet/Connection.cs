@@ -68,6 +68,8 @@ namespace TruckConnect
 
         private TrailerIndexOrCount m_pendingTrailerIndexOrCount = new();
 
+        private readonly List<DataDefinition> m_definitions = new();
+
         public RequestType PendingRequest { get; private set; } = RequestType.None;
 
         public bool Connected { get => m_socket.Connected; }
@@ -178,6 +180,94 @@ namespace TruckConnect
             result.StorageFromBytes(metadata.SCSValueType!.Value, Collector.Data, TELEMTRY_DATA_START);
             return result;
         }
+
+        public DataDefinition? GetDefinition(int definitionID)
+            => m_definitions.Find(definition => definition.DefinitionID == definitionID);
+
+        public async Task RegisterDataDefinitionAsync(DataDefinition dataDefinition)
+        {
+            EnsureConnected(nameof(RegisterDataDefinitionAsync));
+            EnsurePendingRequest(RequestType.None, "Request already pending.");
+            if (GetDefinition(dataDefinition.DefinitionID) is not null)
+                throw new InvalidOperationException("Data definition with same ID already registered");
+
+            await m_socket.SendAsync(dataDefinition.FormRegistrationRequest().EncodeWithSize());
+            PendingRequest = RequestType.RegisterDataDefinition;
+            await ReceiveAllAsync();
+            ClearPendingRequest();
+
+            if (Collector.Size < 2)
+                throw new InvalidDataException("Received unknown data.");
+
+            if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
+                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+
+            if ((RequestType)Collector.Data[0] != RequestType.RegisterDataDefinition)
+                throw new InvalidDataException("Received unexpected response.");
+
+            if (Collector.Data[1] != dataDefinition.DefinitionID)
+                throw new InvalidDataException("Received response for another definition.");
+
+            m_definitions.Add(dataDefinition);
+        }
+
+        public async Task RequestAsync(int definitionID)
+        {
+            EnsureConnected(nameof(RequestAsync));
+            EnsurePendingRequest(RequestType.None, "Reqest already pending.");
+            if (GetDefinition(definitionID) is null)
+                throw new InvalidOperationException("Data definition with ID not registered.");
+
+            await m_socket.SendAsync(NEncode.EncodeWithSize([(byte)RequestType.DefinedData, (byte)definitionID]));
+            PendingRequest = RequestType.DefinedData;
+            await ReceiveAllAsync();
+            ClearPendingRequest();
+
+            if (Collector.Size < 2)
+                throw new InvalidDataException("Received unknown data.");
+
+            if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
+                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+
+            if ((RequestType)Collector.Data[0] != RequestType.DefinedData)
+                throw new InvalidDataException("Received unexpected response.");
+
+            if (Collector.Data[1] != definitionID)
+                throw new InvalidDataException("Received response for another definition.");
+        }
+
+        public async Task RequestAsync(DataDefinition definition) =>
+            await RequestAsync(definition.DefinitionID);
+
+        public async Task UnregisterDataDefinitionAsync(int definitionID)
+        {
+            EnsureConnected(nameof(UnregisterDataDefinitionAsync));
+            EnsurePendingRequest(RequestType.None, "Request already pending.");
+            if (GetDefinition(definitionID) is not DataDefinition dataDefinition)
+                throw new InvalidOperationException("Data definition with ID not registered");
+
+            await m_socket.SendAsync(dataDefinition.FormUnregistrationRequest().EncodeWithSize());
+            PendingRequest = RequestType.UnregisterDataDefinition;
+            await ReceiveAllAsync();
+            ClearPendingRequest();
+
+            if (Collector.Size < 2)
+                throw new InvalidDataException("Received unknown data.");
+
+            if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
+                throw new InvalidDataException("Received error response: {(CommunicationResult)Collector.Data[1]}.");
+
+            if ((RequestType)Collector.Data[0] != RequestType.UnregisterDataDefinition)
+                throw new InvalidDataException("Received unexpected response.");
+
+            if (Collector.Data[1] != dataDefinition.DefinitionID)
+                throw new InvalidDataException("Received response for another definition.");
+
+            m_definitions.Remove(dataDefinition);
+        }
+
+        public async Task UnregisterDataDefinitionAsync(DataDefinition definition) =>
+            await UnregisterDataDefinitionAsync(definition.DefinitionID);
 
         public void Disconnect()
         {
