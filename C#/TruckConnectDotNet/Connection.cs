@@ -169,14 +169,34 @@ namespace TruckConnect
 
         public async Task<T> RequestAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
         {
+            trailerIndexOrCount ??= new();
             if (Metadata.ByID(id) is not Metadata metadata)
                 throw new ArgumentException("ID was invalid", nameof(id));
 
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException("Only channels are implemented");
 
+            if (trailerIndexOrCount.Value.IsCount)
+                throw new ArgumentException($"For a trailer count, use {nameof(RequestArrayAsync)}", nameof(trailerIndexOrCount));
+
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             return Collector.Data.ConstructStorage<T>(metadata, TELEMTRY_DATA_START);
+        }
+
+        public async Task<T[]> RequestArrayAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
+        {
+            trailerIndexOrCount ??= new();
+            if (Metadata.ByID(id) is not Metadata metadata)
+                throw new ArgumentException("ID was invalid", nameof(id));
+
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException("Only channels are implemented");
+
+            if (!trailerIndexOrCount.Value.IsCount)
+                throw new ArgumentException($"For a regular request, use {nameof(RequestAsync)}", nameof(trailerIndexOrCount));
+
+            await RequestAsync(id, trailerIndexOrCount, cancellationToken);
+            return Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMTRY_DATA_START);
         }
 
         public DataDefinition? GetDefinition(int definitionID)
