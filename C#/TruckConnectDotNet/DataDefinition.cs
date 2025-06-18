@@ -45,12 +45,7 @@ namespace TruckConnect
         {
             object[] storages = new object[Members.Length];
             for (int i = 0; i < storages.Length; i++)
-            {
-                if (Activator.CreateInstance(MemberMetadata[i].GetGenericStorageTypeDefinition().MakeGenericType(MemberMetadata[i].SCSValueType!.Value.GetTypeOfSCSValueType())) is not object storage)
-                    throw new NotImplementedException();
-                storages[i] = storage;
-            }
-
+                storages[i] = MemberMetadata[i].ConstructStorage();
             read = StoreInto(data, offset, storages);
             return storages;
         }

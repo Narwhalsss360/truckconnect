@@ -156,12 +156,20 @@
             return read;
         }
 
-        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset, out int read)
+        public static object ConstructStorage(this Metadata metadata)
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
             if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType!.Value.GetTypeOfSCSValueType())) is not object storage)
                 throw new NotImplementedException();
+            return storage;
+        }
+
+        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset, out int read)
+        {
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException();
+            object storage = ConstructStorage(metadata);
             read = storage.StorageFromBytes(metadata.SCSValueType!.Value, bytes, offset);
             return storage;
         }
