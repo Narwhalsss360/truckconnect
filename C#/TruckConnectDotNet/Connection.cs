@@ -101,7 +101,7 @@ namespace TruckConnect
                 NEncode.EncodeWithSize([
                     (byte)RequestType.TelemetryID,
                     (byte)id,
-                    trailerIndexOrCount.Value.AsByte()
+                    trailerIndexOrCount.Value.AsByteForTelemetryRequest()
                 ]),
                 cancellationToken
             );
