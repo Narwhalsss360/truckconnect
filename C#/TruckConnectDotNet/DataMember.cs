@@ -79,13 +79,13 @@ namespace TruckConnect
             {
                 if (!field.IsPublic || field.IsInitOnly)
                     throw new ArgumentException("Member must be public", nameof(Member));
-                field.FieldType.GetSCSValueTypeOf();
+                field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
             }
             else if (Member is PropertyInfo property)
             {
                 if (!property.CanWrite)
                     throw new ArgumentException("Member must be public", nameof(Member));
-                property.PropertyType.GetSCSValueTypeOf();
+                property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
             }
             else if (Member is not null)
             {
