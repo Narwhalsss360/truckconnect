@@ -176,9 +176,7 @@ namespace TruckConnect
                 throw new NotImplementedException("Only channels are implemented");
 
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
-            T result = default;
-            result.StorageFromBytes(metadata.SCSValueType!.Value, Collector.Data, TELEMTRY_DATA_START);
-            return result;
+            return Collector.Data.ConstructStorage<T>(metadata, TELEMTRY_DATA_START);
         }
 
         public DataDefinition? GetDefinition(int definitionID)

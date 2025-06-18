@@ -166,6 +166,21 @@
             return read;
         }
 
+        public static int StorageArrayFromBytes<T>(this T[] storages, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
+        {
+            int totalRead = 0;
+            for (int i = 0; i < storages.Length; i++)
+                totalRead += storages[i].StorageFromBytes(valueType, bytes, offset + totalRead);
+            return totalRead;
+        }
+
+        public static int StorageArrayFromBytes<T>(this T[] storages, byte[] bytes, int offset = 0) where T : struct
+        {
+            if (GetGenericStorageTypeDefinition<T>() is not Type)
+                throw new ArgumentException("'storage' was a not a storage type", nameof(storages));
+            return storages.StorageArrayFromBytes(typeof(T).GenericTypeArguments[0].GetSCSValueTypeOf(), bytes, offset);
+        }
+
         public static object ConstructStorage(this Metadata metadata)
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
@@ -199,5 +214,15 @@
 
         public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset = 0) where T : struct =>
             bytes.ConstructStorage<T>(metadata, offset, out int read);
+
+        public static T[] ConstructStorageArray<T>(this byte[] bytes, int length, Metadata metadata, int offset, out int read) where T : struct
+        {
+            T[] storages = new T[length];
+            read = storages.StorageArrayFromBytes(bytes, offset);
+            return storages;
+        }
+
+        public static T[] ConstructStorageArray<T>(this byte[] bytes, int length, Metadata metadata, int offset = 0) where T : struct =>
+            bytes.ConstructStorageArray<T>(length, metadata, offset, out int read);
     }
 }
