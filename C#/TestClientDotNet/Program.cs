@@ -7,7 +7,7 @@ connection.Connect();
 DateTime start = DateTime.Now;
 while (DateTime.Now - start < runFor)
 {
-    var gameTime = await connection.Request<ValueStorage<UInt32>>(TelemetryID.ChannelGameTime);
+    var gameTime = await connection.RequestAsync<ValueStorage<UInt32>>(TelemetryID.ChannelGameTime);
     Console.WriteLine(gameTime.Initialized ? gameTime.Value : "---");
 }
 connection.Disconnect();

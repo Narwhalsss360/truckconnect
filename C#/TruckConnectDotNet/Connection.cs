@@ -58,11 +58,11 @@ namespace TruckConnect
             UnknownData
         }
 
-        readonly private Socket m_socket;
+        private readonly Socket m_socket;
 
-        readonly private IPAddress m_ipAddress;
+        private readonly IPAddress m_ipAddress;
 
-        readonly public Collector Collector = new();
+        public readonly Collector Collector = new();
 
         private TelemetryID m_pendingID = TelemetryID.Invalid;
 
@@ -159,13 +159,13 @@ namespace TruckConnect
                 throw new InvalidDataException("Received response for another trailer index/count");
         }
 
-        public async Task Request(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default)
+        public async Task RequestAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default)
         {
             await SendRequestForAsync(id, trailerIndexOrCount, cancellationToken);
             await ReceiveForRequest(id, trailerIndexOrCount);
         }
 
-        public async Task<T> Request<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
+        public async Task<T> RequestAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
         {
             if (Metadata.ByID(id) is not Metadata metadata)
                 throw new ArgumentException("ID was invalid", nameof(id));
@@ -173,7 +173,7 @@ namespace TruckConnect
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException("Only channels are implemented");
 
-            await Request(id, trailerIndexOrCount, cancellationToken);
+            await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             T result = default;
             result.StorageFromBytes(metadata.SCSValueType!.Value, Collector.Data, TELEMTRY_DATA_START);
             return result;
