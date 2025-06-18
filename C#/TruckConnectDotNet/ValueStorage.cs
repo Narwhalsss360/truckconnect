@@ -102,59 +102,63 @@
         public static bool IsStorageType<T>() =>
             IsStorageType(typeof(T));
 
-        public static void ThrowIfInvalidTypeForID(this Type type, TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null)
+        public static void ThrowIfInvalidTypeForSCSValueType(this Type type, SCSValueType valueType)
         {
-            trailerIndexOrCount ??= new(false, 1);
-            if (!type.IsGenericType)
+            if (type.GetGenericStorageTypeDefinition() is not Type genericType)
                 throw new ArgumentException("Invalid type, all storage types are generic", nameof(type));
 
-            if (Metadata.ByID(id) is not Metadata metadata)
-                throw new ArgumentException("Invalid TelemetryID", nameof(id));
-
-            if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException("Only channel TelemetryTypes are implemented.");
-
-            if ((metadata.TrailerChannel ?? false) && trailerIndexOrCount.Value.IsCount)
-            {
-                if (!type.IsArray)
-                    throw new ArgumentException("Type must be an array for requesting trailer channel for multiple trailers.", nameof(type));
-                type = type.GetElementType() ?? throw new InvalidProgramException();
-            }
-
-            Type? storageType = type.GetGenericStorageTypeDefinition();
-            if ((metadata.Indexed ?? true) && storageType != typeof(ValueArrayStorage<>))
-                throw new ArgumentException($"Value storage for {id} must be a {typeof(ValueArrayStorage<>)}");
-            else if (!(metadata.Indexed ?? true) && storageType != typeof(ValueStorage<>))
-                throw new ArgumentException($"Value storage for {id} must be a {typeof(ValueStorage<>)}");
+            if (genericType.MakeGenericType(valueType.GetTypeOfSCSValueType()) != type)
+                throw new InvalidOperationException("This type is incorrect for the specified SCSValueType");
         }
 
-        public static void ThrowIfInvalidTypeForID<T>(this TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null) =>
-            ThrowIfInvalidTypeForID(typeof(T), id, trailerIndexOrCount);
-
-        public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
+        public static int StorageFromBytes(this object storage, SCSValueType valueType, byte[] bytes, int offset = 0)
         {
             if (bytes.Length <= offset)
                 throw new NotImplementedException();
 
-            object boxed = storage;
+            Type type = storage.GetType();
             int read;
-            Type? definingType = GetGenericStorageTypeDefinition<T>();
+            Type? genericType = GetGenericStorageTypeDefinition(type);
 
-            if (definingType == typeof(ValueStorage<>))
+            if (genericType == typeof(ValueStorage<>))
             {
-                typeof(T).GetField("Initialized")!.SetValue(boxed, bytes[offset] > 0);
+                type.GetField("Initialized")!.SetValue(storage, bytes[offset] > 0);
 
                 object value;
                 read = 1 + bytes.FromBytes(valueType, offset + 1, out value);
-                typeof(T).GetField("Value")!.SetValue(boxed, value);
+                type.GetField("Value")!.SetValue(storage, value);
             }
             else
             {
                 throw new NotImplementedException();
             }
 
-            storage = (T)boxed;
             return 1 + read;
+        }
+
+        public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
+        {
+            ThrowIfInvalidTypeForSCSValueType(typeof(T), valueType);
+            object boxed = storage;
+            int read = boxed.StorageFromBytes(valueType, bytes, offset);
+            storage = (T)boxed;
+            return read;
+        }
+
+        public static int StorageFromBytes<T>(this ref T storage, byte[] bytes, int offset = 0) where T : struct
+        {
+            if (GetGenericStorageTypeDefinition<T>() is not Type genericType)
+                throw new ArgumentException("'storage' was a not a storage type", nameof(storage));
+
+            object boxed = storage;
+            int read = boxed.StorageFromBytes(typeof(T).GenericTypeArguments[0].GetSCSValueTypeOf(), bytes, offset);
+            storage = (T)boxed;
+            return read;
+        }
+
+        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset = 0)
+        {
+            throw new NotImplementedException();
         }
     }
 }
