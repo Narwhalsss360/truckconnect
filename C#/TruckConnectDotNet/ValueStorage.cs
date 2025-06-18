@@ -158,7 +158,12 @@
 
         public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset = 0)
         {
-            throw new NotImplementedException();
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException();
+            if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType!.Value.GetTypeOfSCSValueType())) is not object storage)
+                throw new NotImplementedException();
+            storage.StorageFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            return storage;
         }
     }
 }

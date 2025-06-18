@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using NStreamCom;
 
@@ -135,6 +134,10 @@ namespace TruckConnect
             trailerIndexOrCount ??= new();
             EnsureConnected(nameof(ReceiveForRequest));
             EnsurePendingRequest(RequestType.TelemetryID, "There is another pending request.");
+
+            if (Metadata.ByID(id) is not Metadata metadata)
+                throw new ArgumentException("TelemetryID was invalid", nameof(id));
+
             if (trailerIndexOrCount.Value != m_pendingTrailerIndexOrCount)
                 throw new InvalidOperationException("Other trailer index/count does is pending.");
 
@@ -154,6 +157,26 @@ namespace TruckConnect
 
             if (TrailerIndexOrCount.Parse(Collector.Data[2]) != trailerIndexOrCount)
                 throw new InvalidDataException("Received response for another trailer index/count");
+        }
+
+        public async Task Request(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default)
+        {
+            await SendRequestForAsync(id, trailerIndexOrCount, cancellationToken);
+            await ReceiveForRequest(id, trailerIndexOrCount);
+        }
+
+        public async Task<T> Request<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
+        {
+            if (Metadata.ByID(id) is not Metadata metadata)
+                throw new ArgumentException("ID was invalid", nameof(id));
+
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException("Only channels are implemented");
+
+            await Request(id, trailerIndexOrCount, cancellationToken);
+            T result = default;
+            result.StorageFromBytes(metadata.SCSValueType!.Value, Collector.Data, TELEMTRY_DATA_START);
+            return result;
         }
 
         public void Disconnect()
