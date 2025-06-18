@@ -2,7 +2,7 @@
 
 namespace TruckConnect
 {
-    public struct ValueStorage<T> where T : new()
+    public struct ValueStorage<T>
     {
         public bool Initialized;
 
@@ -12,11 +12,20 @@ namespace TruckConnect
         {
             Initialized = false;
             SCSValueTypeFunctions.GetSCSValueTypeOf<T>();
-            Value = new();
+            if (typeof(T) == typeof(String))
+            {
+                Value = (T)("" as object);
+        }
+            else
+            {
+                if (Activator.CreateInstance(typeof(T)) is not T value)
+                    throw new NotImplementedException();
+                Value = value;
+    }
         }
     }
 
-    public struct ValueArrayStorage<T> where T : new()
+    public struct ValueArrayStorage<T>
     {
         public bool Initialized;
 
@@ -30,7 +39,7 @@ namespace TruckConnect
         }
     }
 
-    public struct ValueListStorage<T> where T : new()
+    public struct ValueListStorage<T>
     {
         public List<T> Values;
 
