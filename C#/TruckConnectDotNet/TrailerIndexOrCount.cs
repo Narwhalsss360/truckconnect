@@ -9,7 +9,7 @@ namespace TruckConnect
         public int IndexOrCount;
 
         public TrailerIndexOrCount()
-            : this(true, 0)
+            : this(false, 0)
         {}
 
         public TrailerIndexOrCount(bool isCount, int indexOrCount)
@@ -21,7 +21,7 @@ namespace TruckConnect
         public static TrailerIndexOrCount Parse(byte data) =>
             new((1 & data) > 0, data >> 1);
 
-        public byte AsByte() => (byte)(1 | (IndexOrCount << 1));
+        public byte AsByte() => (byte)((IsCount ? 1 : 0) | (IndexOrCount << 1));
 
         public override int GetHashCode() => AsByte();
 
