@@ -21,9 +21,11 @@ namespace TruckConnect
         public static TrailerIndexOrCount Parse(byte data) =>
             new((1 & data) > 0, data >> 1);
 
-        public byte AsByte() => (byte)((IsCount ? 1 : 0) | (IndexOrCount << 1));
+        public byte AsByteForTelemetryRequest() => (byte)((IsCount ? 1 : 0) | (IndexOrCount << 1));
 
-        public override int GetHashCode() => AsByte();
+        public byte AsByteForDataDefinitionRegistration() => (byte)IndexOrCount;
+
+        public override int GetHashCode() => AsByteForTelemetryRequest();
 
         public bool Equals(TrailerIndexOrCount other) => IsCount == other.IsCount && IndexOrCount == other.IndexOrCount;
 

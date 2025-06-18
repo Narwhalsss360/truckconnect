@@ -2,10 +2,9 @@
 
 TimeSpan runFor = TimeSpan.FromMinutes(2);
 
+GameStatus gameStatus = new();
 Connection connection = new("127.0.0.1");
 connection.Connect();
-
-GameStatus gameStatus = new();
 await connection.RegisterDataDefinitionAsync(gameStatus);
 
 DateTime start = DateTime.Now;
@@ -18,7 +17,10 @@ while (DateTime.Now - start < runFor)
         continue;
     }
 
-    Console.WriteLine($"{(gameStatus.LocalScale.Initialized ? gameStatus.LocalScale.Value : "---")} | {(gameStatus.GameTime.Initialized ? gameStatus.GameTime.Value : "---")}");
+    Console.Write($"{(gameStatus.LocalScale.Initialized ? gameStatus.LocalScale.Value : "---")} | {(gameStatus.GameTime.Initialized ? gameStatus.GameTime.Value : "---")} | Trailers: ");
+    foreach (ValueStorage<bool> trailerConnected in gameStatus.TrailersConencted)
+        Console.Write(trailerConnected.Initialized ? (trailerConnected.Value ? "." : "x") : "?");
+    Console.WriteLine();
 }
 await connection.UnregisterDataDefinitionAsync(gameStatus);
 connection.Disconnect();
@@ -35,8 +37,8 @@ class GameStatus : DataDefinition
     [DataDefinitionMember(TelemetryID.ChannelLocalScale)]
     public ValueStorage<float> LocalScale = default;
 
-    [DataDefinitionMember(TelemetryID.TrailerChannelConnected, 3)]
-    public ValueStorage<bool>[] TrailersConencted = new ValueStorage<bool>[3];
+    [DataDefinitionMember(TelemetryID.TrailerChannelConnected, TrailerIndexOrCount.SCS_TELEMETRY_trailers_count)]
+    public ValueStorage<bool>[] TrailersConencted = new ValueStorage<bool>[TrailerIndexOrCount.SCS_TELEMETRY_trailers_count];
 
     public GameStatus()
         : base(1) {}

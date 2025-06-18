@@ -86,7 +86,7 @@ namespace TruckConnect
             return [
                 (byte)ID,
                 0, 0, 0, 0, //Unused offset
-                TrailerCount.AsByte()
+                TrailerCount.AsByteForDataDefinitionRegistration()
             ];
         }
 
