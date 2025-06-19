@@ -136,16 +136,6 @@
             return read;
         }
 
-        public static int StorageFromByes(this object[] storages, SCSValueType[] valueTypes, byte[] bytes, int offset = 0)
-        {
-            if (storages.Length != valueTypes.Length)
-                throw new ArgumentException("storages and valueTypes arrays are different lengths", nameof(valueTypes));
-            int totalRead = 0;
-            for (int i = 0; i < storages.Length; i++)
-                totalRead += storages[i].StorageFromBytes(valueTypes[i], bytes, offset + totalRead);
-            return totalRead;
-        }
-
         public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
         {
             ThrowIfInvalidTypeForSCSValueType(typeof(T), valueType);
