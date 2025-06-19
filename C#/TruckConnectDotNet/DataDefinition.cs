@@ -47,7 +47,7 @@ namespace TruckConnect
 
             int totalRead = 0;
             for (int i = 0; i < Members.Length; i++)
-                totalRead += storages[i].StorageFromBytes(Members[i].Metadata.SCSValueType!.Value, data, offset + totalRead);
+                totalRead += storages[i].StorageFromBytes(Members[i].Metadata.SCSValueType, data, offset + totalRead);
             return totalRead;
         }
 

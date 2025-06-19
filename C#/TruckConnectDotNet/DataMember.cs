@@ -1,4 +1,3 @@
-using System.Dynamic;
 using System.Reflection;
 
 namespace TruckConnect
@@ -98,9 +97,9 @@ namespace TruckConnect
                     throw new ArgumentException("Member must be public", nameof(Member));
 
                 if (field.FieldType.IsArray)
-                    field.FieldType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                    field.FieldType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
                 else
-                    field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                    field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
             }
             else if (Member is PropertyInfo property)
             {
@@ -108,9 +107,9 @@ namespace TruckConnect
                     throw new ArgumentException("Member must be public", nameof(Member));
 
                 if (property.PropertyType.IsArray)
-                    property.PropertyType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                    property.PropertyType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
                 else
-                    property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType!.Value);
+                    property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
             }
             else if (Member is not null)
             {

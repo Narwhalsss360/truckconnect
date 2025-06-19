@@ -4,7 +4,8 @@ namespace TruckConnect
 	{
 		Structure,
 		EventInfo,
-		Channel
+		Channel,
+        Invalid
 	}
 }
 

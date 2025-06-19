@@ -93,7 +93,7 @@
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException("Only channels are impleneted");
-            return metadata.Indexed ?? false ? typeof(ValueArrayStorage<>) : typeof(ValueStorage<>);
+            return metadata.Indexed ? typeof(ValueArrayStorage<>) : typeof(ValueStorage<>);
         }
 
         public static bool IsStorageType(this Type type) =>
@@ -193,7 +193,7 @@
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
-            if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType!.Value.GetTypeOfSCSValueType())) is not object storage)
+            if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType.GetTypeOfSCSValueType())) is not object storage)
                 throw new NotImplementedException();
             return storage;
         }
@@ -203,7 +203,7 @@
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
             object storage = ConstructStorage(metadata);
-            read = storage.StorageFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            read = storage.StorageFromBytes(metadata.SCSValueType, bytes, offset);
             return storage;
         }
 
@@ -214,9 +214,9 @@
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
-            ThrowIfInvalidTypeForSCSValueType(typeof(T), metadata.SCSValueType!.Value);
+            ThrowIfInvalidTypeForSCSValueType(typeof(T), metadata.SCSValueType);
             T storage = default;
-            read = storage.StorageFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            read = storage.StorageFromBytes(metadata.SCSValueType, bytes, offset);
             return storage;
         }
 
@@ -228,7 +228,7 @@
             object[] storages = new object[length];
             for (int i = 0; i < length; i++)
                 storages[i] = ConstructStorage(metadata);
-            read = storages.StorageArrayFromBytes(metadata.SCSValueType!.Value, bytes, offset);
+            read = storages.StorageArrayFromBytes(metadata.SCSValueType, bytes, offset);
             return storages;
         }
 

@@ -2,9 +2,9 @@ namespace TruckConnect
 {
 	public class Metadata
 	{
-		public TelemetryID ID { get; init; }
-
 		public TelemetryType TelemetryType { get; init; }
+
+		public TelemetryID ID { get; init; }
 
 		public bool ConstantSize { get; init; }
 
@@ -12,19 +12,49 @@ namespace TruckConnect
 
 		public UInt32 StructureOffset { get; init; }
 
-		public string? Macro { get; init; }
+		private string _macro = "";
+		public string Macro
+		{
+			get => TelemetryType != TelemetryType.Structure ? _macro : throw new InvalidOperationException("This property is not available on structures.");
+			init => _macro = TelemetryType != TelemetryType.Structure ? value : throw new InvalidOperationException("This property is not available on structures.");
+		}
 
-		public bool? Indexed { get; init; }
+		private bool _indexed = false;
+		public bool Indexed
+		{
+			get => TelemetryType != TelemetryType.Structure ? _indexed : throw new InvalidOperationException("This property is not available on structures.");
+			init => _indexed = TelemetryType != TelemetryType.Structure ? value : throw new InvalidOperationException("This property is not available on structures.");
+		}
 
-		public UInt32? MaxCount { get; init; }
+		private UInt32 _maxCount = 0;
+		public UInt32 MaxCount
+		{
+			get => TelemetryType == TelemetryType.Channel ? _maxCount : throw new InvalidOperationException("This property is only available for channels.");
+			init => _maxCount = TelemetryType == TelemetryType.Channel ? value : throw new InvalidOperationException("This property is only available for channels.");
+		}
 
-		public bool? TrailerChannel { get; init; }
+		private bool _trailerChannel = false;
+		public bool TrailerChannel
+		{
+			get => TelemetryType == TelemetryType.Channel ? _trailerChannel : throw new InvalidOperationException("This property is only available for channels.");
+			init => _trailerChannel = TelemetryType == TelemetryType.Channel ? value : throw new InvalidOperationException("This property is only available for channels.");
+		}
 
-		public SCSValueType? SCSValueType { get; init; }
+		private SCSValueType _valueType = SCSValueType.SCS_VALUE_TYPE_INVALID;
+		public SCSValueType SCSValueType
+		{
+			get => TelemetryType == TelemetryType.Channel ? _valueType : throw new InvalidOperationException("This property is only available for channels.");
+			init => _valueType = TelemetryType == TelemetryType.Channel ? value : throw new InvalidOperationException("This property is only available for channels.");
+		}
 
-		public bool? CustomChannel { get; init; }
+		private bool _customChannel = false;
+		public bool CustomChannel
+		{
+			get => TelemetryType == TelemetryType.Channel ? _customChannel : throw new InvalidOperationException("This property is only available for channels.");
+			init => _customChannel = TelemetryType == TelemetryType.Channel ? value : throw new InvalidOperationException("This property is only available for channels.");
+		}
 
-		public static Metadata? ByID(TelemetryID id) => Array.Find(METADATA, metadata => metadata.ID == id);
+		public static Metadata ByID(TelemetryID id) => Array.Find(METADATA, metadata => metadata.ID == id) ?? throw new ArgumentException("Metadata not found", nameof(id));
 
 		public static readonly Metadata[] METADATA =
 		[
