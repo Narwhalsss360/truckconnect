@@ -3,9 +3,11 @@
 TimeSpan runFor = TimeSpan.FromMinutes(2);
 
 GameStatus gameStatus = new();
+DataDefinition gaugeClusterDefinition = DataDefinition.Define<GaugeCluster>(2);
 Connection connection = new("127.0.0.1");
 connection.Connect();
 await connection.RegisterDataDefinitionAsync(gameStatus);
+await connection.RegisterDataDefinitionAsync(gaugeClusterDefinition);
 
 DateTime start = DateTime.Now;
 while (DateTime.Now - start < runFor)
@@ -21,6 +23,14 @@ while (DateTime.Now - start < runFor)
     foreach (ValueStorage<bool> trailerConnected in gameStatus.TrailersConencted)
         Console.Write(trailerConnected.Initialized ? (trailerConnected.Value ? "." : "x") : "?");
     Console.WriteLine();
+
+    GaugeCluster gaugeCluster = await connection.RequestAsync<GaugeCluster>(gaugeClusterDefinition);
+    Console.Write($"{(gaugeCluster.engineRpm.Initialized ? gaugeCluster.engineRpm.Value.ToString("F0") : "---")}rpm | ");
+    Console.Write($"{(gaugeCluster.speed.Initialized ? gaugeCluster.speed.Value.ToString("F2") : "---")}m/s | ");
+    Console.Write($"{(gaugeCluster.lightLBlinker.Initialized ? (gaugeCluster.lightLBlinker.Value ? "<" : "-") : "?")}-");
+    Console.WriteLine($"{(gaugeCluster.lightRBlinker.Initialized ? (gaugeCluster.lightRBlinker.Value ? ">" : "-") : "?")}");
+    Console.Out.Flush();
+    Thread.Sleep(1000 / 25);
 }
 await connection.UnregisterDataDefinitionAsync(gameStatus);
 connection.Disconnect();
@@ -42,5 +52,20 @@ class GameStatus : DataDefinition
 
     public GameStatus()
         : base(1) {}
+}
+
+struct GaugeCluster()
+{
+    [DataDefinitionMember(TelemetryID.TruckChannelEngineRpm)]
+    public ValueStorage<float> engineRpm = default;
+
+    [DataDefinitionMember(TelemetryID.TruckChannelSpeed)]
+    public ValueStorage<float> speed = default;
+
+    [DataDefinitionMember(TelemetryID.TruckChannelLightLblinker)]
+    public ValueStorage<bool> lightLBlinker = default;
+
+    [DataDefinitionMember(TelemetryID.TruckChannelLightRblinker)]
+    public ValueStorage<bool> lightRBlinker = default;
 }
 

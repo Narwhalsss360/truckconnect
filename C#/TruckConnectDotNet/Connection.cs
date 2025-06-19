@@ -260,6 +260,14 @@ namespace TruckConnect
             definition.Store(Collector.Data, DEFINED_DATA_DATA_START);
         }
 
+        public async Task<T> RequestAsync<T>(DataDefinition definition) where T : struct
+        {
+            await RequestAsync(definition);
+            object boxed = new T();
+            definition.StoreInto(Collector.Data, DEFINED_DATA_DATA_START, boxed);
+            return (T)boxed;
+        }
+
         public async Task UnregisterDataDefinitionAsync(int definitionID)
         {
             EnsureConnected(nameof(UnregisterDataDefinitionAsync));

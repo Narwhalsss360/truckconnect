@@ -19,6 +19,7 @@ namespace TruckConnect
             if (definitionID < 0 || definitionID > 255)
                 throw new ArgumentException("A definition id must be within [0, 255]", nameof(definitionID));
 
+            DefinitionID = definitionID;
             List<DataMember> members = new();
             foreach (PropertyInfo property in GetType().GetProperties())
                 if (property.GetCustomAttribute<DataDefinitionMemberAttribute>() is DataDefinitionMemberAttribute member)
@@ -40,6 +41,24 @@ namespace TruckConnect
         public static DataDefinition Define(int definitionID, DataMember[] members) =>
             new(definitionID, members);
 
+        public static DataDefinition Define(int definitionID, Type type)
+        {
+            if (definitionID < 0 || definitionID > 255)
+                throw new ArgumentException("A definition id must be within [0, 255]", nameof(definitionID));
+
+            List<DataMember> members = new();
+            foreach (PropertyInfo property in type.GetProperties())
+                if (property.GetCustomAttribute<DataDefinitionMemberAttribute>() is DataDefinitionMemberAttribute member)
+                    members.Add(new(member.ID, new(true, member.TrailerCount), property));
+            foreach (FieldInfo field in type.GetFields())
+                if (field.GetCustomAttribute<DataDefinitionMemberAttribute>() is DataDefinitionMemberAttribute member)
+                    members.Add(new(member.ID, new(true, member.TrailerCount), field));
+            return new(definitionID, members.ToArray());
+        }
+
+        public static DataDefinition Define<T>(int definitionID) =>
+            Define(definitionID, typeof(T));
+
         public int StoreInto(byte[] data, int offset, object[] storages)
         {
             if (storages.Length != Members.Length)
@@ -51,25 +70,33 @@ namespace TruckConnect
             return totalRead;
         }
 
-        public int Store(byte[] data, int offset = 0)
+        public int StoreInto(byte[] data, int offset, object @object)
         {
-            Type thisType = GetType();
-            if (thisType == typeof(DataDefinition))
+            if (@object.GetType() == typeof(DataDefinition))
                 return 0;
+
+            if (Members.Length == 0)
+                return 0;
+
+            if (@object.GetType() != Members[0].Member?.DeclaringType)
+                throw new InvalidOperationException("Type of @object is not the same as this definition members' type.");
 
             int totalRead = 0;
             foreach (DataMember member in Members)
             {
                 int thisRead;
                 if (member.TrailerCount.IndexOrCount > 1)
-                    member.Assign(this, data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead));
+                    member.Assign(@object, data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead));
                 else
-                    member.Assign(this, data.ConstructStorage(member.Metadata, offset + totalRead, out thisRead));
+                    member.Assign(@object, data.ConstructStorage(member.Metadata, offset + totalRead, out thisRead));
 
                 totalRead += thisRead;
             }
             return totalRead;
         }
+
+        public int Store(byte[] data, int offset) =>
+            StoreInto(data, offset, this);
 
         public object[] Construct(byte[] data, int offset, out int read)
         {
