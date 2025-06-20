@@ -53,9 +53,7 @@ async Task StructuresTest()
     DateTime start = DateTime.Now;
     while (DateTime.Now - start < runFor)
     {
-        await connection.RequestAsync(TelemetryID.Truck);
-        var truck = connection.Collector.Data.ConstructTelemetryStructure<MasterStorage.ChannelsStorage.TruckStorage>(Connection.TELEMTRY_DATA_START);
-        Console.WriteLine($"{truck.TruckChannelSpeed.Value}");
+        var truckcfg = await connection.RequestAsync<MasterStorage.ConfigurationStorage.ConfigurationTruckStorage>(TelemetryID.ConfigurationTruckInfo);
         await Task.Delay(refreshInterval);
     }
     connection.Disconnect();
