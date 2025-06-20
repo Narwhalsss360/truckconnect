@@ -1,8 +1,10 @@
 ﻿using TruckConnect;
 
 TimeSpan runFor = TimeSpan.FromMinutes(2);
-TimeSpan refreshRate = TimeSpan.FromMilliseconds(1000 / 25);
+TimeSpan refreshInterval = TimeSpan.FromMilliseconds(1000 / 25);
 
+await StructuresTest();
+return;
 await DefinitionTest();
 
 async Task DefinitionTest()
@@ -37,9 +39,25 @@ async Task DefinitionTest()
         Console.Write($"{(gaugeCluster.lightLBlinker.Initialized ? (gaugeCluster.lightLBlinker.Value ? "<" : "-") : "?")}-");
         Console.WriteLine($"{(gaugeCluster.lightRBlinker.Initialized ? (gaugeCluster.lightRBlinker.Value ? ">" : "-") : "?")}");
         Console.Out.Flush();
-        Thread.Sleep((int)refreshRate.TotalMilliseconds);
+        await Task.Delay(refreshInterval);
     }
     await connection.UnregisterDataDefinitionAsync(gameStatus);
+    connection.Disconnect();
+}
+
+async Task StructuresTest()
+{
+    Connection connection = new("127.0.0.1");
+    await connection.ConnectAsync();
+
+    DateTime start = DateTime.Now;
+    while (DateTime.Now - start < runFor)
+    {
+        await connection.RequestAsync(TelemetryID.Truck);
+        var truck = connection.Collector.Data.ConstructTelemetryStructure<MasterStorage.ChannelsStorage.TruckStorage>(Connection.TELEMTRY_DATA_START);
+        Console.WriteLine($"{truck.TruckChannelSpeed.Value}");
+        await Task.Delay(refreshInterval);
+    }
     connection.Disconnect();
 }
 

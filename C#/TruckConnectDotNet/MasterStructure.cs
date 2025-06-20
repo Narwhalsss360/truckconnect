@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace TruckConnect
 {
 	public struct MasterStorage()
@@ -523,4 +525,79 @@ namespace TruckConnect
 			}
 		}
 	}
+
+    public static class TelemetryStructureFunctions
+    {
+        public static bool IsTelemetryStructure(this Type? structType)
+        {
+            if (structType is null)
+                return false;
+            if (!structType.IsValueType || structType.Assembly != typeof(MasterStorage).Assembly)
+                return false;
+
+            return structType == typeof(MasterStorage) ? true : IsTelemetryStructure(structType.DeclaringType);
+        }
+
+        public static bool IsTelemetryStructure<T>() =>
+            IsTelemetryStructure(typeof(T));
+
+        public static bool IsTelemetryStructure(this object obj) =>
+            IsTelemetryStructure(obj.GetType());
+
+        public static int TelemetryStructureFromBytes(this byte[] bytes, object structure, int offset = 0)
+        {
+            if (!structure.IsTelemetryStructure())
+                throw new NotImplementedException();
+            int read = 0;
+
+            void Value(object boxed, Action<object> setter, UInt32? staticSize)
+            {
+                read += boxed.StorageFromBytes(boxed.GetType().GetGenericArguments()[0].GetSCSValueTypeOf(), bytes, offset + read, staticSize);
+                setter(boxed);
+            }
+
+            void Structure(object boxed, Action<object> setter)
+            {
+                read += bytes.TelemetryStructureFromBytes(boxed, offset + read);
+                setter(boxed);
+            }
+
+            foreach (FieldInfo field in structure.GetType().GetFields())
+            {
+                if (field.FieldType.IsStorageType())
+                    Value(field.GetValue(structure)!, result => field.SetValue(structure, result), field.GetCustomAttribute<StaticSizeAttribute>()?.StaticSize);
+                else if (field.FieldType.IsTelemetryStructure())
+                    Structure(field.GetValue(structure)!, result => field.SetValue(structure, result));
+                else if (field.FieldType.IsArray)
+                {
+                    Array array = (Array)field.GetValue(structure)!;
+                    if (field.FieldType.GetElementType()!.IsStorageType())
+                        for (int i = 0; i < array.Length; i++)
+                            Value(array.GetValue(i)!, result => array.SetValue(result, i), field.GetCustomAttribute<StaticSizeAttribute>()?.StaticSize);
+                    else if (field.FieldType.GetElementType()!.IsTelemetryStructure())
+                        for (int i = 0; i < array.Length; i++)
+                            Structure(array.GetValue(i)!, result => array.SetValue(result, i));
+                }
+            }
+            return read;
+        }
+
+        public static int TelemetryStructureFromBytes<T>(this ref T storage, byte[] bytes, int offset = 0) where T : struct
+        {
+            object boxed = storage;
+            int read = bytes.TelemetryStructureFromBytes(boxed, offset);
+            storage = (T)boxed;
+            return read;
+        }
+
+        public static T ConstructTelemetryStructure<T>(this byte[] bytes, int offset, out int read) where T : struct
+        {
+            object boxed = new T();
+            read = bytes.TelemetryStructureFromBytes(boxed, offset);
+            return (T)boxed;
+        }
+
+        public static T ConstructTelemetryStructure<T>(this byte[] bytes, int offset = 0) where T : struct =>
+            ConstructTelemetryStructure<T>(bytes, offset, out int read);
+    }
 }
