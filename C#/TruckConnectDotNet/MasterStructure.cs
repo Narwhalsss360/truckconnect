@@ -344,7 +344,8 @@ namespace TruckConnect
 
 				public ValueStorage<UInt32> TruckChannelHshifterSlot = new();
 
-				public ValueArrayStorage<Boolean> TruckChannelHshifterSelector = new();
+				[StaticSize(2)]
+				public ValueArrayStorage<Boolean> TruckChannelHshifterSelector = new(2);
 
 				public ValueStorage<Boolean> TruckChannelParkingBrake = new();
 
@@ -448,21 +449,29 @@ namespace TruckConnect
 
 				public ValueStorage<Single> TruckChannelNavigationSpeedLimit = new();
 
-				public ValueArrayStorage<Single> TruckChannelWheelSuspDeflection = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelSuspDeflection = new(14);
 
-				public ValueArrayStorage<Boolean> TruckChannelWheelOnGround = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Boolean> TruckChannelWheelOnGround = new(14);
 
-				public ValueArrayStorage<UInt32> TruckChannelWheelSubstance = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<UInt32> TruckChannelWheelSubstance = new(14);
 
-				public ValueArrayStorage<Single> TruckChannelWheelVelocity = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelVelocity = new(14);
 
-				public ValueArrayStorage<Single> TruckChannelWheelSteering = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelSteering = new(14);
 
-				public ValueArrayStorage<Single> TruckChannelWheelRotation = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelRotation = new(14);
 
-				public ValueArrayStorage<Single> TruckChannelWheelLift = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelLift = new(14);
 
-				public ValueArrayStorage<Single> TruckChannelWheelLiftOffset = new();
+				[StaticSize(14)]
+				public ValueArrayStorage<Single> TruckChannelWheelLiftOffset = new(14);
 			}
 
 			public TrailerStorage[] Trailer = new TrailerStorage[10];
@@ -488,21 +497,29 @@ namespace TruckConnect
 
 				public ValueStorage<Single> TrailerChannelWearWheels = new();
 
-				public ValueArrayStorage<Single> TrailerChannelWheelSuspDeflection = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelSuspDeflection = new(19);
 
-				public ValueArrayStorage<Boolean> TrailerChannelWheelOnGround = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Boolean> TrailerChannelWheelOnGround = new(19);
 
-				public ValueArrayStorage<UInt32> TrailerChannelWheelSubstance = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<UInt32> TrailerChannelWheelSubstance = new(19);
 
-				public ValueArrayStorage<Single> TrailerChannelWheelVelocity = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelVelocity = new(19);
 
-				public ValueArrayStorage<Single> TrailerChannelWheelSteering = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelSteering = new(19);
 
-				public ValueArrayStorage<Single> TrailerChannelWheelRotation = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelRotation = new(19);
 
-				public ValueArrayStorage<Single> TrailerChannelWheelLift = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelLift = new(19);
 
-				public ValueArrayStorage<Single> TrailerChannelWheelLiftOffset = new();
+				[StaticSize(19)]
+				public ValueArrayStorage<Single> TrailerChannelWheelLiftOffset = new(19);
 			}
 		}
 	}

@@ -88,7 +88,7 @@ namespace TruckConnect
                 if (member.TrailerCount.IndexOrCount > 1)
                     member.Assign(@object, data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead));
                 else
-                    member.Assign(@object, data.ConstructStorage(member.Metadata, offset + totalRead, out thisRead));
+                    member.Assign(@object, data.ConstructStorage(member.Metadata, offset + totalRead, member.Member?.GetCustomAttribute<StaticSizeAttribute>()?.StaticSize, out thisRead));
 
                 totalRead += thisRead;
             }

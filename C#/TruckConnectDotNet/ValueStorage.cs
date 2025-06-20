@@ -117,7 +117,7 @@ namespace TruckConnect
                 throw new InvalidOperationException("This type is incorrect for the specified SCSValueType");
         }
 
-        public static int StorageFromBytes(this object storage, SCSValueType valueType, byte[] bytes, int offset = 0)
+        public static int StorageFromBytes(this object storage, SCSValueType valueType, byte[] bytes, int offset = 0, UInt32? staticSize = null)
         {
             if (bytes.Length <= offset)
                 throw new InvalidDataException("Not enough bytes.");
@@ -153,7 +153,8 @@ namespace TruckConnect
                 if (count > array.Length)
                     throw new NotImplementedException();
 
-                for (int i = 0; i < array.Length; i++)
+                UInt32 upperBound = staticSize ?? (UInt32)array.Length;
+                for (int i = 0; i < upperBound; i++)
                 {
                     read += bytes.FromBytes(valueType, offset + read, out object value);
                     array.SetValue(value, i);
@@ -186,16 +187,16 @@ namespace TruckConnect
             return read;
         }
 
-        public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0) where T : struct
+        public static int StorageFromBytes<T>(this ref T storage, SCSValueType valueType, byte[] bytes, int offset = 0, UInt32? staticSize = null) where T : struct
         {
             ThrowIfInvalidTypeForSCSValueType(typeof(T), valueType);
             object boxed = storage;
-            int read = boxed.StorageFromBytes(valueType, bytes, offset);
+            int read = boxed.StorageFromBytes(valueType, bytes, offset, staticSize);
             storage = (T)boxed;
             return read;
         }
 
-        public static int StorageFromBytes<T>(this ref T storage, byte[] bytes, int offset = 0) where T : struct
+        public static int StorageFromBytes<T>(this ref T storage, byte[] bytes, int offset = 0, UInt32? staticSize = null) where T : struct
         {
             if (GetGenericStorageTypeDefinition<T>() is not Type genericType)
                 throw new ArgumentException("'storage' was a not a storage type", nameof(storage));
@@ -206,7 +207,7 @@ namespace TruckConnect
             return read;
         }
 
-        public static int StorageArrayFromBytes(this object[] storages, SCSValueType valueType, byte[] bytes, int offset = 0)
+        public static int StorageArrayFromBytes(this object[] storages, SCSValueType valueType, byte[] bytes, int offset = 0, UInt32? staticSize = null)
         {
             int totalRead = 0;
             for (int i = 0; i < storages.Length; i++)
@@ -238,7 +239,7 @@ namespace TruckConnect
             return storage;
         }
 
-        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset, out int read)
+        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset, UInt32? staticSize, out int read)
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
@@ -247,10 +248,10 @@ namespace TruckConnect
             return storage;
         }
 
-        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset = 0) =>
-            ConstructStorage(bytes, metadata, offset, out int read);
+        public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset = 0, UInt32? staticSize = null) =>
+            ConstructStorage(bytes, metadata, offset, staticSize, out int read);
 
-        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset, out int read) where T : struct
+        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset, UInt32? staticSize, out int read) where T : struct
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new NotImplementedException();
@@ -260,8 +261,8 @@ namespace TruckConnect
             return storage;
         }
 
-        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset = 0) where T : struct =>
-            bytes.ConstructStorage<T>(metadata, offset, out int read);
+        public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset = 0, UInt32? staticSize = null) where T : struct =>
+            bytes.ConstructStorage<T>(metadata, offset, staticSize, out int read);
 
         public static object[] ConstructStorageArray(this byte[] bytes, int length, Metadata metadata, int offset, out int read)
         {
