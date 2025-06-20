@@ -1,4 +1,6 @@
-﻿namespace TruckConnect
+﻿using System.Collections;
+
+namespace TruckConnect
 {
     public struct ValueStorage<T>
     {
@@ -118,11 +120,11 @@
         public static int StorageFromBytes(this object storage, SCSValueType valueType, byte[] bytes, int offset = 0)
         {
             if (bytes.Length <= offset)
-                throw new NotImplementedException();
+                throw new InvalidDataException("Not enough bytes.");
 
             Type type = storage.GetType();
-            int read;
             Type? genericType = GetGenericStorageTypeDefinition(type);
+            int read;
 
             if (genericType == typeof(ValueStorage<>))
             {
@@ -132,10 +134,54 @@
                 read = 1 + bytes.FromBytes(valueType, offset + 1, out value);
                 type.GetField("Value")!.SetValue(storage, value);
             }
-            else
+            else if (genericType == typeof(ValueArrayStorage<>))
             {
-                throw new NotImplementedException();
+                type.GetField("Initialized")!.SetValue(storage, bytes[offset] > 0);
+                read = 1;
+
+                read += bytes.FromBytes(offset + read, out UInt32 count);
+                type.GetField("Count")!.SetValue(storage, count);
+
+                if (type.GetField("Values")!.GetValue(storage) is null)
+                    type.GetField("Values")!.SetValue(
+                        storage,
+                        Array.CreateInstance(valueType.GetTypeOfSCSValueType(), count)
+                    );
+
+                Array array = (Array)type.GetField("Values")!.GetValue(storage)!;
+
+                if (count > array.Length)
+                    throw new NotImplementedException();
+
+                for (int i = 0; i < count; i++)
+                {
+                    read += bytes.FromBytes(valueType, offset + read, out object value);
+                    array.SetValue(value, i);
+                }
             }
+            else if (genericType == typeof(ValueListStorage<>))
+            {
+                if (bytes.Length - offset < sizeof(UInt32))
+                    throw new InvalidDataException("Not enough bytes.");
+
+                if (type.GetField("Values")!.GetValue(storage) is null)
+                    type.GetField("Values")!.SetValue(
+                        storage,
+                        Activator.CreateInstance(typeof(List<>).MakeGenericType(valueType.GetTypeOfSCSValueType()))
+                    );
+
+                IList list = (IList)type.GetField("Values")!.GetValue(storage)!;
+                list.Clear();
+
+                read = bytes.FromBytes(offset, out UInt32 count);
+                for (int i = 0; i < count; i++)
+                {
+                    read += bytes.FromBytes(valueType, offset + read, out object value);
+                    list.Add(value);
+                }
+            }
+            else
+                throw new ArgumentException("Type of was not a storage type.", nameof(storage));
 
             return read;
         }
