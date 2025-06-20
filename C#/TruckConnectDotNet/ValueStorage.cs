@@ -95,12 +95,16 @@ namespace TruckConnect
         public static Type? GetGenericStorageTypeDefinition<T>()
             => GetGenericStorageTypeDefinition(typeof(T));
 
-        public static Type GetGenericStorageTypeDefinition(this Metadata metadata)
-        {
-            if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException("Only channels are impleneted");
-            return metadata.Indexed ? typeof(ValueArrayStorage<>) : typeof(ValueStorage<>);
-        }
+        public static Type GetGenericStorageTypeDefinition(this Metadata metadata) =>
+            metadata.Indexed ? (
+                metadata.ConstantSize ? (
+                    typeof(ValueArrayStorage<>)
+                ) : (
+                    typeof(ValueListStorage<>)
+                )
+            ) : (
+                typeof(ValueStorage<>)
+            );
 
         public static bool IsStorageType(this Type type) =>
             GetGenericStorageTypeDefinition(type) is not null;
@@ -123,7 +127,9 @@ namespace TruckConnect
                 throw new InvalidDataException("Not enough bytes.");
 
             Type type = storage.GetType();
-            Type? genericType = GetGenericStorageTypeDefinition(type);
+
+            if (GetGenericStorageTypeDefinition(type) is not Type genericType)
+                throw new ArgumentException("Type of was not a storage type.", nameof(storage));
             int read;
 
             if (genericType == typeof(ValueStorage<>))
@@ -151,7 +157,7 @@ namespace TruckConnect
                 Array array = (Array)type.GetField("Values")!.GetValue(storage)!;
 
                 if (count > array.Length)
-                    throw new NotImplementedException();
+                    throw new InvalidDataException("'count' was bigger than array length for a presumed to be constant size value storage.");
 
                 UInt32 upperBound = staticSize ?? (UInt32)array.Length;
                 for (int i = 0; i < upperBound; i++)
@@ -160,7 +166,7 @@ namespace TruckConnect
                     array.SetValue(value, i);
                 }
             }
-            else if (genericType == typeof(ValueListStorage<>))
+            else //=> genericType == typeof(ValueListStorage<>)
             {
                 if (bytes.Length - offset < sizeof(UInt32))
                     throw new InvalidDataException("Not enough bytes.");
@@ -175,14 +181,16 @@ namespace TruckConnect
                 list.Clear();
 
                 read = bytes.FromBytes(offset, out UInt32 count);
-                for (int i = 0; i < count; i++)
+                if (type.GenericTypeArguments[0] == typeof(bool))
+                {
+                    read += bytes.FromBytes(offset + read, (int)count, (List<bool>)list);
+                }
+                else for (int i = 0; i < count; i++)
                 {
                     read += bytes.FromBytes(valueType, offset + read, out object value);
                     list.Add(value);
                 }
             }
-            else
-                throw new ArgumentException("Type of was not a storage type.", nameof(storage));
 
             return read;
         }
@@ -233,7 +241,7 @@ namespace TruckConnect
         public static object ConstructStorage(this Metadata metadata)
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException();
+                throw new InvalidOperationException($"name(ConstructStorage)(...) is for storage types. Use {nameof(TelemetryStructureFunctions.ConstructTelemetryStructure)}");
             if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType.GetTypeOfSCSValueType())) is not object storage)
                 throw new NotImplementedException();
             return storage;
@@ -242,7 +250,7 @@ namespace TruckConnect
         public static object ConstructStorage(this byte[] bytes, Metadata metadata, int offset, UInt32? staticSize, out int read)
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException();
+                throw new InvalidOperationException($"name(ConstructStorage)(...) is for storage types. Use {nameof(TelemetryStructureFunctions.ConstructTelemetryStructure)}");
             object storage = ConstructStorage(metadata);
             read = storage.StorageFromBytes(metadata.SCSValueType, bytes, offset);
             return storage;
@@ -254,7 +262,7 @@ namespace TruckConnect
         public static T ConstructStorage<T>(this byte[] bytes, Metadata metadata, int offset, UInt32? staticSize, out int read) where T : struct
         {
             if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException();
+                throw new InvalidOperationException($"name(ConstructStorage)(...) is for storage types. Use {nameof(TelemetryStructureFunctions.ConstructTelemetryStructure)}");
             ThrowIfInvalidTypeForSCSValueType(typeof(T), metadata.SCSValueType);
             T storage = default;
             read = storage.StorageFromBytes(metadata.SCSValueType, bytes, offset);

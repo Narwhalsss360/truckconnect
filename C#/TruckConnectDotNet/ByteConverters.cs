@@ -160,6 +160,24 @@ namespace TruckConnect
             return sizeof(Int64);
         }
 
+        public static int FromBytes(this byte[] bytes, int offset, int count, List<bool> bools)
+        {
+            const int BOOL_INT_SIZE = sizeof(UInt32);
+            const int BOOL_INT_BIT_COUNT = 32;
+            int boolIntCount = (count + BOOL_INT_BIT_COUNT - 1) / BOOL_INT_BIT_COUNT;
+
+            bools.Clear();
+
+            for (
+                int i = 0, iint = offset, bit = 0;
+                i < count;
+                i++, iint = bit == BOOL_INT_BIT_COUNT - 1 ? iint + 1 : iint, bit = bit == BOOL_INT_BIT_COUNT - 1 ? 0 : bit + 1
+            )
+                bools.Add((bytes[iint] & (1 << bit)) > 0);
+
+            return (boolIntCount + 7) / 8;//boolIntCount * BOOL_INT_SIZE;
+        }
+
         public static int FromBytes(this byte[] bytes, SCSValueType valueType, int offset, out object result)
         {
             switch (valueType)
