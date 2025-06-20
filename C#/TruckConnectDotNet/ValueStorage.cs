@@ -153,7 +153,7 @@ namespace TruckConnect
                 if (count > array.Length)
                     throw new NotImplementedException();
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < array.Length; i++)
                 {
                     read += bytes.FromBytes(valueType, offset + read, out object value);
                     array.SetValue(value, i);
