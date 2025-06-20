@@ -36,11 +36,14 @@
 
         public T[] Values;
 
-        public ValueArrayStorage(UInt32 maxCount)
+        public UInt32 Count;
+
+        public ValueArrayStorage(UInt32 maxCount = 0)
         {
             Initialized = false;
             SCSValueTypeFunctions.GetSCSValueTypeOf<T>();
             Values = new T[maxCount];
+            Count = 0;
         }
 
         public ValueArrayStorage(bool initialized, T[] values)
@@ -48,6 +51,7 @@
             SCSValueTypeFunctions.GetSCSValueTypeOf<T>();
             Initialized = initialized;
             Values = values;
+            Count = 0;
         }
     }
 
