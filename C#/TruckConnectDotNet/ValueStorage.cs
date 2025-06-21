@@ -160,6 +160,13 @@ namespace TruckConnect
                     throw new InvalidDataException("'count' was bigger than array length for a presumed to be constant size value storage.");
 
                 UInt32 upperBound = staticSize ?? (UInt32)array.Length;
+                if (upperBound > array.Length)
+                    type.GetField("Values")!.SetValue(
+                        storage,
+                        Array.CreateInstance(valueType.GetTypeOfSCSValueType(), upperBound)
+                    );
+
+                array = (Array)type.GetField("Values")!.GetValue(storage)!;
                 for (int i = 0; i < upperBound; i++)
                 {
                     read += bytes.FromBytes(valueType, offset + read, out object value);
