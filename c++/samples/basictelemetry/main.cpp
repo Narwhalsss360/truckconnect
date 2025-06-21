@@ -29,7 +29,7 @@ bool once(truckconnect::communication::connection& connection) {
 
     //Checking if the game is paused.
     truckconnect::value_storage<bool> paused; //or tuckconnect::metadata::channel_paused::storage_type
-    truckconnect::communication::communication_result result = truckconnect::communication::request(connection, truckconnect::telemetry_id::channel_paused);
+    result = truckconnect::communication::request(connection, truckconnect::telemetry_id::channel_paused);
     if (result != truckconnect::communication::communication_result::success) {
         cout << "paused request<...>(...) failure code: " << result << endl;
         return false;
@@ -42,10 +42,17 @@ bool once(truckconnect::communication::connection& connection) {
         return false;
     }
 
+    //channel_paused is _always_ initialized as long it is properly deserialized.
+    //When paused, data may be frozen since there are no telemetry updates.
+    if (paused.value) {
+        cout << "<paused>\n";
+        return true;
+    }
 
     if (!storage.initialized) {
         cout << "<uninitialized>\n";
     } else {
+        //Please use a telemetry that is a primitve, or overload your own << operator.
         cout << storage.value << '\n';
     }
 
