@@ -582,11 +582,27 @@ namespace TruckConnect
             return read;
         }
 
-        public static int TelemetryStructureFromBytes<T>(this ref T storage, byte[] bytes, int offset = 0) where T : struct
+        public static int TelemetryStructureArrayFromBytes(this byte[] bytes, object[] structures, int offset = 0)
         {
-            object boxed = storage;
+            int read = 0;
+            foreach (object structure in structures)
+                read += TelemetryStructureFromBytes(bytes, structure, offset + read);
+            return read;
+        }
+
+        public static int TelemetryStructureFromBytes<T>(this ref T structure, byte[] bytes, int offset = 0) where T : struct
+        {
+            object boxed = structure;
             int read = bytes.TelemetryStructureFromBytes(boxed, offset);
-            storage = (T)boxed;
+            structure = (T)boxed;
+            return read;
+        }
+
+        public static int TelemetryStructureArrayFromBytes<T>(this T[] structures, byte[] bytes, int offset = 0) where T : struct
+        {
+            int read = 0;
+            for (int i = 0; i < structures.Length; i++)
+                read += structures[i].TelemetryStructureFromBytes<T>(bytes, offset + read);
             return read;
         }
 
@@ -599,5 +615,15 @@ namespace TruckConnect
 
         public static T ConstructTelemetryStructure<T>(this byte[] bytes, int offset = 0) where T : struct =>
             ConstructTelemetryStructure<T>(bytes, offset, out int read);
+
+        public static T[] ConstructTelemetryStructureArray<T>(this byte[] bytes, int count, int offset, out int read) where T : struct
+        {
+            T[] structures = new T[count];
+            read = structures.TelemetryStructureArrayFromBytes(bytes, offset);
+            return structures;
+        }
+
+        public static T[] ConstructTelemetryStructureArray<T>(this byte[] bytes, int count, int offset = 0) where T : struct =>
+            ConstructTelemetryStructureArray<T>(bytes, count, offset, out int read);
     }
 }
