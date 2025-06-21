@@ -19,6 +19,14 @@
             "program": "${workspaceFolder}/scssdk-telemetry/cpp.py",
             "cwd": "${workspaceFolder}/scssdk-telemetry",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Generate C# Files",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scssdk-telemetry/csharp.py",
+            "cwd": "${workspaceFolder}/scssdk-telemetry",
+            "console": "integratedTerminal"
         }
     ]
 }

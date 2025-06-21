@@ -4,3 +4,7 @@
 [submodule "c++/NStreamCom"]
 	path = c++/NStreamCom
 	url = git@github.com:Narwhalsss360/NStreamCom
+[submodule "C#/NStreamCom"]
+	path = "C#/NStreamCom"
+	url = git@github.com:Narwhalsss360/NStreamCom
+	branch = csharp
