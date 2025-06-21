@@ -33,7 +33,7 @@ int busy_request_test() {
                     local_scale = received;
                 }
             )));
-            debug_assert(from_bytes(connection.collector.buffer(), local_scale, connection::TELEMTRY_DATA_START));
+            debug_assert(from_bytes(connection.collector.buffer(), local_scale, connection::TELEMETRY_DATA_START));
         }
 
         debug_assert(communication_result::success == (result = request<metadata::channel_game_time>(connection, game_time)));

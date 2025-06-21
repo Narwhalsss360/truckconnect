@@ -10,7 +10,7 @@ namespace TruckConnect
 
         public static readonly long RECEIVE_ALL_BUFFER_SIZE = 32;
 
-        public static readonly int TELEMTRY_DATA_START = 1 + 2;
+        public static readonly int TELEMETRY_DATA_START = 1 + 2;
 
         public static readonly int DATA_DEFINITION_DATA_START = 1 + 1;
 
@@ -182,8 +182,8 @@ namespace TruckConnect
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?
-                    Collector.Data.ConstructStorage<T>(metadata, TELEMTRY_DATA_START) :
-                    Collector.Data.ConstructTelemetryStructure<T>(TELEMTRY_DATA_START);
+                    Collector.Data.ConstructStorage<T>(metadata, TELEMETRY_DATA_START) :
+                    Collector.Data.ConstructTelemetryStructure<T>(TELEMETRY_DATA_START);
         }
 
         public async Task<T> RequestAsync<T>(TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default) where T : struct
@@ -209,8 +209,8 @@ namespace TruckConnect
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?
-                    Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMTRY_DATA_START) :
-                    Collector.Data.ConstructTelemetryStructureArray<T>(trailerIndexOrCount.Value.IndexOrCount, TELEMTRY_DATA_START);
+                    Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMETRY_DATA_START) :
+                    Collector.Data.ConstructTelemetryStructureArray<T>(trailerIndexOrCount.Value.IndexOrCount, TELEMETRY_DATA_START);
         }
 
         public DataDefinition? GetDefinition(int definitionID)

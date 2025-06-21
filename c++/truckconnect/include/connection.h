@@ -93,7 +93,7 @@ namespace truckconnect {
             uint16_t request_data;
             std::vector<data::data_definition_value> data_definitions;
 
-            static constexpr const uint32_t TELEMTRY_DATA_START = sizeof(pending_request) + sizeof(request_data);
+            static constexpr const uint32_t TELEMETRY_DATA_START = sizeof(pending_request) + sizeof(request_data);
 
             static constexpr const uint32_t DATA_DEFINITION_DATA_START = sizeof(pending_request) + sizeof(data::data_definition_id);
 
@@ -188,7 +188,7 @@ namespace truckconnect {
             communication_result result = request(connection, meta::id, trailer_index_or_count);
             if (result == communication_result::success) {
                 typename meta::storage_type destination;
-                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
+                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMETRY_DATA_START)) {
                     received_callback(destination);
                 } else {
                     result = communication_result::deserialization_failure;
@@ -201,7 +201,7 @@ namespace truckconnect {
         communication_result request(connection& connection, typename meta::storage_type& destination, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT) {
             communication_result result = request(connection, meta::id, trailer_index_or_count);
             if (result == communication_result::success) {
-                if (!from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
+                if (!from_bytes(connection.collector.buffer(), destination, connection::TELEMETRY_DATA_START)) {
                     result = communication_result::deserialization_failure;
                 }
             }
@@ -216,7 +216,7 @@ namespace truckconnect {
             communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
             if (result == communication_result::success) {
                 typename meta::storage_type destination[trailer_count];
-                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMTRY_DATA_START)) {
+                if (from_bytes(connection.collector.buffer(), destination, connection::TELEMETRY_DATA_START)) {
                     received_callback(destination);
                 } else {
                     result = communication_result::deserialization_failure;
@@ -235,7 +235,7 @@ namespace truckconnect {
                 if (!from_bytes(
                     connection.collector.buffer(),
                     array,
-                    connection::TELEMTRY_DATA_START)) {
+                    connection::TELEMETRY_DATA_START)) {
                     result = communication_result::deserialization_failure;
                 }
             }
