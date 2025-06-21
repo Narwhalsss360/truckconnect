@@ -528,6 +528,29 @@ namespace TruckConnect
 
     public static class TelemetryStructureFunctions
     {
+        public static readonly Dictionary<Type, TelemetryID> STORAGE_TYPE_TO_ID = new()
+        {
+            { typeof(MasterStorage), TelemetryID.Master },
+            { typeof(MasterStorage.ConfigurationStorage), TelemetryID.Configuration },
+            { typeof(MasterStorage.GameplayStorage), TelemetryID.Gameplay },
+            { typeof(MasterStorage.ChannelsStorage), TelemetryID.Channels },
+            { typeof(MasterStorage.ChannelsStorage.GeneralStorage), TelemetryID.General },
+            { typeof(MasterStorage.ChannelsStorage.TruckStorage), TelemetryID.Truck },
+            { typeof(MasterStorage.ChannelsStorage.TrailerStorage), TelemetryID.Trailer },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationSubstancesStorage), TelemetryID.ConfigurationSubstancesInfo },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationControlsStorage), TelemetryID.ConfigurationControlsInfo },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationHshifterStorage), TelemetryID.ConfigurationHshifterInfo },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationTruckStorage), TelemetryID.ConfigurationTruckInfo },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationTrailerStorage), TelemetryID.ConfigurationTrailerInfo },
+            { typeof(MasterStorage.ConfigurationStorage.ConfigurationJobStorage), TelemetryID.ConfigurationJobInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayJobCancelledStorage), TelemetryID.GameplayJobCancelledInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayJobDeliveredStorage), TelemetryID.GameplayJobDeliveredInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayPlayerFinedStorage), TelemetryID.GameplayPlayerFinedInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayPlayerTollgatePaidStorage), TelemetryID.GameplayPlayerTollgatePaidInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayPlayerUseFerryStorage), TelemetryID.GameplayPlayerUseFerryInfo },
+            { typeof(MasterStorage.GameplayStorage.GameplayPlayerUseTrainStorage), TelemetryID.GameplayPlayerUseTrainInfo }
+        };
+
         public static bool IsTelemetryStructure(this Type? structType)
         {
             if (structType is null)
@@ -537,6 +560,9 @@ namespace TruckConnect
 
             return structType == typeof(MasterStorage) ? true : IsTelemetryStructure(structType.DeclaringType);
         }
+
+        public static TelemetryID IDOfStructure(this Type type) =>
+            STORAGE_TYPE_TO_ID.GetValueOrDefault(type, TelemetryID.Invalid);
 
         public static bool IsTelemetryStructure<T>() =>
             IsTelemetryStructure(typeof(T));

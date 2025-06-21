@@ -54,7 +54,7 @@ async Task StructuresTest()
     bool firstPause = true;
     while (DateTime.Now - start < runFor)
     {
-        var master = await connection.RequestAsync<MasterStorage>(TelemetryID.Master);
+        var master = await connection.RequestAsync<MasterStorage>();
         Console.SetCursorPosition(0, 0);
 
         if (master.Channels.General.ChannelPaused.Value)

@@ -176,11 +176,22 @@ namespace TruckConnect
             if (trailerIndexOrCount.Value.IsCount)
                 throw new ArgumentException($"For a trailer count, use {nameof(RequestArrayAsync)}", nameof(trailerIndexOrCount));
 
+            if (metadata.TelemetryType != TelemetryType.Channel && typeof(T).IDOfStructure() != id)
+                throw new ArgumentException("id did not match generic argument type.", nameof(id));
+
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?
                     Collector.Data.ConstructStorage<T>(metadata, TELEMTRY_DATA_START) :
                     Collector.Data.ConstructTelemetryStructure<T>(TELEMTRY_DATA_START);
+        }
+
+        public async Task<T> RequestAsync<T>(TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default) where T : struct
+        {
+            TelemetryID id = typeof(T).IDOfStructure();
+            if (id == TelemetryID.Invalid)
+                throw new ArgumentException("Generic argument was not a telemetry structure.", nameof(T));
+            return await RequestAsync<T>(id, trailerIndexOrCount, cancellationToken);
         }
 
         public async Task<T[]> RequestArrayAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
