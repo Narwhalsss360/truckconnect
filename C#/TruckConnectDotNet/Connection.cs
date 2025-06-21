@@ -189,14 +189,17 @@ namespace TruckConnect
             if (Metadata.ByID(id) is not Metadata metadata)
                 throw new ArgumentException("ID was invalid", nameof(id));
 
-            if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException("Only channels are implemented");
-
             if (!trailerIndexOrCount.Value.IsCount)
                 throw new ArgumentException($"For a regular request, use {nameof(RequestAsync)}", nameof(trailerIndexOrCount));
 
+            if (metadata.TelemetryType != TelemetryType.Channel)
+                throw new NotImplementedException("Multiple structures are not currently implemented by the server.");
+
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
-            return Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMTRY_DATA_START);
+            return
+                metadata.TelemetryType == TelemetryType.Channel ?
+                    Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMTRY_DATA_START) :
+                    Collector.Data.ConstructTelemetryStructureArray<T>(trailerIndexOrCount.Value.IndexOrCount, TELEMTRY_DATA_START);
         }
 
         public DataDefinition? GetDefinition(int definitionID)

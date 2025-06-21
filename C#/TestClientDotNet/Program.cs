@@ -51,12 +51,73 @@ async Task StructuresTest()
     await connection.ConnectAsync();
 
     DateTime start = DateTime.Now;
+    bool firstPause = true;
     while (DateTime.Now - start < runFor)
     {
-        var truckcfg = await connection.RequestAsync<MasterStorage.ConfigurationStorage.ConfigurationTruckStorage>(TelemetryID.ConfigurationTruckInfo);
+        var master = await connection.RequestAsync<MasterStorage>(TelemetryID.Master);
+        Console.SetCursorPosition(0, 0);
+
+        if (master.Channels.General.ChannelPaused.Value)
+        {
+            if (firstPause)
+            {
+                firstPause = false;
+                Console.Clear();
+            }
+
+            Console.WriteLine("Paused...");
+            await Task.Delay(refreshInterval);
+            continue;
+        }
+        firstPause = true;
+
+        string line = "";
+        line += $"Game Time: {master.Channels.General.ChannelGameTime.ValueOrDefault()} | ";
+        line += $"Local Scale: {master.Channels.General.ChannelLocalScale.ValueOrDefault()} | ";
+        line += $"Next Rest Stop: {master.Channels.General.ChannelNextRestStop.ValueOrDefault()}";
+        Console.WriteLine(line.PadRight(Console.WindowWidth));
+
+        line = "";
+        line += $"{master.Channels.Truck.TruckChannelEngineRpm.ValueOrDefault(0)}rpm | ";
+        line += $"{master.Channels.Truck.TruckChannelEngineGear.ValueOrDefault()} | ";
+        line += $"{master.Channels.Truck.TruckChannelSpeed.ValueOrDefault()}m/s | ";
+        line += $"{master.Channels.Truck.TruckChannelFuel.ValueOrDefault()}L";
+        Console.WriteLine(line.PadRight(Console.WindowWidth));
+
+        int trailerCount = TrailerCount(master.Configuration.ConfigurationTrailerInfo);
+
+        for (int i = 0; i < trailerCount; i++)
+        {
+            Console.WriteLine($"Trailer {i + 1}".PadRight(Console.WindowWidth));
+            line = "";
+            line += $"\t{master.Channels.Trailer[i].TrailerChannelConnected.ValueOrDefault("Connected", "Disconnected")} | ";
+            line += $"Cargo Damage: {master.Channels.Trailer[i].TrailerChannelCargoDamage.ValueOrDefault(3)}";
+            Console.WriteLine(line.PadRight(Console.WindowWidth));
+        }
+
         await Task.Delay(refreshInterval);
     }
     connection.Disconnect();
+}
+
+int TrailerCount(MasterStorage.ConfigurationStorage.ConfigurationTrailerStorage[] trailerConfigurations)
+{
+    if (trailerConfigurations.Length != 10)
+        throw new InvalidProgramException();
+
+    if (!trailerConfigurations[0].Latest.Initialized)
+        return 0;
+
+    UInt32 latest = trailerConfigurations[0].Latest.Value;
+    for (int i = 1; i < 10; i++)
+    {
+        if (!trailerConfigurations[i].Latest.Initialized)
+            return i;
+        if (trailerConfigurations[i].Latest.Value != latest)
+            return i;
+    }
+
+    return 10;
 }
 
 class GameStatus : DataDefinition
@@ -90,5 +151,20 @@ struct GaugeCluster()
 
     [DataDefinitionMember(TelemetryID.TruckChannelLightRblinker)]
     public ValueStorage<bool> lightRBlinker = default;
+}
+
+public static class ValueStorageStringifier
+{
+    public static string DynamicValueOrDefault(dynamic value, string @default = "---") =>
+        value.Initialized ? $"{value.Value}" : @default;
+
+    public static string ValueOrDefault(this object value, string @default = "---") =>
+        DynamicValueOrDefault(value, @default);
+
+    public static string ValueOrDefault(this ValueStorage<bool> value, string truthy = "true", string falsy = "false", string @default = "---")
+        => value.Initialized ? (value.Value ? truthy : falsy) : @default;
+
+    public static string ValueOrDefault(this ValueStorage<Single> value, int decimalPlaces = 2, string @default = "---") =>
+        value.Initialized ? value.Value.ToString($"F{decimalPlaces}") : @default;
 }
 
