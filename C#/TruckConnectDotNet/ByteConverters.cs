@@ -133,6 +133,15 @@ namespace TruckConnect
 
         public static int FromBytes(this byte[] bytes, int offset , out string result)
         {
+            if (bytes.Length <= offset)
+                throw new InvalidDataException("Not enough bytes.");
+
+            if (bytes[offset] == '\0')
+            {
+                result = "";
+                return 1;
+            }
+
             int end = offset;
             for (int i = offset; i < bytes.Length; i++)
             {
