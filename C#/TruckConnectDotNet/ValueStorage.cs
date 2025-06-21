@@ -250,7 +250,7 @@ namespace TruckConnect
             if (metadata.TelemetryType != TelemetryType.Channel)
                 throw new InvalidOperationException($"name(ConstructStorage)(...) is for storage types. Use {nameof(TelemetryStructureFunctions.ConstructTelemetryStructure)}");
             if (Activator.CreateInstance(metadata.GetGenericStorageTypeDefinition().MakeGenericType(metadata.SCSValueType.GetTypeOfSCSValueType())) is not object storage)
-                throw new NotImplementedException();
+                throw new ConstructException($"Failed to constrcut {metadata.ID}");
             return storage;
         }
 
