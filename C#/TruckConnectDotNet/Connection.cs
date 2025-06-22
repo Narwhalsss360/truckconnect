@@ -74,7 +74,7 @@ namespace TruckConnect
 
         public bool Connected { get => m_socket.Connected; }
 
-        public Connection(string ip)
+        public Connection(string ip = "127.0.0.1")
         {
             m_socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             m_ipAddress = IPAddress.Parse(ip);

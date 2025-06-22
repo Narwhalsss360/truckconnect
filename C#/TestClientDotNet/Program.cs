@@ -4,8 +4,7 @@ TimeSpan runFor = TimeSpan.FromMinutes(2);
 TimeSpan refreshInterval = TimeSpan.FromMilliseconds(1000 / 25);
 
 await StructuresTest();
-return;
-await DefinitionTest();
+//await DefinitionTest();
 
 async Task DefinitionTest()
 {

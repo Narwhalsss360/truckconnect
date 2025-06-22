@@ -119,7 +119,7 @@ namespace truckconnect {
                 pending_request = request_type::none;
             }
 
-            connection(const std::string& address = "");
+            connection(const std::string& address = "127.0.0.1");
 
             operator const bool() const;
         };
