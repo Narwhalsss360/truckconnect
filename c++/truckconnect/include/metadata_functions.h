@@ -2367,5 +2367,9 @@ namespace truckconnect {
                 default: return LIFETIME_FALSE;
             }
         }
+
+        constexpr const bool is_trailer_telemetry(const telemetry_id& id) {
+            return id == telemetry_id::trailer || id == telemetry_id::configuration_trailer_info ? true : is_trailer_channel(id);
+        }
     }
 }

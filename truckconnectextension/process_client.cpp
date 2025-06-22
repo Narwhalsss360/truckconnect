@@ -144,10 +144,7 @@ bool process_client(client& client) {
             return send_error_response(client, communication_result::invalid_telemetry);
         }
 
-        if (
-            (meta.id == telemetry_id::trailer || meta.id == telemetry_id::configuration_trailer_info || meta.trailer_channel)
-            && trailer_index_or_count.is_count
-        ) {
+        if (metadata::is_trailer_telemetry(meta.id) && trailer_index_or_count.is_count) {
             for (uint8_t i = 0; i < trailer_index_or_count.index_or_count; i++) {
                 const uint32_t& offset = metadata::master_offset_of(meta.id, i);
                 if (offset == metadata::INVALID_OFFSET) {
@@ -200,7 +197,19 @@ bool process_client(client& client) {
         for (uint32_t i = 0; i < count; i++) {
             const uint32_t offset = connection::DATA_DEFINITION_DATA_START + i * data::data_member_serialization_info::packed_size;
             if (!data::from_bytes(client.connection.collector.buffer(), definition.members[i], offset)) {
+                client.connection.data_definitions.erase(client.connection.data_definitions.end() - 1);
                 return send_error_response(client, communication_result::badly_formed);
+            }
+            const telemetry_id& id = definition.members[i].telemetry_id;
+
+            if (id == telemetry_id::invalid) {
+                client.connection.data_definitions.erase(client.connection.data_definitions.end() - 1);
+                return send_error_response(client, communication_result::invalid_telemetry);
+            }
+
+            if (metadata::is_trailer_telemetry(id) && definition.members[i].trailer_count > SCS_TELEMETRY_trailers_count) {
+                client.connection.data_definitions.erase(client.connection.data_definitions.end() - 1);
+                return send_error_response(client, communication_result::trailer_count_out_of_bounds);
             }
         }
 
@@ -245,7 +254,7 @@ bool process_client(client& client) {
                 return send_error_response(client, communication_result::invalid_telemetry);
             }
 
-            if (meta.trailer_channel) {
+            if (metadata::is_trailer_telemetry(meta.id)) {
                 if (member.trailer_count > SCS_TELEMETRY_trailers_count) {
                     return send_error_response(client, communication_result::trailer_count_out_of_bounds);
                 }

@@ -82,34 +82,34 @@ namespace truckconnect {
         }
 
         template <uint32_t count>
-        constexpr const bool has_valid_trailer_count_for_trailer_channels(const data_member (&members)[count], const uint32_t& i = 0) {
+        constexpr const bool has_valid_trailer_count_for_trailer_telemetries(const data_member (&members)[count], const uint32_t& i = 0) {
             return
                 i == count ? (
                     true
                 ) : (
-                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
                         members[i].trailer_count > SCS_TELEMETRY_trailers_count ? (
                             false
                         ) : (
-                            has_valid_trailer_count_for_trailer_channels(members, i + 1)
+                            has_valid_trailer_count_for_trailer_telemetries(members, i + 1)
                         )
                     ) : (
-                        has_valid_trailer_count_for_trailer_channels(members, i + 1)
+                        has_valid_trailer_count_for_trailer_telemetries(members, i + 1)
                     )
                 );
         }
 
         template <uint32_t count>
-        constexpr const bool has_invalid_trailer_count_for_non_trailer_channels(const data_member (&members)[count], const uint32_t& i = 0) {
+        constexpr const bool has_invalid_trailer_count_for_non_trailer_telemetries(const data_member (&members)[count], const uint32_t& i = 0) {
             return
                 i == count ? (
                     true
                 ) : (
-                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
-                        has_invalid_trailer_count_for_non_trailer_channels(members, i + 1)
+                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
+                        has_invalid_trailer_count_for_non_trailer_telemetries(members, i + 1)
                     ) : (
                         members[i].trailer_count == static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX) ? (
-                            has_invalid_trailer_count_for_non_trailer_channels(members, i + 1)
+                            has_invalid_trailer_count_for_non_trailer_telemetries(members, i + 1)
                         ) : (
                             false
                         )
@@ -123,7 +123,7 @@ namespace truckconnect {
                 i == count ? (
                     0
                 ) : (
-                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
+                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
                         metadata::size_of(members[i].telemetry_id) * members[i].trailer_count
                     ) : (
                         metadata::size_of(members[i].telemetry_id)
@@ -211,11 +211,11 @@ namespace truckconnect {
             static constexpr const data_member& last_member_in_memory = truckconnect::data::last_member_in_memory(data_definition<data_structure>::members);
             static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.telemetry_id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
 
-            static constexpr const bool& has_invalid_trailer_count_for_non_trailer_channels = truckconnect::data::has_invalid_trailer_count_for_non_trailer_channels(data_definition<data_structure>::members);
-            static_assert(has_invalid_trailer_count_for_non_trailer_channels, "A non-trailer channel has a 'trailer_count' specified.");
+            static constexpr const bool& has_invalid_trailer_count_for_non_trailer_telemetries = truckconnect::data::has_invalid_trailer_count_for_non_trailer_telemetries(data_definition<data_structure>::members);
+            static_assert(has_invalid_trailer_count_for_non_trailer_telemetries, "A non-trailer channel has a 'trailer_count' specified.");
 
-            static constexpr const bool& has_valid_trailer_count_for_trailer_channels = truckconnect::data::has_valid_trailer_count_for_trailer_channels(data_definition<data_structure>::members);
-            static_assert(has_valid_trailer_count_for_trailer_channels, "A trailer channel has a 'trailer_count' which is invalid.");
+            static constexpr const bool& has_valid_trailer_count_for_trailer_telemetries = truckconnect::data::has_valid_trailer_count_for_trailer_telemetries(data_definition<data_structure>::members);
+            static_assert(has_valid_trailer_count_for_trailer_telemetries, "A trailer channel has a 'trailer_count' which is invalid.");
 
             static constexpr const bool& is_offset_strictly_monotonically_increasing = truckconnect::data::is_offset_strictly_monotonically_increasing(data_definition<data_structure>::members);
 

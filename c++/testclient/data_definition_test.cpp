@@ -97,15 +97,30 @@ struct data_definition<gauge_cluster> {
     static constexpr const data_member_info_container<gauge_cluster> info = {};
 };
 
+struct just_trailer_data {
+    metadata::trailer::storage_type trailers[SCS_TELEMETRY_trailers_count];
+};
+
+template<>
+struct data_definition<just_trailer_data> {
+    static constexpr const data_definition_id id = 1;
+
+    static constexpr const data_member members[] = {
+        member<metadata::trailer>(offsetof(just_trailer_data, trailers), SCS_TELEMETRY_trailers_count)
+    };
+};
+
 int data_definition_test() {
     communication_result result;
     connection connection = ::connection("127.0.0.1");
     debug_assert(sockets::initialize());
     debug_assert(communication_result::success == (result = connect(connection)));
     debug_assert(communication_result::success == (result = register_data_definition<gauge_cluster>(connection)));
+    debug_assert(communication_result::success == (result = register_data_definition<just_trailer_data>(connection)));
 
     metadata::channel_paused::storage_type paused;
     gauge_cluster cluster;
+    just_trailer_data trailer_data;
     while (true) {
         using namespace std::chrono_literals;
         debug_assert((communication_result::success == (result = request<metadata::channel_paused>(connection, paused))));
@@ -115,12 +130,14 @@ int data_definition_test() {
         }
 
         debug_assert((communication_result::success == (result = request(connection, cluster))));
+        debug_assert((communication_result::success == (result = request(connection, trailer_data))));
         cluster.print();
         cout << "\n";
 
         std::this_thread::sleep_for(25ms);
     }
 
+    debug_assert(communication_result::success == (result = unregister_data_definition<just_trailer_data>(connection)));
     debug_assert(communication_result::success == (result = unregister_data_definition<gauge_cluster>(connection)));
     debug_assert(communication_result::success == (result = disconnect(connection)));
     debug_assert(sockets::deinitialize());
