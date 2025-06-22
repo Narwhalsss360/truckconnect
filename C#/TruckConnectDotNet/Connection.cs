@@ -203,9 +203,6 @@ namespace TruckConnect
             if (!trailerIndexOrCount.Value.IsCount)
                 throw new ArgumentException($"For a regular request, use {nameof(RequestAsync)}", nameof(trailerIndexOrCount));
 
-            if (metadata.TelemetryType != TelemetryType.Channel)
-                throw new NotImplementedException("Multiple structures are not currently implemented by the server.");
-
             await RequestAsync(id, trailerIndexOrCount, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?

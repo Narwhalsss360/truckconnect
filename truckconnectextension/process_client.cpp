@@ -52,7 +52,7 @@ bool read_new_pending_request(client& client) {
     ) {
         client.connection.pending_request = request_type::none;
     }
-    
+
     if (client.connection.pending_request != request_type::none) {
         return true;
     }
@@ -143,7 +143,10 @@ bool process_client(client& client) {
             return send_error_response(client, communication_result::invalid_telemetry);
         }
 
-        if (meta.trailer_channel && trailer_index_or_count.is_count) {
+        if (
+            (meta.id == telemetry_id::trailer || meta.id == telemetry_id::configuration_trailer_info || meta.trailer_channel)
+            && trailer_index_or_count.is_count
+        ) {
             for (uint8_t i = 0; i < trailer_index_or_count.index_or_count; i++) {
                 const uint32_t& offset = metadata::master_offset_of(meta.id, i);
                 if (offset == metadata::INVALID_OFFSET) {

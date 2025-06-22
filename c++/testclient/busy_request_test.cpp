@@ -18,11 +18,12 @@ int busy_request_test() {
     communication_result result = communication_result::success;
     connection connection = ::connection("127.0.0.1");
     debug_assert(communication_result::success == (result = connect(connection)));
-    
+
     constexpr const uint32_t run_for_minutes = 5;
     metadata::channel_game_time::storage_type start_game_time;
     metadata::channel_game_time::storage_type game_time;
     metadata::channel_local_scale::storage_type local_scale;
+    metadata::configuration_trailer_info::storage_type trailer_info[SCS_TELEMETRY_trailers_count];
     std::array<metadata::trailer_channel_connected::storage_type, SCS_TELEMETRY_trailers_count> trailer_connected;
 
     while (true) {
@@ -38,6 +39,7 @@ int busy_request_test() {
 
         debug_assert(communication_result::success == (result = request<metadata::channel_game_time>(connection, game_time)));
         debug_assert(communication_result::success == (result = request<metadata::trailer_channel_connected>(connection, trailer_connected)));
+        debug_assert(communication_result::success == (result = request<metadata::configuration_trailer_info>(connection, trailer_info)));
 
         if (!start_game_time.initialized) {
             start_game_time = game_time;

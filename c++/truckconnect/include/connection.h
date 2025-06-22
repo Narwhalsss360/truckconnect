@@ -211,7 +211,10 @@ namespace truckconnect {
         template <typename meta, trailer_index_uint trailer_count>
         communication_result request(connection& connection, std::function<void(const typename meta::storage_type (&)[trailer_count])> received_callback) {
             static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'count' is over the trailer count limit.");
-            static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
+            static_assert(
+                metadata::is_trailer_channel(meta::id) || meta::id == telemetry_id::configuration_trailer_info || meta::id == telemetry_id::trailer,
+                "This request overload is only for trailer telemetries."
+            );
 
             communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
             if (result == communication_result::success) {
@@ -228,7 +231,10 @@ namespace truckconnect {
         template <typename meta, trailer_index_uint trailer_count>
         communication_result request(connection& connection, typename meta::storage_type (&array)[trailer_count]) {
             static_assert(trailer_count <= SCS_TELEMETRY_trailers_count, "'trailer_count' is over the trailer count limit.");
-            static_assert(meta::trailer_channel, "This request overload is only for trailer channels.");
+            static_assert(
+                metadata::is_trailer_channel(meta::id) || meta::id == telemetry_id::configuration_trailer_info || meta::id == telemetry_id::trailer,
+                "This request overload is only for trailer telemetries."
+            );
 
             communication_result result = request(connection, meta::id, trailer_index_or_count(true, trailer_count));
             if (result == communication_result::success) {
