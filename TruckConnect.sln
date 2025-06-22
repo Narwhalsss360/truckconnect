@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trailertelemetry", "c++\sam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "structuretelemetry", "c++\samples\structuretelemetry\structuretelemetry.vcxproj", "{39DD1FD9-792D-413C-BCCA-23F4381F5A97}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datadefinition", "c++\samples\datadefinition\datadefinition.vcxproj", "{37769EB7-B153-4AE1-9D99-2E77C1C0416E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -161,6 +163,18 @@ Global
 		{39DD1FD9-792D-413C-BCCA-23F4381F5A97}.Release|x64.Build.0 = Release|x64
 		{39DD1FD9-792D-413C-BCCA-23F4381F5A97}.Release|x86.ActiveCfg = Release|Win32
 		{39DD1FD9-792D-413C-BCCA-23F4381F5A97}.Release|x86.Build.0 = Release|Win32
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|Any CPU.Build.0 = Debug|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|x64.ActiveCfg = Debug|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|x64.Build.0 = Debug|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|x86.ActiveCfg = Debug|Win32
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Debug|x86.Build.0 = Debug|Win32
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|Any CPU.ActiveCfg = Release|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|Any CPU.Build.0 = Release|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|x64.ActiveCfg = Release|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|x64.Build.0 = Release|x64
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|x86.ActiveCfg = Release|Win32
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,6 +192,7 @@ Global
 		{218DB0DB-EE92-4FE9-9F83-3F5E9B69788E} = {29E52067-D4AF-42A8-BCDC-5BE88A8D93A9}
 		{D996B66D-870A-455E-9F40-A127E96847C0} = {29E52067-D4AF-42A8-BCDC-5BE88A8D93A9}
 		{39DD1FD9-792D-413C-BCCA-23F4381F5A97} = {29E52067-D4AF-42A8-BCDC-5BE88A8D93A9}
+		{37769EB7-B153-4AE1-9D99-2E77C1C0416E} = {29E52067-D4AF-42A8-BCDC-5BE88A8D93A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E07194E-A80A-4684-AA2A-D233517C3070}
@@ -186,6 +201,8 @@ Global
 		c++\truckconnect\truckconnect.vcxitems*{07b6de3e-fdf6-4293-bba6-56ac2394ff27}*SharedItemsImports = 9
 		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{218db0db-ee92-4fe9-9f83-3f5e9b69788e}*SharedItemsImports = 4
 		c++\truckconnect\truckconnect.vcxitems*{218db0db-ee92-4fe9-9f83-3f5e9b69788e}*SharedItemsImports = 4
+		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{37769eb7-b153-4ae1-9d99-2e77c1c0416e}*SharedItemsImports = 4
+		c++\truckconnect\truckconnect.vcxitems*{37769eb7-b153-4ae1-9d99-2e77c1c0416e}*SharedItemsImports = 4
 		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{39dd1fd9-792d-413c-bcca-23f4381f5a97}*SharedItemsImports = 4
 		c++\truckconnect\truckconnect.vcxitems*{39dd1fd9-792d-413c-bcca-23f4381f5a97}*SharedItemsImports = 4
 		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{4a867dcf-7b98-4d1f-b99d-64537f788236}*SharedItemsImports = 4
