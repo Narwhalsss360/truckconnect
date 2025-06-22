@@ -11,6 +11,16 @@ namespace truckconnect {
     }
 
     bool from_bytes(const vector<uint8_t>& as_bytes, string& out, uint32_t& read, const uint32_t& offset) {
+        if (as_bytes.size() <= offset) {
+            return false;
+        }
+
+        if (as_bytes[offset] == 0) {
+            out.clear();
+            read = 1;
+            return true;
+        }
+
         uint32_t end = offset;
         for (int i = offset; i < as_bytes.size(); i++) {
             if (as_bytes[i] == 0) {
