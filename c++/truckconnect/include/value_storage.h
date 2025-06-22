@@ -426,12 +426,8 @@ namespace truckconnect {
     //(Does not necessarily store its elements as a contiguous array.)
     template <>
     struct value_vector_storage<bool> {
-        using bool_int = uint32_t;
-
-        static constexpr const uint32_t bool_int_bit_count = bit_count(sizeof(bool_int));
-
         std::vector<bool> values{};
-        
+
         const inline uint32_t count() const { return static_cast<uint32_t>(values.size()); };
 
         struct serialization_info {
@@ -447,15 +443,15 @@ namespace truckconnect {
         void append_bytes(std::vector<uint8_t>& out) const {
             const uint32_t lcount = count();
             const uint8_t* const& count_start = reinterpret_cast<const uint8_t* const>(&lcount);
-            const uint32_t bool_int_count = cieldiv(lcount, bool_int_bit_count);
+            const uint32_t byte_count = cieldiv(lcount, 8);
 
-            out.resize(out.size() + sizeof(lcount) + bool_int_count);
-            std::copy(count_start, count_start + sizeof(lcount), out.end() - bool_int_count - sizeof(lcount));
+            out.resize(out.size() + sizeof(lcount) + byte_count);
+            std::copy(count_start, count_start + sizeof(lcount), out.end() - byte_count - sizeof(lcount));
 
             for (
-                uint32_t i = 0, bit = 0, iint = static_cast<uint32_t>(out.size() - bool_int_count);
+                uint32_t i = 0, bit = 0, iint = static_cast<uint32_t>(out.size() - byte_count);
                 i < lcount; i++,
-                iint = bit == bool_int_bit_count - 1 ? iint + 1 : iint, bit = bit == bool_int_bit_count - 1 ? 0 : bit + 1
+                iint = bit == 7 ? iint + 1 : iint, bit = bit == 7 ? 0 : bit + 1
             ) {
                 if (values[i]) {
                     out[iint] |= 1 << bit;
@@ -472,19 +468,19 @@ namespace truckconnect {
 
             const uint8_t* const bytes_start = &bytes[offset];
             const uint32_t& count = *reinterpret_cast<const uint32_t* const>(bytes_start);
-            const uint32_t bool_int_count = cieldiv(count, bool_int_bit_count);
-            if (bytes.size() - offset - sizeof(count) < bool_int_count) {
+            const uint32_t byte_count = cieldiv(count, 8);
+            if (bytes.size() - offset - sizeof(count) < byte_count) {
                 return false;
             }
 
-            read = sizeof(count) + bool_int_count;
+            read = sizeof(count) + byte_count;
             values.clear();
             values.resize(count);
 
             for (
                 uint32_t i = 0, bit = 0, iint = offset + sizeof(count);
                 i < count; i++,
-                iint = bit == bool_int_bit_count - 1 ? iint + 1 : iint, bit = bit == bool_int_bit_count - 1 ? 0 : bit + 1
+                iint = bit == 7 ? iint + 1 : iint, bit = bit == 7 ? 0 : bit + 1
             ) {
                 values[i] = bytes[iint] & (1 << bit);
             }
