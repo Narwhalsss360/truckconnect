@@ -23,7 +23,7 @@ bool once(truckconnect::communication::connection& connection) {
     truckconnect::communication::communication_result result = truckconnect::communication::request<telemetry>(connection, storage);
 
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "telemetry request<...>(...) failure code: " << result << endl;
+        cout << "telemetry request<...>(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return false;
     }
 
@@ -31,7 +31,7 @@ bool once(truckconnect::communication::connection& connection) {
     truckconnect::value_storage<bool> paused; //or tuckconnect::metadata::channel_paused::storage_type
     result = truckconnect::communication::request(connection, truckconnect::telemetry_id::channel_paused);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "paused request<...>(...) failure code: " << result << endl;
+        cout << "paused request<...>(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return false;
     }
 
@@ -78,7 +78,7 @@ int main() {
 
     truckconnect::communication::communication_result result = truckconnect::communication::connect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "connect(...) failure code: " << result << endl;
+        cout << "connect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
@@ -91,7 +91,7 @@ int main() {
 
     result = truckconnect::communication::disconnect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "disconnect(...) failure code: " << result << endl;
+        cout << "disconnect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 

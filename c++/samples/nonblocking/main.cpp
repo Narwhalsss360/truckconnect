@@ -28,7 +28,7 @@ bool once(truckconnect::communication::connection& connection) {
 
     communication_result result = truckconnect::communication::send_request_for(connection, master_telemetry::id);
     if (result != communication_result::success) {
-        cout << "send_request_for(...) failure code: " << result << endl;
+        cout << "send_request_for(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return false;
     }
 
@@ -48,7 +48,7 @@ bool once(truckconnect::communication::connection& connection) {
     } while (result == communication_result::incomplete);
 
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "receive_one(...) failure code: " << result << endl;
+        cout << "receive_one(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return false;
     }
     connection.clear_pending_request();
@@ -85,12 +85,12 @@ int main() {
     //non-blocking connect not implemented... :(
     truckconnect::communication::communication_result result = truckconnect::communication::connect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "connect(...) failure code: " << result << endl;
+        cout << "connect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
     if (!truckconnect::platform::sockets::nonblocking(connection.socket)) {
-        cout << "nonblocking(...) failure code: " << result << endl;
+        cout << "nonblocking(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
@@ -103,7 +103,7 @@ int main() {
 
     result = truckconnect::communication::disconnect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "disconnect(...) failure code: " << result << endl;
+        cout << "disconnect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 

@@ -150,14 +150,14 @@ int main() {
     truckconnect::communication::connection connection = truckconnect::communication::connection(IP);
     truckconnect::communication::communication_result result = truckconnect::communication::connect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "connect(...) failure code: " << result << endl;
+        cout << "connect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
     //Register your data definition, this also does some static checks to avoid foot-guns.
     result = truckconnect::communication::register_data_definition<gauge_cluster>(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "register_data_definition(...) failure code: " << result << endl;
+        cout << "register_data_definition(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
@@ -171,13 +171,13 @@ int main() {
     //Unregister, not really necessary if you're disconnecting right after.
     result = truckconnect::communication::unregister_data_definition<gauge_cluster>(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "unregister_data_definition(...) failure code: " << result << endl;
+        cout << "unregister_data_definition(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
     result = truckconnect::communication::disconnect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "disconnect(...) failure code: " << result << endl;
+        cout << "disconnect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 

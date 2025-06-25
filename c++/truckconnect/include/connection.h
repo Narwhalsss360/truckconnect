@@ -57,9 +57,42 @@ namespace truckconnect {
                 badly_formed,
                 unknown_data
             };
+
+            constexpr const char* const communication_result_string[] = {
+                "success",
+                "generic_socket_error",
+                "already_connected",
+                "not_connected",
+                "disconnected",
+                "incomplete",
+                "collector_error",
+                "no_pending_request",
+                "invalid_telemetry",
+                "invalid_trailer_index",
+                "other_request_pending",
+                "other_telemetry_id_pending",
+                "other_trailer_index_request_pending",
+                "received_other_response",
+                "received_other_telemetry",
+                "received_other_trailer_index",
+                "deserialization_failure",
+                "trailer_index_out_of_bounds",
+                "trailer_count_out_of_bounds",
+                "trailer_index_or_count_was_count",
+                "null_argument",
+                "empty",
+                "already_registered",
+                "other_defined_data_pending",
+                "not_registered",
+                "arrange_error",
+                "badly_formed",
+                "unknown_data"
+            };
         }
 
         using communication_results::communication_result;
+
+        using communication_results::communication_result_string;
 
         struct trailer_index_or_count {
             bool is_count : 1;

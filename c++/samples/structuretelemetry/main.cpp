@@ -30,7 +30,7 @@ bool once(truckconnect::communication::connection& connection) {
 
     truckconnect::communication::communication_result result = truckconnect::communication::request<all_channels>(connection, channels);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "request<all_channels>(...) failure code: " << result << endl;
+        cout << "request<all_channels>(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return false;
     }
 
@@ -68,7 +68,7 @@ int main() {
     truckconnect::communication::connection connection = truckconnect::communication::connection(IP);
     truckconnect::communication::communication_result result = truckconnect::communication::connect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "connect(...) failure code: " << result << endl;
+        cout << "connect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
@@ -81,7 +81,7 @@ int main() {
 
     result = truckconnect::communication::disconnect(connection);
     if (result != truckconnect::communication::communication_result::success) {
-        cout << "disconnect(...) failure code: " << result << endl;
+        cout << "disconnect(...) failure code: " << truckconnect::communication::communication_result_string[result] << endl;
         return 1;
     }
 
