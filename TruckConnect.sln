@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDefinitions", "c#\sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructureTelemetry", "c#\samples\StructureTelemetry\StructureTelemetry.csproj", "{C0FDAE72-9C09-457E-A21A-A4981519514D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nonblocking", "c++\samples\nonblocking\nonblocking.vcxproj", "{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -233,6 +235,18 @@ Global
 		{C0FDAE72-9C09-457E-A21A-A4981519514D}.Release|x64.Build.0 = Release|Any CPU
 		{C0FDAE72-9C09-457E-A21A-A4981519514D}.Release|x86.ActiveCfg = Release|Any CPU
 		{C0FDAE72-9C09-457E-A21A-A4981519514D}.Release|x86.Build.0 = Release|Any CPU
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|Any CPU.Build.0 = Debug|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|x64.ActiveCfg = Debug|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|x64.Build.0 = Debug|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|x86.ActiveCfg = Debug|Win32
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Debug|x86.Build.0 = Debug|Win32
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|Any CPU.ActiveCfg = Release|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|Any CPU.Build.0 = Release|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|x64.ActiveCfg = Release|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|x64.Build.0 = Release|x64
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|x86.ActiveCfg = Release|Win32
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -256,6 +270,7 @@ Global
 		{30EAA766-F587-41F0-B0E8-091EF84E4A8D} = {390F7D50-2591-4CE0-B2B9-19E4529249BE}
 		{91648BC1-3B5E-4F84-9CC3-84FFF54B24D2} = {390F7D50-2591-4CE0-B2B9-19E4529249BE}
 		{C0FDAE72-9C09-457E-A21A-A4981519514D} = {390F7D50-2591-4CE0-B2B9-19E4529249BE}
+		{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA} = {29E52067-D4AF-42A8-BCDC-5BE88A8D93A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E07194E-A80A-4684-AA2A-D233517C3070}
@@ -275,5 +290,7 @@ Global
 		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{e46bee7b-2ff6-49b9-8b9d-c6fa567039c2}*SharedItemsImports = 4
 		c++\truckconnect\truckconnect.vcxitems*{e46bee7b-2ff6-49b9-8b9d-c6fa567039c2}*SharedItemsImports = 4
 		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{f6aabf94-ed61-41ac-aaad-e75510af8cff}*SharedItemsImports = 9
+		..\proto-truckconnect\NStreamCom\nstreamcom.vcxitems*{fd61d6e3-45e2-47f7-b119-a7c8e3b3f5ba}*SharedItemsImports = 4
+		c++\truckconnect\truckconnect.vcxitems*{fd61d6e3-45e2-47f7-b119-a7c8e3b3f5ba}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
