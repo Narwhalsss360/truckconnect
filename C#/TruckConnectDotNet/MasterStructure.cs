@@ -528,7 +528,7 @@ namespace TruckConnect
 
     public static class TelemetryStructureFunctions
     {
-        public static readonly Dictionary<Type, TelemetryID> STORAGE_TYPE_TO_ID = new()
+        public static readonly Dictionary<Type, TelemetryID> STRUCTURE_TYPE_TO_ID = new()
         {
             { typeof(MasterStorage), TelemetryID.Master },
             { typeof(MasterStorage.ConfigurationStorage), TelemetryID.Configuration },
@@ -551,6 +551,21 @@ namespace TruckConnect
             { typeof(MasterStorage.GameplayStorage.GameplayPlayerUseTrainStorage), TelemetryID.GameplayPlayerUseTrainInfo }
         };
 
+        private static Dictionary<TelemetryID, Type>? s_storageTypeToIDInverse = null;
+
+        public static Dictionary<TelemetryID, Type> ID_TO_STRUCTURE_TYPE
+        {
+            get
+            {
+                if (s_storageTypeToIDInverse is not null)
+                    return s_storageTypeToIDInverse;
+                s_storageTypeToIDInverse = new();
+                foreach (var pair in STRUCTURE_TYPE_TO_ID)
+                    s_storageTypeToIDInverse[pair.Value] = pair.Key;
+                return s_storageTypeToIDInverse;
+            }
+        }
+
         public static bool IsTelemetryStructure(this Type? structType)
         {
             if (structType is null)
@@ -562,13 +577,22 @@ namespace TruckConnect
         }
 
         public static TelemetryID IDOfStructure(this Type type) =>
-            STORAGE_TYPE_TO_ID.GetValueOrDefault(type, TelemetryID.Invalid);
+            STRUCTURE_TYPE_TO_ID.GetValueOrDefault(type, TelemetryID.Invalid);
+
+        public static Type? StructureOfID(this TelemetryID id ) =>
+            ID_TO_STRUCTURE_TYPE.GetValueOrDefault(id);
 
         public static bool IsTelemetryStructure<T>() =>
             IsTelemetryStructure(typeof(T));
 
         public static bool IsTelemetryStructure(this object obj) =>
             IsTelemetryStructure(obj.GetType());
+
+        public static void ThrowIfInvalidTypeForStructureID(this Type type, TelemetryID id)
+        {
+            if (StructureOfID(id) != type)
+                throw new InvalidOperationException("This type is incorrect for this structure.");
+        }
 
         public static int TelemetryStructureFromBytes(this byte[] bytes, object structure, int offset = 0)
         {
@@ -630,6 +654,34 @@ namespace TruckConnect
             for (int i = 0; i < structures.Length; i++)
                 read += structures[i].TelemetryStructureFromBytes<T>(bytes, offset + read);
             return read;
+        }
+
+        public static object ConstructTelemetryStructure(this TelemetryID id)
+        {
+            if (id.StructureOfID() is not Type type)
+                throw new ArgumentException($"'id' was not a structure id.", nameof(id));
+            if (Activator.CreateInstance(type) is not object structure)
+                throw new ConstructException($"Failed to construct structure {id}");
+            return structure;
+        }
+
+        public static object ConstructTelemetryStructure(this byte[] bytes, TelemetryID id, int offset, out int read)
+        {
+            object structure = ConstructTelemetryStructure(id);
+            read = bytes.TelemetryStructureFromBytes(structure, offset);
+            return structure;
+        }
+
+        public static object[] ConstructTelemetryStructureArray(this byte[] bytes, int length, TelemetryID id, int offset, out int read)
+        {
+            object[] structures = new object[length];
+            read = 0;
+            for (int i = 0; i < length; i++)
+            {
+                structures[i] = ConstructTelemetryStructure(bytes, id, offset + read, out int thisRead);
+                read += thisRead;
+            }
+            return structures;
         }
 
         public static T ConstructTelemetryStructure<T>(this byte[] bytes, int offset, out int read) where T : struct
