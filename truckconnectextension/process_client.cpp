@@ -318,7 +318,21 @@ bool process_client(client& client) {
         }
     }
     default:
+        response.resize(2);
+        response[0] = request_type::error_response;
+        response[1] = communication_result::unknown_data;
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
+        encode_with_size(
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
+        );
         console_log(SCS_LOG_TYPE_error, IDENTSTR(process_client), "Received unkown request " + to_string((int)client.connection.pending_request) + " from: " + to_string(client.connection.addr));
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
+            return false;
+        }
         break;
     }
 
