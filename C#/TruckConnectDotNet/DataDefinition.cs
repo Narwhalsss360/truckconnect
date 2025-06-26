@@ -85,11 +85,19 @@ namespace TruckConnect
             foreach (DataMember member in Members)
             {
                 int thisRead;
+                object constructed;
                 if (member.TrailerCount.IndexOrCount > 1)
-                    member.Assign(@object, data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead));
+                    constructed =
+                        member.Metadata.TelemetryType == TelemetryType.Channel ?
+                            data.ConstructStorageArray(member.TrailerCount.IndexOrCount, member.Metadata, offset + totalRead, out thisRead) :
+                            data.ConstructTelemetryStructureArray(member.TrailerCount.IndexOrCount, member.Metadata.ID, offset + totalRead, out thisRead);
                 else
-                    member.Assign(@object, data.ConstructStorage(member.Metadata, offset + totalRead, member.Member?.GetCustomAttribute<StaticSizeAttribute>()?.StaticSize, out thisRead));
+                    constructed =
+                        member.Metadata.TelemetryType == TelemetryType.Channel ?
+                            data.ConstructStorage(member.Metadata, offset + totalRead, member.Member?.GetCustomAttribute<StaticSizeAttribute>()?.StaticSize, out thisRead) :
+                            data.ConstructTelemetryStructure(member.Metadata.ID, offset + totalRead, out thisRead);
 
+                member.Assign(@object, constructed);
                 totalRead += thisRead;
             }
             return totalRead;

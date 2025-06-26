@@ -3,8 +3,8 @@
 TimeSpan runFor = TimeSpan.FromMinutes(2);
 TimeSpan refreshInterval = TimeSpan.FromMilliseconds(1000 / 25);
 
-await StructuresTest();
-//await DefinitionTest();
+//await StructuresTest();
+await DefinitionTest();
 
 async Task DefinitionTest()
 {
@@ -132,6 +132,9 @@ class GameStatus : DataDefinition
 
     [DataDefinitionMember(TelemetryID.TrailerChannelConnected, TrailerIndexOrCount.SCS_TELEMETRY_trailers_count)]
     public ValueStorage<bool>[] TrailersConencted = new ValueStorage<bool>[TrailerIndexOrCount.SCS_TELEMETRY_trailers_count];
+
+    [DataDefinitionMember(TelemetryID.ConfigurationTruckInfo)]
+    public MasterStorage.ConfigurationStorage.ConfigurationTruckStorage TruckConfiguration = new();
 
     public GameStatus()
         : base(1) {}

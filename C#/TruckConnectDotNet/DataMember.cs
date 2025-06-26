@@ -91,29 +91,40 @@ namespace TruckConnect
 
         private void EnsureWritable()
         {
+            if (Member is null)
+                return;
+
+            Type type;
             if (Member is FieldInfo field)
             {
                 if (!field.IsPublic || field.IsInitOnly)
                     throw new ArgumentException("Member must be public", nameof(Member));
-
-                if (field.FieldType.IsArray)
-                    field.FieldType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
-                else
-                    field.FieldType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
+                type = field.FieldType;
             }
             else if (Member is PropertyInfo property)
             {
                 if (!property.CanWrite)
                     throw new ArgumentException("Member must be public", nameof(Member));
-
-                if (property.PropertyType.IsArray)
-                    property.PropertyType.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
-                else
-                    property.PropertyType.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
+                type = property.PropertyType;
             }
-            else if (Member is not null)
+            else
             {
                 throw new ArgumentException("Member must be either FieldInfo or PropertyInfo", nameof(Member));
+            }
+
+            if (Metadata.TelemetryType == TelemetryType.Channel)
+            {
+                if (type.IsArray)
+                    type.GetElementType()!.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
+                else
+                    type.ThrowIfInvalidTypeForSCSValueType(Metadata.SCSValueType);
+            }
+            else
+            {
+                if (type.IsArray)
+                    type.GetElementType()!.ThrowIfInvalidTypeForStructureID(Metadata.ID);
+                else
+                    type.ThrowIfInvalidTypeForStructureID(Metadata.ID);
             }
         }
     }
