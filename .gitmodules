@@ -1,9 +1,11 @@
 [submodule "scssdk-telemetry"]
 	path = scssdk-telemetry
 	url = git@github.com:Narwhalsss360/scssdk-telemetry.git
+	branch = truckconnect
 [submodule "c++/NStreamCom"]
 	path = c++/NStreamCom
 	url = git@github.com:Narwhalsss360/NStreamCom
+	branch = c++
 [submodule "C#/NStreamCom"]
 	path = "C#/NStreamCom"
 	url = git@github.com:Narwhalsss360/NStreamCom
