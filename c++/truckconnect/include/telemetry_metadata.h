@@ -2,6 +2,13 @@
 #include "master_structure.h"
 #include "scssdk/common/scssdk_telemetry_common_configs.h"
 
+
+#if defined(__MINGW32__)
+#define _Elems _M_elems
+#elif defined(__GNUG__)
+#define _Elems _M_instance
+#endif
+
 namespace truckconnect {
     namespace telemetry_ids {
         enum telemetry_id : uint8_t {
@@ -145,21 +152,21 @@ namespace truckconnect {
             invalid = static_cast<uint8_t>(-1),
         };
 
-        constexpr const uint32_t& INVALID_OFFSET = static_cast<uint32_t>(-1);
+        static constexpr const uint32_t& INVALID_OFFSET = static_cast<uint32_t>(-1);
 
-        constexpr const trailer_index_uint& INVALID_TRAILER_INDEX = static_cast<trailer_index_uint>(-1);
+        static constexpr const trailer_index_uint& INVALID_TRAILER_INDEX = static_cast<trailer_index_uint>(-1);
 
-        constexpr const uint32_t& INVALID_SIZE = 0;
+        static constexpr const uint32_t& INVALID_SIZE = 0;
 
-        constexpr const uint32_t& DEFAULT_MAX_COUNT = 0;
+        static constexpr const uint32_t& DEFAULT_MAX_COUNT = 0;
 
-        constexpr const telemetry_id& LIFETIME_INVALID_ID = telemetry_id::invalid;
+        static constexpr const telemetry_id& LIFETIME_INVALID_ID = telemetry_id::invalid;
 
-        constexpr const telemetry_type& LIFETIME_INVALID_TYPE = telemetry_type::invalid;
+        static constexpr const telemetry_type& LIFETIME_INVALID_TYPE = telemetry_type::invalid;
 
-        constexpr const char* const& LIFETIME_INVALID_CSTR = "";
+        static constexpr const char* const& LIFETIME_INVALID_CSTR = "";
 
-        constexpr const bool& LIFETIME_FALSE = false;
+        static constexpr const bool& LIFETIME_FALSE = false;
 
         struct event_info_member {
             telemetry_id event_info_id;
@@ -232,8 +239,7 @@ namespace truckconnect {
                 custom_channel(custom_channel) {}
         };
 
-        constexpr const metadata_value INVALID_METADATA = metadata_value();
-
+        static constexpr const metadata_value INVALID_METADATA = metadata_value();
 
         struct master {
             static constexpr const telemetry_id& id = telemetry_id::master;
@@ -2869,3 +2875,6 @@ namespace truckconnect {
         };
     }
 }
+
+#undef _Elems
+

@@ -9,7 +9,7 @@ namespace truckconnect {
     namespace data {
         using data_definition_id = uint8_t;
 
-        constexpr const data_definition_id& INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
+        static constexpr const data_definition_id& INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
 
         struct data_member {
             telemetry_id telemetry_id;
@@ -44,7 +44,7 @@ namespace truckconnect {
             static_assert(countof(ordered_sizes) == countof(ordered_offsets), "sizes and offsets must be equal count");
         };
 
-        constexpr const data_member& INVALID_DATA_MEMBER = data_member(telemetry_id::invalid);
+        static constexpr const data_member INVALID_DATA_MEMBER = data_member(metadata::LIFETIME_INVALID_ID);
 
         template <typename data_structure>
         struct data_definition;
@@ -157,6 +157,7 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const data_member& last_member_in_memory(const data_member (&members)[count], const uint32_t& i = 0, const data_member& last = INVALID_DATA_MEMBER) {
+            return members[i];
             return i == count ? last : last_member_in_memory(members, i + 1, members[i].offset > last.offset ? members[i] : last);
         }
 
@@ -314,7 +315,7 @@ namespace truckconnect {
             using definition = data_definition<data_structure>;
             using member_info = data_member_info_container<data_structure>;
 
-            constexpr const member_info& info = {};
+            constexpr const member_info info = {};
             uint8_t* const& out_start = reinterpret_cast<uint8_t* const>(&out);
             const data_member& member = definition::members[i];
 

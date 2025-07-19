@@ -9,7 +9,7 @@
 #define __cpp_if_constexpr 201606L
 #endif
 
-#if __cplusplus >= __cpp_if_constexpr
+#if __cplusplus >= __cpp_if_constexpr && false
 #define ifconstexpr constexpr
 #else
 #define ifconstexpr
@@ -88,9 +88,9 @@ namespace truckconnect {
             return reinterpret_cast<const uint8_t* const>(this) + serialization_info::ordered_offsets[i];
         }
 
-        constexpr uint8_t* const ordered_offset(const uint32_t& i) {
-            return reinterpret_cast<uint8_t* const>(this) + serialization_info::ordered_offsets[i];
-        }
+        //constexpr uint8_t* const ordered_offset(const uint32_t& i) {
+            //return reinterpret_cast<uint8_t* const>(this) + serialization_info::ordered_offsets[i];
+        //}
 
         constexpr const uint32_t packed_size() const {
             return serialization_info::packed_size;
@@ -124,7 +124,7 @@ namespace truckconnect {
             std::copy(
                 bytes.cbegin() + offset + sum(ordered_sizes, i),
                 bytes.cbegin() + offset + sum(ordered_sizes, i + 1),
-                ordered_offset(i)
+                (uint8_t* const)(this) + serialization_info::ordered_offsets[i]
             );
 
             return from_bytes(bytes, offset, read, i + 1);
@@ -211,9 +211,9 @@ namespace truckconnect {
             return reinterpret_cast<const uint8_t* const>(this) + serialization_info::ordered_offsets[i];
         }
 
-        constexpr uint8_t* const ordered_offset(const uint32_t& i) {
-            return reinterpret_cast<uint8_t* const>(this) + serialization_info::ordered_offsets[i];
-        }
+        //constexpr uint8_t* const ordered_offset(const uint32_t& i) {
+            //return reinterpret_cast<uint8_t* const>(this) + serialization_info::ordered_offsets[i];
+        //}
 
         constexpr const uint32_t packed_size() const {
             return serialization_info::packed_size;
@@ -247,7 +247,7 @@ namespace truckconnect {
             std::copy(
                 bytes.cbegin() + offset + sum(ordered_sizes, i),
                 bytes.cbegin() + offset + sum(ordered_sizes, i + 1),
-                ordered_offset(i)
+                reinterpret_cast<uint8_t* const>(this) + serialization_info::ordered_offsets[i]
             );
 
             return from_bytes(bytes, offset, read, i + 1);
