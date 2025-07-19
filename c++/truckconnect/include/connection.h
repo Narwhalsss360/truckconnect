@@ -113,9 +113,9 @@ namespace truckconnect {
             }
         };
 
-        constexpr const trailer_index_or_count& INVALID_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, static_cast<trailer_index_uint>(metadata::INVALID_TRAILER_INDEX));
+        static constexpr const trailer_index_or_count& INVALID_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, static_cast<trailer_index_uint>(metadata::INVALID_TRAILER_INDEX));
 
-        constexpr const trailer_index_or_count& DEFAULT_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, 0);
+        static constexpr const trailer_index_or_count& DEFAULT_TRAILER_INDEX_OR_COUNT = trailer_index_or_count(false, 0);
 
         struct connection {
             sockets::socket socket;

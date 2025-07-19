@@ -143,7 +143,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::telemetry_type;
-                default: return telemetry_type::invalid;
+                default: return LIFETIME_INVALID_TYPE;
             }
         }
 

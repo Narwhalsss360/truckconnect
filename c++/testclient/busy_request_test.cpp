@@ -38,7 +38,7 @@ int busy_request_test() {
         }
 
         debug_assert(communication_result::success == (result = request<metadata::channel_game_time>(connection, game_time)));
-        debug_assert(communication_result::success == (result = request<metadata::trailer_channel_connected>(connection, trailer_connected)));
+        debug_assert(false /* communication_result::success == (result = request<metadata::trailer_channel_connected>(connection, trailer_connected)) */);
         debug_assert(communication_result::success == (result = request<metadata::configuration_trailer_info>(connection, trailer_info)));
 
         if (!start_game_time.initialized) {

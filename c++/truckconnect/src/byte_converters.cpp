@@ -335,7 +335,9 @@ namespace truckconnect {
         //reserve the packed size of the structure.
         append_bytes(channels.general, out);
         append_bytes(channels.truck, out);
-        append_bytes(channels.trailer, out);
+        for (int i = 0; i < channels.trailer.size(); i++) {
+            append_bytes(channels.trailer[i], out);
+        }
     }
 
     void append_bytes(const master_storage::gameplay_storage& gameplay, std::vector<uint8_t>& out) {
@@ -360,7 +362,9 @@ namespace truckconnect {
         append_bytes(configuration.configuration_controls_info, out);
         append_bytes(configuration.configuration_hshifter_info, out);
         append_bytes(configuration.configuration_truck_info, out);
-        append_bytes(configuration.configuration_trailer_info, out);
+        for (int i = 0; i < configuration.configuration_trailer_info.size(); i++) {
+             append_bytes(configuration.configuration_trailer_info[i], out);
+        }
         append_bytes(configuration.configuration_job_info, out);
     }
 
