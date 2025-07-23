@@ -3,19 +3,7 @@
 
 namespace truckconnect {
     namespace metadata {
-        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
-            return (
-                reversing ?
-                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
-                    count == 0 ?
-                        INVALID_OFFSET :
-                        '0' <= *cstr && *cstr <= '9' ?
-                            *cstr - '0' :
-                            extract_trailer_index(cstr - 1, false, count - 1)
-                );
-        }
-
-        constexpr const telemetry_type& telemtry_type_of(const telemetry_id& id) {
+        constexpr const telemetry_type telemtry_type_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return master::telemetry_type;
                 case telemetry_id::configuration: return configuration::telemetry_type;
@@ -143,7 +131,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::telemetry_type;
-                default: return LIFETIME_INVALID_TYPE;
+                default: return telemetry_type::invalid;
             }
         }
 
@@ -279,7 +267,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const uint32_t& structure_offset_of(const telemetry_id& id) {
+        constexpr const uint32_t structure_offset_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return master::structure_offset;
                 case telemetry_id::configuration: return configuration::structure_offset;
@@ -411,7 +399,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const bool& indexed(const telemetry_id& id) {
+        constexpr const bool indexed(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::indexed;
                 case telemetry_id::channel_local_scale: return channel_local_scale::indexed;
@@ -524,7 +512,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const uint32_t& max_count(const telemetry_id& id) {
+        constexpr const uint32_t max_count(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::max_count;
                 case telemetry_id::channel_local_scale: return channel_local_scale::max_count;
@@ -637,7 +625,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const bool& is_trailer_channel(const telemetry_id& id) {
+        constexpr const bool is_trailer_channel(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::trailer_channel;
                 case telemetry_id::channel_local_scale: return channel_local_scale::trailer_channel;
@@ -750,7 +738,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const scs_value_type_t& scs_type_id_of(const telemetry_id& id) {
+        constexpr const scs_value_type_t scs_type_id_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::scs_type_id;
                 case telemetry_id::channel_local_scale: return channel_local_scale::scs_type_id;
@@ -867,7 +855,7 @@ namespace truckconnect {
             return *a == *b && (*a == '\0' || streq(a + 1, b + 1));
         }
 
-        constexpr const telemetry_id& id_of(const char* const macro, const bool& is_event_info = false) {
+        constexpr const telemetry_id id_of(const char* const macro, const bool& is_event_info = false) {
             return
                 !is_event_info && streq(macro, "master") ? master::id :
                 !is_event_info && streq(macro, "configuration") ? configuration::id :
@@ -1840,7 +1828,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const event_info_member& event_info_member_of(const telemetry_id& id, const char* const member) {
+        constexpr const event_info_member event_info_member_of(const telemetry_id& id, const char* const member) {
             switch (id) {
                 case telemetry_id::configuration_substances_info:
                     return
@@ -1991,7 +1979,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const bool& is_custom_channel(const telemetry_id& id) {
+        constexpr const bool is_custom_channel(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::channel_paused: return channel_paused::custom_channel;
                 case telemetry_id::channel_local_scale: return channel_local_scale::custom_channel;
@@ -2104,7 +2092,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const metadata_value& metadata_value_of(const telemetry_id& id) {
+        constexpr const metadata_value metadata_value_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return master::metadata_value;
                 case telemetry_id::configuration: return configuration::metadata_value;
@@ -2236,7 +2224,7 @@ namespace truckconnect {
             }
         }
 
-        constexpr const bool& is_constant_size(const telemetry_id& id) {
+        constexpr const bool is_constant_size(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return metadata::master::constant_size;
                 case telemetry_id::configuration: return metadata::configuration::constant_size;
@@ -2366,6 +2354,18 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_lift_offset: return metadata::truck_channel_wheel_lift_offset::constant_size;
                 default: return LIFETIME_FALSE;
             }
+        }
+
+        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
+            return (
+                reversing ?
+                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
+                    count == 0 ?
+                        INVALID_OFFSET :
+                        '0' <= *cstr && *cstr <= '9' ?
+                            *cstr - '0' :
+                            extract_trailer_index(cstr - 1, false, count - 1)
+                );
         }
 
         constexpr const bool is_trailer_telemetry(const telemetry_id& id) {
