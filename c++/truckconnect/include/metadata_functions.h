@@ -3,18 +3,6 @@
 
 namespace truckconnect {
     namespace metadata {
-        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
-            return (
-                reversing ?
-                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
-                    count == 0 ?
-                        INVALID_OFFSET :
-                        '0' <= *cstr && *cstr <= '9' ?
-                            *cstr - '0' :
-                            extract_trailer_index(cstr - 1, false, count - 1)
-                );
-        }
-
         constexpr const telemetry_type telemtry_type_of(const telemetry_id& id) {
             switch (id) {
                 case telemetry_id::master: return master::telemetry_type;
@@ -143,7 +131,7 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_rotation: return truck_channel_wheel_rotation::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift: return truck_channel_wheel_lift::telemetry_type;
                 case telemetry_id::truck_channel_wheel_lift_offset: return truck_channel_wheel_lift_offset::telemetry_type;
-                default: return LIFETIME_INVALID_TYPE;
+                default: return telemetry_type::invalid;
             }
         }
 
@@ -2366,6 +2354,18 @@ namespace truckconnect {
                 case telemetry_id::truck_channel_wheel_lift_offset: return metadata::truck_channel_wheel_lift_offset::constant_size;
                 default: return false;
             }
+        }
+
+        constexpr const uint32_t extract_trailer_index(const char* const cstr, const bool reversing = true, size_t count = 0) {
+            return (
+                reversing ?
+                    extract_trailer_index(cstr + 1, *(cstr + 1) != '\0', count + 1) :
+                    count == 0 ?
+                        INVALID_OFFSET :
+                        '0' <= *cstr && *cstr <= '9' ?
+                            *cstr - '0' :
+                            extract_trailer_index(cstr - 1, false, count - 1)
+                );
         }
 
         constexpr const bool is_trailer_telemetry(const telemetry_id& id) {
