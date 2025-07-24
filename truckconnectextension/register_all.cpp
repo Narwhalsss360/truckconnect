@@ -44,9 +44,9 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	}
 
 	for (const scs_named_value_t* current = data.attributes; current->name; current++) {
-		constexpr const event_info_member selector_count_member = event_info_member_of(telemetry_id::configuration_hshifter_info, "selector.count");
+		constexpr const uint32_t selector_count_member_offset = event_info_member_offset_of(telemetry_id::configuration_hshifter_info, "selector.count");
 		const event_info_member member = event_info_member_of(event_info_id, current->name);
-		if (current->index != SCS_U32_NIL && &member == &selector_count_member) {
+		if (current->index != SCS_U32_NIL && member.structure_offset == selector_count_member_offset) {
 			console_log(SCS_LOG_TYPE_message, IDENTSTR(handle_event), "Skipping hshifter selector.count configuration indexed member.");
 			continue;
 		}
