@@ -114,7 +114,7 @@ bool send_error_response(client& client, const communication_result& result) {
         encoded_response.end()
     );
 
-     console_log(SCS_LOG_TYPE_error, IDENTSTR(send_error_response), "Client " + to_string(client.connection.addr) + ", communication error code: "  + to_string((int)result) + ".");
+    console_log(SCS_LOG_TYPE_error, IDENTSTR(send_error_response), "Client " + to_string(client.connection.addr) + ", communication error code: "  + to_string((int)result) + ".");
     client.connection.pending_request = request_type::none;
     return send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()));
 }
