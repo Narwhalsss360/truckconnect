@@ -117,6 +117,9 @@ int data_definition_test() {
     debug_assert(communication_result::success == (result = register_data_definition<gauge_cluster>(connection)));
     debug_assert(communication_result::success == (result = register_data_definition<just_trailer_data>(connection)));
 
+    using gauge_cluster_definition_info = truckconnect::data::data_member_info_container<gauge_cluster>;
+    cout << "gauge_cluster is" << (gauge_cluster_definition_info::reinterpretable ? "" : " not") << " reinterpretable.\n";
+
     metadata::channel_paused::storage_type paused;
     gauge_cluster cluster;
     just_trailer_data trailer_data;
