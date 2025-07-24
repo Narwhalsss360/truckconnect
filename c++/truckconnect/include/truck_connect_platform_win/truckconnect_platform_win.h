@@ -14,9 +14,9 @@
 namespace truckconnect {
     namespace platform {
         constexpr const char* const name = TRUCKCONNECT_PLATFORM;
-        
+
         using error_int = DWORD;
-        
+
         static inline error_int last_error() {
             return GetLastError();
         }

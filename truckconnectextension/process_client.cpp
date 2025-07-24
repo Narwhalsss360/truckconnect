@@ -11,8 +11,8 @@ using namespace truckconnect::platform;
 using namespace truckconnect::communication;
 
 void cleanup_client(client& client) {
-    if (closesocket(client.connection.socket) == sockets::ERROR_RESULT) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "closesocket(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
+    if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "close_socket(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
     }
     client.connection.socket = sockets::INVALID;
 }
@@ -114,7 +114,7 @@ bool send_error_response(client& client, const communication_result& result) {
         encoded_response.end()
     );
 
-     console_log(SCS_LOG_TYPE_error, IDENTSTR(send_error_response), "Client " + to_string(client.connection.addr) + ", communication error code: "  + to_string((int)result) + ".");
+    console_log(SCS_LOG_TYPE_error, IDENTSTR(send_error_response), "Client " + to_string(client.connection.addr) + ", communication error code: "  + to_string((int)result) + ".");
     client.connection.pending_request = request_type::none;
     return send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()));
 }
