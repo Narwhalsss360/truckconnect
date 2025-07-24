@@ -6,9 +6,17 @@ else
 	LINK :=
 endif
 
+DEBUG=1
+
+ifeq ($(DEBUG),1)
+	DEBUG_ARGS := -g -D_DEBUG
+else
+	DEBUG_ARGS :=
+endif
+
 INCLUDES=-I truckconnect/include -I NStreamCom/include
 SOURCES=testclient/*.cpp truckconnect/src/*.cpp NStreamCom/src/*.cpp
 
 build:
-	g++ -std=c++17 $(INCLUDES) $(SOURCES) $(LINK) -g -o $(OUTPUT)
+	g++ -std=c++17 $(INCLUDES) $(SOURCES) $(LINK) $(DEBUG_ARGS) -o $(OUTPUT)
 
