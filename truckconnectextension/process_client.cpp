@@ -11,8 +11,8 @@ using namespace truckconnect::platform;
 using namespace truckconnect::communication;
 
 void cleanup_client(client& client) {
-    if (closesocket(client.connection.socket) == sockets::ERROR_RESULT) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "closesocket(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
+    if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "close_socket(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
     }
     client.connection.socket = sockets::INVALID;
 }

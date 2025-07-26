@@ -21,8 +21,8 @@ void cleanup_listener() {
         return;
     }
 
-    if (closesocket(listener) == sockets::ERROR_RESULT) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_listener), "closesocket(listener) error: " + to_string(sockets::last_error()));
+    if (sockets::close_socket(listener) == sockets::ERROR_RESULT) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_listener), "close_socket(listener) error: " + to_string(sockets::last_error()));
     }
 
     listener = sockets::INVALID;
@@ -113,8 +113,8 @@ void clients_deinit() {
     }
 
     for (client& client : clients) {
-        if (closesocket(client.connection.socket) == sockets::ERROR_RESULT) {
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "closesocket(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
+        if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "close_socket(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
         }
     }
     clients.clear();

@@ -16,7 +16,7 @@ namespace truckconnect {
                 WSADATA data;
                 return WSAStartup(MAKEWORD(2, 2), &data) == 0;
             }
-            
+
             static error_int last_error() {
                 return WSAGetLastError();
             }
@@ -25,14 +25,18 @@ namespace truckconnect {
                 u_long mode = 1;
                 return ioctlsocket(socket, FIONBIO, &mode) != ERROR_RESULT;
             }
-            
+
+            static error_int close_socket(socket socket) {
+                return closesocket(socket);
+            }
+
             static bool deinitialize() {
                 return WSACleanup() == 0;
             }
 
             namespace errors {
                 constexpr const error_int SE_EWOULDBLOCK = WSAEWOULDBLOCK;
-                
+
                 constexpr const error_int SE_EAGAIN = EAGAIN;
 
                 constexpr const error_int SE_ECONNRESET = WSAECONNRESET;
