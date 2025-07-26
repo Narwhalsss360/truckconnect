@@ -187,6 +187,8 @@ All required include directories are named `include`, and all source directories
 
 Use VisualStudio for C# projects.
 
+*Minimum C++: c++17*
+
 ### Build System: VisualStudio
 
 - C++ Shared Items Project: `C++/NStreamCom/...`
