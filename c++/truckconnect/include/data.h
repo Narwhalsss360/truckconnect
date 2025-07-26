@@ -9,7 +9,7 @@ namespace truckconnect {
     namespace data {
         using data_definition_id = uint8_t;
 
-        constexpr const data_definition_id& INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
+        constexpr const data_definition_id INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
 
         struct data_member {
             telemetry_id telemetry_id;
@@ -18,7 +18,7 @@ namespace truckconnect {
 
             trailer_index_uint trailer_count;
 
-            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = metadata::LIFETIME_INVALID_ID, const uint32_t& offset = 0, const trailer_index_uint trailer_count = metadata::INVALID_TRAILER_INDEX)
+            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = telemetry_id::invalid, const uint32_t& offset = 0, const trailer_index_uint trailer_count = metadata::INVALID_TRAILER_INDEX)
                 : telemetry_id(telemetry_id), offset(offset), trailer_count(trailer_count) {}
         };
 
@@ -44,7 +44,7 @@ namespace truckconnect {
             static_assert(countof(ordered_sizes) == countof(ordered_offsets), "sizes and offsets must be equal count");
         };
 
-        constexpr const data_member& INVALID_DATA_MEMBER = data_member(telemetry_id::invalid);
+        constexpr const data_member INVALID_DATA_MEMBER = data_member(telemetry_id::invalid);
 
         template <typename data_structure>
         struct data_definition;
