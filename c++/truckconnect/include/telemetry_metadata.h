@@ -226,7 +226,6 @@ namespace truckconnect {
 
         constexpr const metadata_value INVALID_METADATA = metadata_value();
 
-
         struct master {
             static constexpr const telemetry_id id = telemetry_id::master;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
@@ -242,10 +241,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage, configuration);
+            static constexpr const uint32_t master_offset =
+                structure_offset;
             using storage_type = master_storage::configuration_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage, configuration);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -253,10 +253,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage, gameplay);
+            static constexpr const uint32_t master_offset =
+                structure_offset;
             using storage_type = master_storage::gameplay_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage, gameplay);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -264,10 +265,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channels;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage, channels);
+            static constexpr const uint32_t master_offset =
+                structure_offset;
             using storage_type = master_storage::channels_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage, channels);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -275,10 +277,12 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::general;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, general);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                structure_offset;
             using storage_type = master_storage::channels_storage::general_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, general);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -286,10 +290,12 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, truck);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                structure_offset;
             using storage_type = master_storage::channels_storage::truck_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, truck);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -297,10 +303,12 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer;
             static constexpr const telemetry_type telemetry_type = telemetry_type::structure;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, trailer);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                structure_offset;
             using storage_type = master_storage::channels_storage::trailer_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage, trailer);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size);
         };
 
@@ -308,12 +316,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_substances_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_substances_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_substances_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_substances_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_substances";
             static constexpr const char* const macro = "substances";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_substances_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_substances_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -327,12 +337,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_controls_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_controls_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_controls_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_controls_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_controls";
             static constexpr const char* const macro = "controls";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_controls_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_controls_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -346,12 +358,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_hshifter_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_hshifter_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_hshifter_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_hshifter_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_hshifter";
             static constexpr const char* const macro = "hshifter";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_hshifter_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_hshifter_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -371,12 +385,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_truck_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_truck_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_truck_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_truck_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_truck";
             static constexpr const char* const macro = "truck";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_truck_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_truck_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -454,12 +470,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_trailer_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_trailer_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_trailer_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_trailer_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_trailer";
             static constexpr const char* const macro = "trailer";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_trailer_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_trailer_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -507,12 +525,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::configuration_job_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, configuration.configuration_job_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_job_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, configuration) +
+                structure_offset;
             using storage_type = master_storage::configuration_storage::configuration_job_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CONFIG_job";
             static constexpr const char* const macro = "job";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::configuration_storage, configuration_job_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::configuration_job_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -562,12 +582,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_job_cancelled_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_job_cancelled_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_cancelled_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_job_cancelled_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_job_cancelled";
             static constexpr const char* const macro = "job.cancelled";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_cancelled_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_job_cancelled_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -581,12 +603,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_job_delivered_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_job_delivered_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_delivered_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_job_delivered_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered";
             static constexpr const char* const macro = "job.delivered";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_job_delivered_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_job_delivered_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -612,12 +636,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_player_fined_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_player_fined_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_fined_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_player_fined_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined";
             static constexpr const char* const macro = "player.fined";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_fined_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_player_fined_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -633,12 +659,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_player_tollgate_paid_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_player_tollgate_paid_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_tollgate_paid_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_player_tollgate_paid_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_player_tollgate_paid";
             static constexpr const char* const macro = "player.tollgate.paid";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_tollgate_paid_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_player_tollgate_paid_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -652,12 +680,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_player_use_ferry_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_player_use_ferry_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_ferry_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_player_use_ferry_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_ferry";
             static constexpr const char* const macro = "player.use.ferry";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_ferry_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_player_use_ferry_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -679,12 +709,14 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::gameplay_player_use_train_info;
             static constexpr const telemetry_type telemetry_type = telemetry_type::event_info;
             static constexpr const bool constant_size = false;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, gameplay.gameplay_player_use_train_info);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_train_info);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, gameplay) +
+                structure_offset;
             using storage_type = master_storage::gameplay_storage::gameplay_player_use_train_storage;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_train";
             static constexpr const char* const macro = "player.use.train";
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::gameplay_storage, gameplay_player_use_train_info);
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro);
             static constexpr const event_info_member members[] = {
                 event_info_member(telemetry_id::gameplay_player_use_train_info, "", "latest", offsetof(storage_type, latest), SCS_VALUE_TYPE_u32, false),
@@ -706,7 +738,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channel_paused;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.channel_paused);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_paused);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "channel_paused";
@@ -717,7 +753,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_paused);
             static constexpr const bool custom_channel = true;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -726,7 +761,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channel_local_scale;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.channel_local_scale);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_local_scale);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CHANNEL_local_scale";
@@ -737,7 +776,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_local_scale);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -746,7 +784,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channel_game_time;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.channel_game_time);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_game_time);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<uint32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CHANNEL_game_time";
@@ -757,7 +799,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_game_time);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -766,7 +807,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channel_multiplayer_time_offset;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.channel_multiplayer_time_offset);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_multiplayer_time_offset);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<int32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CHANNEL_multiplayer_time_offset";
@@ -777,7 +822,6 @@ namespace truckconnect {
             using scs_type = scs_value_s32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_s32;
             using primitive_type = int32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_multiplayer_time_offset);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -786,7 +830,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::channel_next_rest_stop;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.channel_next_rest_stop);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_next_rest_stop);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<int32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_CHANNEL_next_rest_stop";
@@ -797,7 +845,6 @@ namespace truckconnect {
             using scs_type = scs_value_s32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_s32;
             using primitive_type = int32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, channel_next_rest_stop);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -806,7 +853,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::job_channel_cargo_damage;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.general.job_channel_cargo_damage);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, job_channel_cargo_damage);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, general) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_JOB_CHANNEL_cargo_damage";
@@ -817,7 +868,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::general_storage, job_channel_cargo_damage);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -826,7 +876,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_connected;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_connected);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_connected);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_connected";
@@ -837,7 +891,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_connected);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -847,7 +900,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_cargo_damage;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_cargo_damage);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_cargo_damage);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_cargo_damage";
@@ -858,7 +915,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_cargo_damage);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -868,7 +924,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_world_placement;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_world_placement);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_world_placement);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<scs_value_dplacement_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_world_placement";
@@ -879,7 +939,6 @@ namespace truckconnect {
             using scs_type = scs_value_dplacement_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_dplacement;
             using primitive_type = scs_value_dplacement_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_world_placement);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -889,7 +948,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_local_linear_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_local_linear_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_linear_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_local_linear_velocity";
@@ -900,7 +963,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_linear_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -910,7 +972,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_local_angular_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_local_angular_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_angular_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_local_angular_velocity";
@@ -921,7 +987,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_angular_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -931,7 +996,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_local_linear_acceleration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_local_linear_acceleration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_linear_acceleration);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_local_linear_acceleration";
@@ -942,7 +1011,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_linear_acceleration);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -952,7 +1020,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_local_angular_acceleration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_local_angular_acceleration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_angular_acceleration);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_local_angular_acceleration";
@@ -963,7 +1035,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_local_angular_acceleration);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -973,7 +1044,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wear_body;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wear_body);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_body);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wear_body";
@@ -984,7 +1059,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_body);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -994,7 +1068,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wear_chassis;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wear_chassis);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_chassis);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wear_chassis";
@@ -1005,7 +1083,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_chassis);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1015,7 +1092,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wear_wheels;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wear_wheels);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_wheels);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wear_wheels";
@@ -1026,7 +1107,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wear_wheels);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1036,7 +1116,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_susp_deflection;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_susp_deflection);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_susp_deflection);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_susp_deflection";
@@ -1047,7 +1131,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_susp_deflection);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1057,7 +1140,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_on_ground;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_on_ground);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_on_ground);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<bool, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_on_ground";
@@ -1068,7 +1155,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_on_ground);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1078,7 +1164,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_substance;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_substance);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_substance);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<uint32_t, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_substance";
@@ -1089,7 +1179,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_substance);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1099,7 +1188,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_velocity";
@@ -1110,7 +1203,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1120,7 +1212,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_steering;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_steering);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_steering);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_steering";
@@ -1131,7 +1227,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_steering);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1141,7 +1236,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_rotation;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_rotation);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_rotation);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_rotation";
@@ -1152,7 +1251,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_rotation);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1162,7 +1260,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_lift;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_lift);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_lift);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_lift";
@@ -1173,7 +1275,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_lift);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1183,7 +1284,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::trailer_channel_wheel_lift_offset;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.trailer._Elems[0].trailer_channel_wheel_lift_offset);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_lift_offset);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, trailer) +
+                structure_offset;
             using storage_type = value_array_storage<float, 19>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRAILER_CHANNEL_wheel_lift_offset";
@@ -1194,7 +1299,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::trailer_storage, trailer_channel_wheel_lift_offset);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
             static constexpr const uint32_t master_offset_of_trailer_index(const uint32_t& trailer_index) { return 0 <= trailer_index &&  trailer_index < SCS_TELEMETRY_trailers_count ? (master_offset + sizeof(master_storage::channels_storage::trailer_storage) * trailer_index) : INVALID_OFFSET; }
@@ -1204,7 +1308,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_world_placement;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_world_placement);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_world_placement);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_dplacement_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_world_placement";
@@ -1215,7 +1323,6 @@ namespace truckconnect {
             using scs_type = scs_value_dplacement_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_dplacement;
             using primitive_type = scs_value_dplacement_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_world_placement);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1224,7 +1331,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_local_linear_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_local_linear_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_linear_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_local_linear_velocity";
@@ -1235,7 +1346,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_linear_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1244,7 +1354,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_local_angular_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_local_angular_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_angular_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_local_angular_velocity";
@@ -1255,7 +1369,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_angular_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1264,7 +1377,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_local_linear_acceleration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_local_linear_acceleration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_linear_acceleration);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_local_linear_acceleration";
@@ -1275,7 +1392,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_linear_acceleration);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1284,7 +1400,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_local_angular_acceleration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_local_angular_acceleration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_angular_acceleration);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_local_angular_acceleration";
@@ -1295,7 +1415,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_local_angular_acceleration);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1304,7 +1423,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_cabin_offset;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_cabin_offset);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_offset);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fplacement_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_cabin_offset";
@@ -1315,7 +1438,6 @@ namespace truckconnect {
             using scs_type = scs_value_fplacement_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fplacement;
             using primitive_type = scs_value_fplacement_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_offset);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1324,7 +1446,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_cabin_angular_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_cabin_angular_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_angular_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_cabin_angular_velocity";
@@ -1335,7 +1461,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_angular_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1344,7 +1469,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_cabin_angular_acceleration;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_cabin_angular_acceleration);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_angular_acceleration);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fvector_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_cabin_angular_acceleration";
@@ -1355,7 +1484,6 @@ namespace truckconnect {
             using scs_type = scs_value_fvector_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fvector;
             using primitive_type = scs_value_fvector_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cabin_angular_acceleration);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1364,7 +1492,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_head_offset;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_head_offset);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_head_offset);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<scs_value_fplacement_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_head_offset";
@@ -1375,7 +1507,6 @@ namespace truckconnect {
             using scs_type = scs_value_fplacement_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_fplacement;
             using primitive_type = scs_value_fplacement_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_head_offset);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1384,7 +1515,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_speed;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_speed);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_speed);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_speed";
@@ -1395,7 +1530,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_speed);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1404,7 +1538,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_engine_rpm;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_engine_rpm);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_rpm);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_engine_rpm";
@@ -1415,7 +1553,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_rpm);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1424,7 +1561,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_engine_gear;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_engine_gear);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_gear);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<int32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_engine_gear";
@@ -1435,7 +1576,6 @@ namespace truckconnect {
             using scs_type = scs_value_s32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_s32;
             using primitive_type = int32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_gear);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1444,7 +1584,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_displayed_gear;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_displayed_gear);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_displayed_gear);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<int32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_displayed_gear";
@@ -1455,7 +1599,6 @@ namespace truckconnect {
             using scs_type = scs_value_s32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_s32;
             using primitive_type = int32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_displayed_gear);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1464,7 +1607,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_input_steering;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_input_steering);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_steering);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_input_steering";
@@ -1475,7 +1622,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_steering);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1484,7 +1630,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_input_throttle;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_input_throttle);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_throttle);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_input_throttle";
@@ -1495,7 +1645,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_throttle);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1504,7 +1653,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_input_brake;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_input_brake);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_brake);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_input_brake";
@@ -1515,7 +1668,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_brake);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1524,7 +1676,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_input_clutch;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_input_clutch);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_clutch);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_input_clutch";
@@ -1535,7 +1691,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_input_clutch);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1544,7 +1699,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_effective_steering;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_effective_steering);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_steering);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_effective_steering";
@@ -1555,7 +1714,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_steering);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1564,7 +1722,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_effective_throttle;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_effective_throttle);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_throttle);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_effective_throttle";
@@ -1575,7 +1737,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_throttle);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1584,7 +1745,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_effective_brake;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_effective_brake);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_brake);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_effective_brake";
@@ -1595,7 +1760,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_brake);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1604,7 +1768,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_effective_clutch;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_effective_clutch);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_clutch);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_effective_clutch";
@@ -1615,7 +1783,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_effective_clutch);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1624,7 +1791,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_cruise_control;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_cruise_control);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cruise_control);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_cruise_control";
@@ -1635,7 +1806,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_cruise_control);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1644,7 +1814,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_hshifter_slot;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_hshifter_slot);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hshifter_slot);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<uint32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_hshifter_slot";
@@ -1655,7 +1829,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hshifter_slot);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1664,7 +1837,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_hshifter_selector;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_hshifter_selector);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hshifter_selector);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<bool, 2>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_hshifter_selector";
@@ -1675,7 +1852,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hshifter_selector);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1684,7 +1860,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_parking_brake;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_parking_brake);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_parking_brake);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_parking_brake";
@@ -1695,7 +1875,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_parking_brake);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1704,7 +1883,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_motor_brake;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_motor_brake);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_motor_brake);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_motor_brake";
@@ -1715,7 +1898,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_motor_brake);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1724,7 +1906,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_retarder_level;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_retarder_level);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_retarder_level);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<uint32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_retarder_level";
@@ -1735,7 +1921,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_retarder_level);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1744,7 +1929,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_brake_air_pressure;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_brake_air_pressure);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_brake_air_pressure";
@@ -1755,7 +1944,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1764,7 +1952,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_brake_air_pressure_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_brake_air_pressure_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_brake_air_pressure_warning";
@@ -1775,7 +1967,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1784,7 +1975,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_brake_air_pressure_emergency;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_brake_air_pressure_emergency);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure_emergency);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_brake_air_pressure_emergency";
@@ -1795,7 +1990,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_air_pressure_emergency);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1804,7 +1998,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_brake_temperature;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_brake_temperature);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_temperature);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_brake_temperature";
@@ -1815,7 +2013,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_brake_temperature);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1824,7 +2021,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_fuel;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_fuel);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_fuel";
@@ -1835,7 +2036,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1844,7 +2044,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_fuel_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_fuel_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_fuel_warning";
@@ -1855,7 +2059,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1864,7 +2067,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_fuel_average_consumption;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_fuel_average_consumption);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_average_consumption);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_fuel_average_consumption";
@@ -1875,7 +2082,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_average_consumption);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1884,7 +2090,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_fuel_range;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_fuel_range);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_range);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_fuel_range";
@@ -1895,7 +2105,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_fuel_range);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1904,7 +2113,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_adblue;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_adblue);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_adblue);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_adblue";
@@ -1915,7 +2128,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_adblue);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1924,7 +2136,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_adblue_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_adblue_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_adblue_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_adblue_warning";
@@ -1935,7 +2151,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_adblue_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1944,7 +2159,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_oil_pressure;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_oil_pressure);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_pressure);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_oil_pressure";
@@ -1955,7 +2174,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_pressure);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1964,7 +2182,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_oil_pressure_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_oil_pressure_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_pressure_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_oil_pressure_warning";
@@ -1975,7 +2197,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_pressure_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -1984,7 +2205,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_oil_temperature;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_oil_temperature);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_temperature);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_oil_temperature";
@@ -1995,7 +2220,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_oil_temperature);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2004,7 +2228,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_water_temperature;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_water_temperature);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_water_temperature);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_water_temperature";
@@ -2015,7 +2243,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_water_temperature);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2024,7 +2251,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_water_temperature_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_water_temperature_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_water_temperature_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_water_temperature_warning";
@@ -2035,7 +2266,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_water_temperature_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2044,7 +2274,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_battery_voltage;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_battery_voltage);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_battery_voltage);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_battery_voltage";
@@ -2055,7 +2289,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_battery_voltage);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2064,7 +2297,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_battery_voltage_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_battery_voltage_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_battery_voltage_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_battery_voltage_warning";
@@ -2075,7 +2312,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_battery_voltage_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2084,7 +2320,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_electric_enabled;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_electric_enabled);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_electric_enabled);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_electric_enabled";
@@ -2095,7 +2335,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_electric_enabled);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2104,7 +2343,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_engine_enabled;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_engine_enabled);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_enabled);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_engine_enabled";
@@ -2115,7 +2358,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_engine_enabled);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2124,7 +2366,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_lblinker;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_lblinker);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lblinker);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_lblinker";
@@ -2135,7 +2381,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lblinker);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2144,7 +2389,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_rblinker;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_rblinker);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_rblinker);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_rblinker";
@@ -2155,7 +2404,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_rblinker);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2164,7 +2412,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_hazard_warning;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_hazard_warning);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hazard_warning);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_hazard_warning";
@@ -2175,7 +2427,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_hazard_warning);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2184,7 +2435,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_lblinker;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_lblinker);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_lblinker);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_lblinker";
@@ -2195,7 +2450,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_lblinker);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2204,7 +2458,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_rblinker;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_rblinker);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_rblinker);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_rblinker";
@@ -2215,7 +2473,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_rblinker);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2224,7 +2481,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_parking;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_parking);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_parking);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_parking";
@@ -2235,7 +2496,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_parking);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2244,7 +2504,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_low_beam;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_low_beam);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_low_beam);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_low_beam";
@@ -2255,7 +2519,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_low_beam);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2264,7 +2527,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_high_beam;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_high_beam);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_high_beam);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_high_beam";
@@ -2275,7 +2542,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_high_beam);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2284,7 +2550,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_aux_front;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_aux_front);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_aux_front);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<uint32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_aux_front";
@@ -2295,7 +2565,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_aux_front);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2304,7 +2573,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_aux_roof;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_aux_roof);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_aux_roof);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<uint32_t>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_aux_roof";
@@ -2315,7 +2588,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_aux_roof);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2324,7 +2596,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_beacon;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_beacon);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_beacon);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_beacon";
@@ -2335,7 +2611,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_beacon);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2344,7 +2619,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_brake;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_brake);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_brake);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_brake";
@@ -2355,7 +2634,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_brake);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2364,7 +2642,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_light_reverse;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_light_reverse);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_reverse);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_light_reverse";
@@ -2375,7 +2657,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_light_reverse);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2384,7 +2665,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wipers;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wipers);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wipers);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wipers";
@@ -2395,7 +2680,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wipers);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2404,7 +2688,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_dashboard_backlight;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_dashboard_backlight);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_dashboard_backlight);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_dashboard_backlight";
@@ -2415,7 +2703,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_dashboard_backlight);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2424,7 +2711,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_differential_lock;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_differential_lock);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_differential_lock);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_differential_lock";
@@ -2435,7 +2726,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_differential_lock);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2444,7 +2734,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_lift_axle;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_lift_axle);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lift_axle);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_lift_axle";
@@ -2455,7 +2749,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lift_axle);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2464,7 +2757,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_lift_axle_indicator;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_lift_axle_indicator);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lift_axle_indicator);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_lift_axle_indicator";
@@ -2475,7 +2772,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_lift_axle_indicator);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2484,7 +2780,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_trailer_lift_axle;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_trailer_lift_axle);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_trailer_lift_axle);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_trailer_lift_axle";
@@ -2495,7 +2795,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_trailer_lift_axle);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2504,7 +2803,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_trailer_lift_axle_indicator;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_trailer_lift_axle_indicator);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_trailer_lift_axle_indicator);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<bool>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_trailer_lift_axle_indicator";
@@ -2515,7 +2818,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_trailer_lift_axle_indicator);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2524,7 +2826,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wear_engine;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wear_engine);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_engine);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wear_engine";
@@ -2535,7 +2841,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_engine);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2544,7 +2849,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wear_transmission;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wear_transmission);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_transmission);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wear_transmission";
@@ -2555,7 +2864,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_transmission);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2564,7 +2872,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wear_cabin;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wear_cabin);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_cabin);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wear_cabin";
@@ -2575,7 +2887,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_cabin);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2584,7 +2895,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wear_chassis;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wear_chassis);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_chassis);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wear_chassis";
@@ -2595,7 +2910,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_chassis);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2604,7 +2918,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wear_wheels;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wear_wheels);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_wheels);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wear_wheels";
@@ -2615,7 +2933,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wear_wheels);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2624,7 +2941,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_odometer;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_odometer);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_odometer);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_odometer";
@@ -2635,7 +2956,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_odometer);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2644,7 +2964,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_navigation_distance;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_navigation_distance);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_distance);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_navigation_distance";
@@ -2655,7 +2979,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_distance);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2664,7 +2987,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_navigation_time;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_navigation_time);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_time);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_navigation_time";
@@ -2675,7 +3002,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_time);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2684,7 +3010,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_navigation_speed_limit;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_navigation_speed_limit);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_speed_limit);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_storage<float>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_navigation_speed_limit";
@@ -2695,7 +3025,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_navigation_speed_limit);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2704,7 +3033,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_susp_deflection;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_susp_deflection);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_susp_deflection);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_susp_deflection";
@@ -2715,7 +3048,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_susp_deflection);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2724,7 +3056,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_on_ground;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_on_ground);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_on_ground);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<bool, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_on_ground";
@@ -2735,7 +3071,6 @@ namespace truckconnect {
             using scs_type = scs_value_bool_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_bool;
             using primitive_type = bool;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_on_ground);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2744,7 +3079,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_substance;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_substance);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_substance);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<uint32_t, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_substance";
@@ -2755,7 +3094,6 @@ namespace truckconnect {
             using scs_type = scs_value_u32_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_u32;
             using primitive_type = uint32_t;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_substance);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2764,7 +3102,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_velocity;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_velocity);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_velocity);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_velocity";
@@ -2775,7 +3117,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_velocity);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2784,7 +3125,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_steering;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_steering);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_steering);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_steering";
@@ -2795,7 +3140,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_steering);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2804,7 +3148,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_rotation;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_rotation);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_rotation);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_rotation";
@@ -2815,7 +3163,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_rotation);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2824,7 +3171,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_lift;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_lift);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_lift);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_lift";
@@ -2835,7 +3186,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_lift);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
@@ -2844,7 +3194,11 @@ namespace truckconnect {
             static constexpr const telemetry_id id = telemetry_id::truck_channel_wheel_lift_offset;
             static constexpr const telemetry_type telemetry_type = telemetry_type::channel;
             static constexpr const bool constant_size = true;
-            static constexpr const uint32_t master_offset = offsetof(master_storage, channels.truck.truck_channel_wheel_lift_offset);
+            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_lift_offset);
+            static constexpr const uint32_t master_offset =
+                offsetof(master_storage, channels) +
+                offsetof(master_storage::channels_storage, truck) +
+                structure_offset;
             using storage_type = value_array_storage<float, 14>;
             static constexpr const uint32_t storage_type_size = sizeof(storage_type);
             static constexpr const char* const macro_identifier = "SCS_TELEMETRY_TRUCK_CHANNEL_wheel_lift_offset";
@@ -2855,7 +3209,6 @@ namespace truckconnect {
             using scs_type = scs_value_float_t;
             static constexpr const scs_value_type_t scs_type_id = SCS_VALUE_TYPE_float;
             using primitive_type = float;
-            static constexpr const uint32_t structure_offset = offsetof(master_storage::channels_storage::truck_storage, truck_channel_wheel_lift_offset);
             static constexpr const bool custom_channel = false;
             static constexpr const metadata_value metadata_value = metadata::metadata_value(id, telemetry_type, constant_size, master_offset, structure_offset, storage_type_size, macro_identifier, macro, indexed, max_count, trailer_channel, scs_type_id, custom_channel);
         };
