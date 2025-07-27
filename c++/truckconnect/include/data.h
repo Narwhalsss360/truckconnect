@@ -255,9 +255,9 @@ namespace truckconnect {
         }
 
         static inline void append_bytes(const data_member& member, std::vector<uint8_t>& out, const uint32_t& i = 0) {
-            if ifconstexpr (i >= data_member_serialization_info::count) {
+            if (i >= data_member_serialization_info::count) {
                 return;
-            } else if ifconstexpr (i == 0) {
+            } else if (i == 0) {
                 if (out.capacity() - out.size() < data_member_serialization_info::packed_size) {
                     out.reserve(out.size() + data_member_serialization_info::packed_size);
                 }
@@ -270,9 +270,9 @@ namespace truckconnect {
 
         static inline bool from_bytes(const std::vector<uint8_t>& bytes, data_member& member, const uint32_t& offset = 0, const uint32_t& i = 0) {
             constexpr const uint32_t (&ordered_sizes)[data_member_serialization_info::count] = data_member_serialization_info::ordered_sizes;
-            if ifconstexpr (i >= data_member_serialization_info::count) {
+            if (i >= data_member_serialization_info::count) {
                 return true;
-            } else if ifconstexpr (i == 0) {
+            } else if (i == 0) {
                 if (bytes.size() - offset < data_member_serialization_info::packed_size) {
                     return false;
                 }
@@ -318,7 +318,7 @@ namespace truckconnect {
             uint8_t* const& out_start = reinterpret_cast<uint8_t* const>(&out);
             const data_member& member = definition::members[i];
 
-            if ifconstexpr (i == info.member_count) {
+            if (i == info.member_count) {
                 return true;
             }
 
@@ -336,7 +336,7 @@ namespace truckconnect {
             using member_info = data_member_info_container<data_structure>;
 
 
-            if ifconstexpr (member_info::reinterpretable) {
+            if (member_info::reinterpretable) {
                 if (bytes.size() - offset >= sizeof(data_structure)) {
                     out = apply_offset<data_structure>(bytes.data(), offset);
                     return true;

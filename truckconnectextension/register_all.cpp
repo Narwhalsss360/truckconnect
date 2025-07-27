@@ -71,14 +71,14 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
     static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
     static_assert(offset < sizeof(current_master()), "Specified offset will result in corrupt memory");
     debug_assert(meta::scs_type_id == value->type);
-    
-	if ifconstexpr (trailer_channel) {
+
+	if constexpr (trailer_channel) {
 		debug_assert(extract_trailer_index(channel) == trailer_index);
 	} else {
 		debug_assert(string(meta::macro) == channel);
 	}
 
-    if ifconstexpr (indexed) {
+    if constexpr (indexed) {
         using storage_type = value_array_storage<primitive_type, max_count>;
         if (index == SCS_U32_NIL) {
             console_log(SCS_LOG_TYPE_error, string("store<") + name_of(meta::id) + ", " + to_string(trailer_index) + ">", "Critical error: expected indexed telemetry, but value was not.");
