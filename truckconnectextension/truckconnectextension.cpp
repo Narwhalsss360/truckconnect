@@ -63,6 +63,7 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
             laps = 0;
             last_lap = now;
         }
+        break;
     case signal_state::not_signaled:
         if (!set(frame_end_signal())) {
             console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal set(...) error: " + to_string(last_error()));
