@@ -1,5 +1,4 @@
 // Pack structures for reinterpret_cast
-#include <ppltasks.h>
 #ifdef _WIN32
 #pragma pack(push, 1)
 #include <master_structure.h>
@@ -19,8 +18,6 @@ using namespace truckconnect::communication;
 using namespace truckconnect::data;
 
 constexpr const data_definition_id& gauge_cluster_id = 0;
-
-
 
 #ifdef _WIN32
 #pragma pack(push, 1)
@@ -79,7 +76,7 @@ struct gauge_cluster {
 #endif
 
 template<>
-struct data_definition<gauge_cluster> {
+struct truckconnect::data::data_definition<gauge_cluster> {
     static constexpr const data_definition_id& id = gauge_cluster_id;
 
     static constexpr const data_member members[] = {
@@ -102,7 +99,7 @@ struct just_trailer_data {
 };
 
 template<>
-struct data_definition<just_trailer_data> {
+struct truckconnect::data::data_definition<just_trailer_data> {
     static constexpr const data_definition_id id = 1;
 
     static constexpr const data_member members[] = {
