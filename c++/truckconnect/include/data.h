@@ -12,27 +12,27 @@ namespace truckconnect {
         constexpr const data_definition_id INVALID_DATA_DEFINITION_ID = static_cast<data_definition_id>(-1);
 
         struct data_member {
-            telemetry_id telemetry_id;
+            telemetry_id id;
 
             uint32_t offset;
 
             trailer_index_uint trailer_count;
 
-            constexpr data_member(const truckconnect::telemetry_id& telemetry_id = telemetry_id::invalid, const uint32_t& offset = 0, const trailer_index_uint trailer_count = metadata::INVALID_TRAILER_INDEX)
-                : telemetry_id(telemetry_id), offset(offset), trailer_count(trailer_count) {}
+            constexpr data_member(const truckconnect::telemetry_id& id = telemetry_id::invalid, const uint32_t& offset = 0, const trailer_index_uint trailer_count = metadata::INVALID_TRAILER_INDEX)
+                : id(id), offset(offset), trailer_count(trailer_count) {}
         };
 
         struct data_member_serialization_info {
             static constexpr const bool constant_size = true;
 
             static constexpr const uint32_t ordered_sizes[] = {
-                sizeof(data_member::telemetry_id),
+                sizeof(data_member::id),
                 sizeof(data_member::offset),
                 sizeof(data_member::trailer_count)
             };
 
             static constexpr const uint32_t ordered_offsets[] = {
-                offsetof(data_member, telemetry_id),
+                offsetof(data_member, id),
                 offsetof(data_member, offset),
                 offsetof(data_member, trailer_count)
             };
@@ -67,10 +67,10 @@ namespace truckconnect {
                 i == count ? (
                     0
                 ) : (
-                    metadata::is_trailer_channel(members[i].telemetry_id) ? (
-                        metadata::packed_size_of(members[i].telemetry_id) * members[i].trailer_count
+                    metadata::is_trailer_channel(members[i].id) ? (
+                        metadata::packed_size_of(members[i].id) * members[i].trailer_count
                     ) : (
-                        metadata::packed_size_of(members[i].telemetry_id)
+                        metadata::packed_size_of(members[i].id)
                     )
                     + packed_size_of(members, i + 1)
                 );
@@ -78,7 +78,7 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const bool is_constant_size(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? true : (metadata::is_constant_size(members[i].telemetry_id) ? is_constant_size(members, i + 1) : false);
+            return i == count ? true : (metadata::is_constant_size(members[i].id) ? is_constant_size(members, i + 1) : false);
         }
 
         template <uint32_t count>
@@ -87,7 +87,7 @@ namespace truckconnect {
                 i == count ? (
                     true
                 ) : (
-                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
+                    metadata::is_trailer_telemetry(members[i].id) ? (
                         members[i].trailer_count > SCS_TELEMETRY_trailers_count ? (
                             false
                         ) : (
@@ -105,7 +105,7 @@ namespace truckconnect {
                 i == count ? (
                     true
                 ) : (
-                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
+                    metadata::is_trailer_telemetry(members[i].id) ? (
                         has_invalid_trailer_count_for_non_trailer_telemetries(members, i + 1)
                     ) : (
                         members[i].trailer_count == static_cast<uint8_t>(metadata::INVALID_TRAILER_INDEX) ? (
@@ -123,10 +123,10 @@ namespace truckconnect {
                 i == count ? (
                     0
                 ) : (
-                    metadata::is_trailer_telemetry(members[i].telemetry_id) ? (
-                        metadata::size_of(members[i].telemetry_id) * members[i].trailer_count
+                    metadata::is_trailer_telemetry(members[i].id) ? (
+                        metadata::size_of(members[i].id) * members[i].trailer_count
                     ) : (
-                        metadata::size_of(members[i].telemetry_id)
+                        metadata::size_of(members[i].id)
                     )
                     + sum_of_sizes(members, i + 1)
                 );
@@ -152,7 +152,7 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const bool contains_invalid_data_member(const data_member (&members)[count], const uint32_t& i = 0) {
-            return i == count ? false : (members[i].telemetry_id == telemetry_id::invalid ? true : contains_invalid_data_member(members, i + 1));
+            return i == count ? false : (members[i].id == telemetry_id::invalid ? true : contains_invalid_data_member(members, i + 1));
         }
 
         template <uint32_t count>
@@ -180,7 +180,7 @@ namespace truckconnect {
                 i + 1 == count ? (
                     false
                 ) : (
-                    members[i].offset + metadata::size_of(members[i].telemetry_id) <= members[i + 1].offset ? (
+                    members[i].offset + metadata::size_of(members[i].id) <= members[i + 1].offset ? (
                         overlapping_members(members, i + 1)
                     ) : (
                         true
@@ -210,7 +210,7 @@ namespace truckconnect {
             static_assert(packed_size <= sizeof(data_structure), "Size of members is bigger than structure.");
 
             static constexpr const data_member& last_member_in_memory = truckconnect::data::last_member_in_memory(data_definition<data_structure>::members);
-            static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.telemetry_id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
+            static_assert(last_member_in_memory.offset + metadata::size_of(last_member_in_memory.id) <= sizeof(data_structure), "Last member is past structure memory bounds.");
 
             static constexpr const bool& has_invalid_trailer_count_for_non_trailer_telemetries = truckconnect::data::has_invalid_trailer_count_for_non_trailer_telemetries(data_definition<data_structure>::members);
             static_assert(has_invalid_trailer_count_for_non_trailer_telemetries, "A non-trailer channel has a 'trailer_count' specified.");
@@ -292,12 +292,12 @@ namespace truckconnect {
             uint32_t at = offset;
             uint32_t read;
             for (uint32_t i = 0; i < count; i++) {
-                const uint32_t size = metadata::packed_size_of(members[i].telemetry_id);
+                const uint32_t size = metadata::packed_size_of(members[i].id);
                 if (at + size > data.size()) {
                     return false;
                 }
 
-                if (!truckconnect::from_bytes(members[i].telemetry_id, data, &apply_offset<uint8_t>(out, members[i].offset), at, read)) {
+                if (!truckconnect::from_bytes(members[i].id, data, &apply_offset<uint8_t>(out, members[i].offset), at, read)) {
                     return false;
                 }
                 at += size;
@@ -324,7 +324,7 @@ namespace truckconnect {
             }
 
             uint32_t read;
-            if (!truckconnect::from_bytes(member.telemetry_id, bytes, out_start + member.offset, offset, read)) {
+            if (!truckconnect::from_bytes(member.id, bytes, out_start + member.offset, offset, read)) {
                 return false;
             }
 
@@ -351,7 +351,7 @@ namespace truckconnect {
             uint32_t at = offset;
             uint32_t read;
             for (const data_member& member : defintition.members) {
-                const uint32_t size = metadata::packed_size_of(member.telemetry_id);
+                const uint32_t size = metadata::packed_size_of(member.id);
                 if (at + size > data.size()) {
                     return false;
                 }
@@ -362,7 +362,7 @@ namespace truckconnect {
                     out.resize(out.size() + member.offset + size);
                 }
 
-                if (!truckconnect::from_bytes(member.telemetry_id, data, out.data() + member.offset, at, read)) {
+                if (!truckconnect::from_bytes(member.id, data, out.data() + member.offset, at, read)) {
                     return false;
                 }
                 at += size;

@@ -200,7 +200,7 @@ bool process_client(client& client) {
                 client.connection.data_definitions.erase(client.connection.data_definitions.end() - 1);
                 return send_error_response(client, communication_result::badly_formed);
             }
-            const telemetry_id& id = definition.members[i].telemetry_id;
+            const telemetry_id& id = definition.members[i].id;
 
             if (id == telemetry_id::invalid) {
                 client.connection.data_definitions.erase(client.connection.data_definitions.end() - 1);
@@ -249,7 +249,7 @@ bool process_client(client& client) {
         for (const data::data_member& member : find_it->members) {
             const trailer_index_or_count& trailer_count = member.trailer_count;
 
-            const metadata::metadata_value& meta = metadata::metadata_value_of(member.telemetry_id);
+            const metadata::metadata_value& meta = metadata::metadata_value_of(member.id);
             if (meta.id == telemetry_id::invalid) {
                 return send_error_response(client, communication_result::invalid_telemetry);
             }
