@@ -34,7 +34,7 @@ namespace truckconnect {
                 error
             };
 
-            static inline signal create_signal(bool initial_state = false, const char* const name = "") {
+            static inline signal create_signal(bool initial_state = false) {
                 return new user_space_signal(initial_state);
             }
 

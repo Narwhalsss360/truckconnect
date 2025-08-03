@@ -24,8 +24,8 @@ namespace truckconnect {
                 error
             };
 
-            static inline signal create_signal(bool initial_state = false, const char* const name = "") {
-                return CreateEventA(NULL, initial_state ? TRUE : FALSE, initial_state ? TRUE : FALSE, name);
+            static inline signal create_signal(bool initial_state = false) {
+                return CreateEventA(NULL, initial_state ? TRUE : FALSE, initial_state ? TRUE : FALSE, "");
             }
 
             static signal_state wait(const signal& signal, timeout_int timeout = NO_TIMEOUT) {
