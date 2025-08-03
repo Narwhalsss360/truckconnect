@@ -6,21 +6,18 @@
 
 using std::string;
 using std::to_string;
-using truckconnect::platform::event_signal::signal;
-using truckconnect::platform::event_signal::INVALID_SIGNAL;
-using truckconnect::platform::event_signal::create_signal;
-using truckconnect::platform::event_signal::destroy_signal;
+using namespace truckconnect::platform;
 using truckconnect::master_storage;
 
 scs_telemetry_init_params_v101_t init;
-static signal _frame_end_signal = INVALID_SIGNAL;
+static event_signal::signal _frame_end_signal = event_signal::INVALID_SIGNAL;
 static master_storage master;
 
 master_storage& current_master() {
     return master;
 }
 
-const signal& frame_end_signal() {
+const event_signal::signal& frame_end_signal() {
     return _frame_end_signal;
 }
 
@@ -45,7 +42,6 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 }
 
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
-    using namespace truckconnect::platform::event_signal;
     constexpr const std::clock_t NOTIFY_LAP_INTERVAL = 5000;
     constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL = 5 * 60 * 1000;
 
@@ -55,8 +51,8 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
     static uint32_t laps = 0;
 
     now = std::clock();
-    switch (signaled(frame_end_signal())) {
-    case signal_state::signaled:
+    switch (event_signal::signaled(frame_end_signal())) {
+        case event_signal::signal_state::signaled:
         laps++;
         if (now - last_lap >= NOTIFY_LAP_INTERVAL) {
             console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher thread " + to_string(laps) + " times in the last " + to_string(NOTIFY_LAP_INTERVAL) + "ms.");
@@ -64,12 +60,12 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
             last_lap = now;
         }
         break;
-    case signal_state::not_signaled:
-        if (!set(frame_end_signal())) {
+        case event_signal::signal_state::not_signaled:
+        if (!event_signal::set(frame_end_signal())) {
             console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal set(...) error: " + to_string(last_error()));
         }
         break;
-    case signal_state::error:
+        case event_signal::signal_state::error:
         console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Singal signaled(...) error: " + to_string(last_error()));
         break;
     default:
@@ -88,8 +84,8 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     }
     init = *reinterpret_cast<const scs_telemetry_init_params_v101_t* const>(params);
 
-    _frame_end_signal = create_signal();
-    if (_frame_end_signal == INVALID_SIGNAL) {
+    _frame_end_signal = event_signal::create_signal();
+    if (_frame_end_signal == event_signal::INVALID_SIGNAL) {
         console_log(SCS_LOG_TYPE_error, "Initialization failure. " + IDENTSTR(_frame_end_signal));
         return SCS_RESULT_generic_error;
     }
@@ -120,7 +116,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 SCSAPI_VOID scs_telemetry_shutdown() {
     clients_deinit();
 
-    if (!destroy_signal(frame_end_signal())) {
+    if (!event_signal::destroy_signal(frame_end_signal())) {
         console_log(SCS_LOG_TYPE_error, "Deinitialization failure. " + IDENTSTR(_frame_end_signal) + to_string(truckconnect::platform::event_signal::last_error()));
     }
 
