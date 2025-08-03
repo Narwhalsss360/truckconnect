@@ -157,7 +157,6 @@ namespace truckconnect {
 
         template <uint32_t count>
         constexpr const data_member& last_member_in_memory(const data_member (&members)[count], const uint32_t& i = 0, const data_member& last = INVALID_DATA_MEMBER) {
-            return members[i];
             return i == count ? last : last_member_in_memory(members, i + 1, members[i].offset > last.offset ? members[i] : last);
         }
 
