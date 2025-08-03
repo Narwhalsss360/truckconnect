@@ -1,5 +1,5 @@
 #include "scssdk/scssdk_value.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace truckconnect {
     namespace metadata {
