@@ -54,7 +54,7 @@ constexpr const data_definition_id GAUGE_CLUSTER_ID = 0;
 
 //Then define a template specialization of data_definition.
 template <>
-struct data_definition<gauge_cluster> {
+struct truckconnect::data::data_definition<gauge_cluster> {
     //Must define a `static constexpr const data_defintition_id id` member.
     static constexpr const data_definition_id id = GAUGE_CLUSTER_ID;
 
