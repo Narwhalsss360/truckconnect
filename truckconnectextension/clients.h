@@ -10,11 +10,12 @@ extern std::vector<client> clients;
 namespace std {
 	static string to_string(sockaddr_in& addr)
 	{
+        const uint8_t (&bytes)[4] = *reinterpret_cast<uint8_t(*)[4]>(&addr);
 		return
-			to_string(addr.sin_addr.S_un.S_un_b.s_b1) + "." +
-			to_string(addr.sin_addr.S_un.S_un_b.s_b2) + "." +
-			to_string(addr.sin_addr.S_un.S_un_b.s_b3) + "." +
-			to_string(addr.sin_addr.S_un.S_un_b.s_b4);
+			to_string(bytes[0]) + "." +
+			to_string(bytes[1]) + "." +
+			to_string(bytes[2]) + "." +
+			to_string(bytes[3]);
 	}
 }
 
