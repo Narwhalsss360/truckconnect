@@ -14,7 +14,7 @@ bool once(truckconnect::communication::connection& connection) {
     //The `truckconnect::metadata` namespace contains a bunch of types that have metadata information, they are static, and constexpr.
     //These may be used along with the API to avoid "foot-gun".
     using telemetry = truckconnect::metadata::truck_channel_speed;
-    static_assert(telemetry::telemetry_type == truckconnect::metadata::telemetry_type::channel, "Please use a channel telemetry for this sample.");
+    static_assert(telemetry::type == truckconnect::metadata::telemetry_type::channel, "Please use a channel telemetry for this sample.");
 
     //The `storage_type` type alias in all metadata structs is the type that is used to store the data for that telemetry.
     telemetry::storage_type storage;

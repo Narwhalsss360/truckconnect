@@ -16,7 +16,7 @@ using truckconnect::platform::debug_assert;
 
 template <typename meta>
 void handle_event(scs_event_t event, const void* const info, scs_context_t) {
-	static_assert(meta::telemetry_type == telemetry_type::structure, "Expected an event structure");
+	static_assert(meta::type == telemetry_type::structure, "Expected an event structure");
 	static_assert(offsetof(scs_telemetry_configuration_t, id) == offsetof(scs_telemetry_gameplay_event_t, id), "Offsets must be equal.");
 	static_assert(offsetof(scs_telemetry_configuration_t, attributes) == offsetof(scs_telemetry_gameplay_event_t, attributes), "Offsets must be equal.");
 	
@@ -67,7 +67,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
     constexpr const uint32_t& max_count = meta::max_count;
     constexpr const bool& trailer_channel = meta::trailer_channel;
     constexpr const uint32_t offset = master_offset_of(meta::id, trailer_index);
-    static_assert(meta::telemetry_type == telemetry_type::channel, "Template parameter was not a channel");
+    static_assert(meta::type == telemetry_type::channel, "Template parameter was not a channel");
     static_assert(trailer_channel == (trailer_index != INVALID_TRAILER_INDEX), "Fatal: template meta parameter and trailer_index discrepancy.");
     static_assert(offset < sizeof(current_master()), "Specified offset will result in corrupt memory");
     debug_assert(meta::scs_type_id == value->type);
