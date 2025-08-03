@@ -2,13 +2,6 @@
 #include "master_structure.h"
 #include "scssdk/common/scssdk_telemetry_common_configs.h"
 
-
-#if defined(__MINGW32__)
-#define _Elems _M_elems
-#elif defined(__GNUG__)
-#define _Elems _M_instance
-#endif
-
 namespace truckconnect {
     namespace telemetry_ids {
         enum telemetry_id : uint8_t {
@@ -3221,6 +3214,4 @@ namespace truckconnect {
         };
     }
 }
-
-#undef _Elems
 
