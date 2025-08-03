@@ -104,6 +104,10 @@ namespace truckconnect {
             explicit constexpr trailer_index_or_count(const bool& is_count, const trailer_index_uint& index_or_count)
                 : is_count(is_count), index_or_count(index_or_count) {}
 
+            constexpr operator const uint8_t() const {
+                return (is_count ? 1 : 0) | (index_or_count << 1);
+            }
+
             inline const bool operator==(const trailer_index_or_count& other) const {
                 return is_count == other.is_count && index_or_count == other.index_or_count;
             }
@@ -161,7 +165,7 @@ namespace truckconnect {
             return {
                 request_type::telemetry_id,
                 id,
-                *(const trailer_index_uint* const)(&trailer_index_or_count)
+                trailer_index_or_count
             };
         }
 
