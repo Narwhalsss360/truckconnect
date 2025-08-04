@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 #define TRUCKCONNECT_MAKE_VERSION(major, minor, patch) (patch | minor << 8 | major << 16)
 #define TRUCKCONNECT TRUCKCONNECT_MAKE_VERSION(0, 1, 0)
@@ -16,6 +17,9 @@ namespace truckconnect {
             minor : 8,
             major : 8;
 
+        constexpr version_t()
+            : patch(0), minor(0), major(0) {}
+
         constexpr version_t(const uint8_t& major, const uint8_t& minor, const uint8_t& patch)
             : patch(patch), minor(minor), major(major) {}
 
@@ -25,7 +29,17 @@ namespace truckconnect {
         constexpr operator const uint32_t() const {
             return TRUCKCONNECT_MAKE_VERSION(major, minor, patch);
         }
+
+        operator const std::string() const {
+            return std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(patch);
+        }
     };
 
     constexpr const version_t version = version_t(TRUCKCONNECT_MAJOR, TRUCKCONNECT_MINOR, TRUCKCONNECT_PATCH);
+}
+
+namespace std {
+    static string to_string(const truckconnect::version_t& version) {
+        return (string)version;
+    }
 }
