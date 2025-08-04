@@ -23,8 +23,10 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	debug_assert(info != nullptr);
 	const scs_telemetry_configuration_t& data = *reinterpret_cast<const scs_telemetry_configuration_t* const>(info);
 
+	static uint8_t trailer_count = 0;
 	if (streq(data.id, "trailer")) {
 		console_log(SCS_LOG_TYPE_message, IDENTSTR(handle_event), "Skipping 'trailer' data, waiting for indexed data");
+		trailer_count = 0;
 		return;
 	}
 
@@ -39,8 +41,18 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	value_storage<uint32_t>& latest = apply_offset<value_storage<uint32_t>>(structure, event_info_latest_offset(event_info_id));
 	latest.initialized = true;
 
+	if (trailer_index == 9) {
+		for (int i = trailer_count; i < SCS_TELEMETRY_trailers_count; i++) {
+			current_master().channels.trailer[i] = {};
+		}
+	}
+
 	if (data.attributes->name == nullptr) {
 		return;
+	}
+
+	if (trailer_count >= trailer_index) {
+		trailer_count = trailer_index + 1;
 	}
 
 	for (const scs_named_value_t* current = data.attributes; current->name; current++) {
