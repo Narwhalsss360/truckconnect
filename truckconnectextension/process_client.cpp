@@ -318,6 +318,23 @@ bool process_client(client& client) {
         }
         break;
     }
+    case request_type::version:
+        response.resize(1 + sizeof(uint32_t));
+        response[0] = request_type::version;
+        apply_offset<uint32_t>(response.data(), 1) = version;
+        encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
+        encode_with_size(
+            response.begin(),
+            response.end(),
+            static_cast<nsize_int>(response.size()),
+            encoded_response.begin(),
+            encoded_response.end()
+        );
+
+        if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
+            return false;
+        }
+        break;
     default:
         response.resize(2);
         response[0] = request_type::error_response;

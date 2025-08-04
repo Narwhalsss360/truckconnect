@@ -1,5 +1,6 @@
 #pragma once
 #include "truckconnect_platform.h"
+#include "truckconnect_version.h"
 #include "vector_collector.h"
 #include "telemetry_metadata.h"
 #include "byte_converters.h"
@@ -20,6 +21,7 @@ namespace truckconnect {
                 register_data_definition,
                 defined_data,
                 unregister_data_definition,
+                version,
                 error_response
             };
         }
@@ -193,6 +195,18 @@ namespace truckconnect {
         }
 
         communication_result connect(connection& connection);
+
+        communication_result send_version_request(connection& connection);
+
+        communication_result receive_for_version(connection& connection, version_t& version);
+
+        static communication_result get_version(connection& connection, version_t& version) {
+            communication_result result = send_version_request(connection);
+            if (result != communication_result::success) {
+                return result;
+            }
+            return receive_for_version(connection, version);
+        }
 
         communication_result send_request_for(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT);
 

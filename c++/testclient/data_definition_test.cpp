@@ -11,6 +11,8 @@
 #include <thread>
 
 using std::cout;
+using std::cerr;
+using std::endl;
 using std::to_string;
 using namespace truckconnect;
 using namespace truckconnect::platform;
@@ -112,6 +114,19 @@ int data_definition_test() {
     connection connection = ::connection("127.0.0.1");
     debug_assert(sockets::initialize());
     debug_assert(communication_result::success == (result = connect(connection)));
+
+    version_t server_version;
+    debug_assert(communication_result::success == (result = get_version(connection, server_version)));
+
+    if (server_version.major > version.major) {
+        cerr << "Server/client version mismatch, server: " << (std::string)server_version << ", client: " << TRUCKCONNECT_VERSION_STR << endl;
+        return 1;
+    }
+
+    if (server_version.minor > version.minor) {
+        cerr << "Server/client version mismatch, server: " << to_string(server_version) << ", client: " << to_string(version) << ". Continuing with caution!" << endl;
+    }
+
     debug_assert(communication_result::success == (result = register_data_definition<gauge_cluster>(connection)));
     debug_assert(communication_result::success == (result = register_data_definition<just_trailer_data>(connection)));
 

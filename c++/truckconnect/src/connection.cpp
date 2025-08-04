@@ -46,6 +46,57 @@ namespace truckconnect {
             return communication_result::success;
         }
 
+
+        communication_result send_version_request(connection& connection) {
+            if (connection.socket == sockets::INVALID) {
+                return communication_result::not_connected;
+            }
+
+            if (connection.pending_request != request_type::none) {
+                return communication_result::other_request_pending;
+            }
+
+            const std::array<uint8_t, 1> request_data = { request_type::version };
+            std::array<uint8_t, as_collected_size(static_cast<nsize_int>(request_data.size()))> encoded_request_data;
+            encode_with_size(
+                request_data.begin(),
+                request_data.end(),
+                static_cast<nsize_int>(request_data.size()),
+                encoded_request_data.begin(),
+                encoded_request_data.end()
+            );
+
+            if (send(connection.socket, reinterpret_cast<const char* const>(encoded_request_data.data()), static_cast<int>(encoded_request_data.size()), 0) == sockets::ERROR_RESULT) {
+                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
+            }
+
+            connection.pending_request = request_type::version;
+            return communication_result::success;
+        }
+
+        communication_result receive_for_version(connection& connection, version_t& version) {
+            if (connection.socket == sockets::INVALID) {
+                return communication_result::not_connected;
+            }
+
+            if (connection.pending_request != request_type::version) {
+                return communication_result::other_request_pending;
+            }
+
+            communication_result result = receive_all(connection);
+            if (result != communication_result::success) {
+                return result;
+            }
+
+            if (connection.collector.next_size() < 2) {
+                return communication_result::unknown_data;
+            }
+
+            version = version_t(*reinterpret_cast<const uint32_t*>(&connection.collector.buffer()[1]));
+            connection.clear_pending_request();
+            return communication_result::success;
+        }
+
         communication_result send_request_for(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count) {
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
