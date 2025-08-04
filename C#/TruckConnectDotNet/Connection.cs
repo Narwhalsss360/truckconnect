@@ -23,6 +23,7 @@ namespace TruckConnect
             RegisterDataDefinition,
             DefinedData,
             UnregisterDataDefinition,
+            Version,
             ErrorResponse
         }
 
@@ -109,6 +110,36 @@ namespace TruckConnect
             m_pendingID = id;
             m_pendingTrailerIndexOrCount = trailerIndexOrCount.Value;
         }
+
+        public async Task<Version> GetVersion(CancellationToken cancellationToken = default)
+        {
+            EnsureConnected(nameof(GetVersion));
+            EnsurePendingRequest(RequestType.None, "Request already pending.");
+            PendingRequest = RequestType.Version;
+            await m_socket.SendAsync(
+                NEncode.EncodeWithSize([
+                    (byte)RequestType.Version
+                ])
+            );
+
+            await ReceiveAllAsync(cancellationToken);
+            ClearPendingRequest();
+
+            if (Collector.Size == 0)
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
+
+            if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
+                throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
+
+            if ((RequestType)Collector.Data[0] != RequestType.Version)
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse , new InvalidDataException("Received unexpected response."));
+
+            if (Collector.Size != 1 + 4)
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
+
+            return new Version(BitConverter.ToUInt32(Collector.Data, 1));
+        }
+
 
         public async Task ReceiveOne(CancellationToken cancellationToken = default)
         {

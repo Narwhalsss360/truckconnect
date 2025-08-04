@@ -13,6 +13,8 @@ async Task DefinitionTest()
 
     Connection connection = new("127.0.0.1");
     await connection.ConnectAsync();
+    TruckConnect.Version version = await connection.GetVersion();
+    Console.WriteLine($"Server Version: {version}");
     await connection.RegisterDataDefinitionAsync(gameStatus);
     await connection.RegisterDataDefinitionAsync(gaugeClusterDefinition);
 
@@ -48,6 +50,8 @@ async Task StructuresTest()
 {
     Connection connection = new("127.0.0.1");
     await connection.ConnectAsync();
+    TruckConnect.Version version = await connection.GetVersion();
+    Console.WriteLine($"Server Version: {version}");
 
     DateTime start = DateTime.Now;
     bool firstPause = true;
