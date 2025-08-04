@@ -316,6 +316,7 @@ bool process_client(client& client) {
         if (!send_catch_fail(client, encoded_response.data(), static_cast<uint32_t>(encoded_response.size()))) {
             return false;
         }
+        break;
     }
     default:
         response.resize(2);
