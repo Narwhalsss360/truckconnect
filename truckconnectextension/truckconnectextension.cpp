@@ -109,7 +109,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 
     master.channels.general.channel_paused.value = true;
     master.channels.general.channel_paused.initialized = true;
-    console_log(SCS_LOG_TYPE_message, "Initialized!");
+    console_log(SCS_LOG_TYPE_message, string("Initialized v") + TRUCKCONNECT_VERSION_STR + "!");
     return SCS_RESULT_ok;
 }
 
