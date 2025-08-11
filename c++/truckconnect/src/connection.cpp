@@ -237,6 +237,7 @@ namespace truckconnect {
             }
 
             connection.clear_pending_request();
+            connection.request_data_telemetry_id() = telemetry_id::invalid;
             return communication_result::success;
         }
 

@@ -174,11 +174,16 @@ namespace TruckConnect
             if (Metadata.ByID(id) is not Metadata metadata)
                 throw new ArgumentException("TelemetryID was invalid", nameof(id));
 
+            if (m_pendingID != id)
+                throw new CommunicationErrorException(CommunicationResult.OtherTelemetryIDPending);
+
             if (trailerIndexOrCount.Value != m_pendingTrailerIndexOrCount)
                 throw new InvalidOperationException("Other trailer index/count does is pending.");
 
             await ReceiveAllAsync(cancellationToken);
             ClearPendingRequest();
+            m_pendingID = TelemetryID.Invalid;
+
             if (Collector.Size < 2)
                 throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
 
