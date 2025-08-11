@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truckconnect"
+authors = [
+    { name = "Franklyn Vasquez", email = "franklynvasquez24@gmail.com" },
+]
+description = "TCP/IP based telemetry for scs software's ETS2/ATS"
+dependencies = [
+    "scssdk-truckconnect-telemetry"
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+keywords = [
+    "scs",
+    "scssdk",
+    "truckconnect"
+]
+classifiers = [
+    "Programming Language :: Python :: 3"
+]
+version = "0.1.0"
+
+[project.urls]
+Repository = "https://github.com/Narwhalsss360/truckconnect"
