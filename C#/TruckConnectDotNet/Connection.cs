@@ -98,6 +98,9 @@ namespace TruckConnect
             trailerIndexOrCount ??= new();
             EnsureConnected(nameof(SendRequestForAsync));
             EnsurePendingRequest(RequestType.None, "Request already pending.");
+            if (id == TelemetryID.Invalid)
+                throw new CommunicationErrorException(CommunicationResult.InvalidTelemetry);
+
             await m_socket.SendAsync(
                 NEncode.EncodeWithSize([
                     (byte)RequestType.TelemetryID,

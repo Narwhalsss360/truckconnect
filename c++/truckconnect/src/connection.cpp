@@ -102,6 +102,10 @@ namespace truckconnect {
                 return communication_result::not_connected;
             }
 
+            if (id == telemetry_id::invalid) {
+                return communication_result::invalid_telemetry;
+            }
+
             if (trailer_index_or_count.is_count)  {
                 if (SCS_TELEMETRY_trailers_count < trailer_index_or_count.index_or_count) {
                     return communication_result::trailer_count_out_of_bounds;
