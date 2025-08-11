@@ -77,7 +77,7 @@ namespace TruckConnect
 			new() { ID = TelemetryID.GameplayPlayerTollgatePaidInfo, TelemetryType = TelemetryType.EventInfo, ConstantSize = false, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "player.tollgate.paid" },
 			new() { ID = TelemetryID.GameplayPlayerUseFerryInfo, TelemetryType = TelemetryType.EventInfo, ConstantSize = false, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "player.use.ferry" },
 			new() { ID = TelemetryID.GameplayPlayerUseTrainInfo, TelemetryType = TelemetryType.EventInfo, ConstantSize = false, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "player.use.train" },
-			new() { ID = TelemetryID.ChannelPaused, TelemetryType = TelemetryType.Channel, ConstantSize = true, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "", Indexed = false, MaxCount = 1 ,TrailerChannel = false, SCSValueType = TruckConnect.SCSValueType.SCS_VALUE_TYPE_bool, CustomChannel = false},
+			new() { ID = TelemetryID.ChannelPaused, TelemetryType = TelemetryType.Channel, ConstantSize = true, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "", Indexed = false, MaxCount = 1 ,TrailerChannel = false, SCSValueType = TruckConnect.SCSValueType.SCS_VALUE_TYPE_bool, CustomChannel = true},
 			new() { ID = TelemetryID.ChannelLocalScale, TelemetryType = TelemetryType.Channel, ConstantSize = true, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "local.scale", Indexed = false, MaxCount = 1 ,TrailerChannel = false, SCSValueType = TruckConnect.SCSValueType.SCS_VALUE_TYPE_float, CustomChannel = false},
 			new() { ID = TelemetryID.ChannelGameTime, TelemetryType = TelemetryType.Channel, ConstantSize = true, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "game.time", Indexed = false, MaxCount = 1 ,TrailerChannel = false, SCSValueType = TruckConnect.SCSValueType.SCS_VALUE_TYPE_u32, CustomChannel = false},
 			new() { ID = TelemetryID.ChannelMultiplayerTimeOffset, TelemetryType = TelemetryType.Channel, ConstantSize = true, MasterOffset = 0, /*?*/ StructureOffset = 0, /*?*/ Macro = "multiplayer.time.offset", Indexed = false, MaxCount = 1 ,TrailerChannel = false, SCSValueType = TruckConnect.SCSValueType.SCS_VALUE_TYPE_s32, CustomChannel = false},
@@ -187,4 +187,3 @@ namespace TruckConnect
 		];
 	}
 }
-
