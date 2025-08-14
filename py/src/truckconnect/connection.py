@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
 from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP
-from nstreamcom.nencode import encode
 from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version
 from nstreamcom import Collector, encode_with_size
@@ -126,11 +125,43 @@ class Connection:
         self.receive_all()
         self.pending_request = RequestType.NoRequest
 
-        self._ensure_received_request(RequestType.Version)
-        if self.collector.next_size != 1 + 4:
-            raise CommunicationError(CommunicationResult.UnknownData)
+        self._ensure_received_request(RequestType.Version, exact_size=1 + 4)
 
         return Version.from_int(int.from_bytes(self.collector.bytearray[1:4], "little"))
+
+    def send_request_for(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> None:
+        self._ensure_connected("send_request_for")
+        self._ensure_pending_request(RequestType.NoRequest)
+        trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
+        self.socket.send(encode_with_size([
+            RequestType.TelemetryID.value,
+            telemetry_id.value,
+            int(trailer_index_or_count)
+        ]))
+        self.pending_request = RequestType.TelemetryID
+        self.pending_telemetry_id = telemetry_id
+        self.pending_trailer_index_or_count = trailer_index_or_count
+
+    def receive_for_request(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> None:
+        self._ensure_connected("receive_for_request")
+        self._ensure_pending_request(RequestType.TelemetryID)
+        trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
+
+        if telemetry_id != self.pending_telemetry_id:
+            raise CommunicationError(CommunicationResult.OtherTelemetryIDPending)
+        if trailer_index_or_count != self.pending_trailer_index_or_count:
+            raise CommunicationError(CommunicationResult.OtherTrailerIndexRequestPending)
+
+        self.receive_all()
+        self._ensure_received_request(RequestType.TelemetryID, minimum_size=3)
+
+        if telemetry_id.value != self.collector.bytearray[1]:
+            raise CommunicationError(CommunicationResult.ReceivedOtherTelemetry)
+
+        if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != self.pending_trailer_index_or_count:
+            raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
+
+        self.clear_pending_request()
 
     def disconnect(self) -> None:
         if not self.connected:
@@ -142,12 +173,18 @@ class Connection:
         self.collector.reset()
         self._connected = False
 
+    def clear_pending_request(self) -> None:
+        self.pending_request = RequestType.NoRequest
+        self.pending_telemetry_id = TelemetryID.Invalid
+        self.pending_trailer_index_or_count = TrailerIndexOrCount()
+
     def __enter__(self) -> Connection:
         if not self.connected:
             self.connect()
         return self
 
     def __exit__(self, t: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
+        del t, value, traceback
         if self.connected:
             self.disconnect()
 
@@ -155,7 +192,13 @@ class Connection:
         if not self.connected:
             raise CommunicationError(CommunicationResult.Disconnected, f"'{operation_name}' requires a connection.")
 
-    def _ensure_received_request(self, request_type: RequestType) -> None:
+    def _ensure_received_request(self, request_type: RequestType, minimum_size: int | None = None, exact_size: int | None = None) -> None:
+        assert not (minimum_size is not None and exact_size is not None), "minimum_size and exact_size are mutually exclusive arguments"
+        assert (
+            (minimum_size is not None and minimum_size > 0) or
+            (exact_size is not None and exact_size > 0)
+        ), "Must specify non-zero minimum_size or exact_size"
+
         if self.collector.next_size == 0:
             raise CommunicationError(CommunicationResult.UnknownData)
 
@@ -164,6 +207,13 @@ class Connection:
 
         if self.collector.bytearray[0] != request_type.value:
             raise CommunicationError(CommunicationResult.ReceivedOtherResponse)
+
+        if minimum_size:
+            if self.collector.next_size < minimum_size:
+                raise CommunicationError(CommunicationResult.UnknownData)
+        else:
+            if self.collector.next_size != exact_size:
+                raise CommunicationError(CommunicationResult.UnknownData)
 
     def _ensure_pending_request(self, request_type: RequestType, message: str | None = None) -> None:
         if self.pending_request != request_type:
