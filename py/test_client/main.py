@@ -1,15 +1,19 @@
-from sys import stderr
+from sys import stderr, argv
 from time import time, sleep
-from truckconnect.connection import Connection
+from typing import Callable
+from truckconnect.connection import Connection, TrailerIndexOrCount
+from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.value_storage import SCSValueType, value_storage_from_bytes, is_value_storage
+from truckconnect.master_structure import Master
 
 
 RUN_FOR_SEC: float = 5 * 60
+SLEEP_FOR: float = 0.050
 
 
-def update(connection: Connection) -> None:
+def speed_update(connection: Connection) -> None:
     connection.send_request_for(TelemetryID.ChannelPaused)
     connection.receive_for_request(TelemetryID.ChannelPaused)
     paused_deserialized, _ = value_storage_from_bytes(
@@ -36,6 +40,59 @@ def update(connection: Connection) -> None:
         print(f"{f"{speed:0.2f}" if speed_initialized else "---"} m/s")
 
 
+def master_update(connection: Connection) -> None:
+    connection.send_request_for(TelemetryID.Master)
+    connection.receive_for_request(TelemetryID.Master)
+    master, _ = Master.from_bytes(
+        connection.collector.bytearray,
+        Connection.TELEMETRY_DATA_START
+    )
+
+    _, paused = master.channels.general.channel_paused
+    if paused:
+        print("<paused>")
+    else:
+        speed_initialized, speed = master.channels.truck.truck_channel_speed
+        print(f"{f"{speed:0.2f}" if speed_initialized else "---"} m/s")
+
+
+def trailer_telemetries_update(connection: Connection) -> None:
+    connection.send_request_for(
+        TelemetryID.TrailerChannelConnected,
+        TrailerIndexOrCount(True, SCS_TELEMETRY_trailers_count)
+    )
+    connection.receive_for_request(
+        TelemetryID.TrailerChannelConnected,
+        TrailerIndexOrCount(True, SCS_TELEMETRY_trailers_count)
+    )
+
+    connected_storages: list[tuple[bool, bool]] = []
+    total_read: int = 0
+    for _ in range(SCS_TELEMETRY_trailers_count):
+        deserialized, read = value_storage_from_bytes(
+            SCSValueType.SCS_VALUE_TYPE_bool,
+            connection.collector.bytearray,
+            Connection.TELEMETRY_DATA_START + total_read
+        )
+        total_read += read
+        assert is_value_storage(deserialized, bool)
+        connected_storages.append(deserialized)
+
+    out: str = ""
+    for initialized, connected in connected_storages:
+        if initialized:
+            out += "Y" if connected else "N"
+        else:
+            out += "?"
+    print(out)
+
+
+UPDATERS: dict[str, Callable[[Connection], None]] = {
+    "speed": speed_update,
+    "master": master_update,
+    "trailer": trailer_telemetries_update
+}
+
 
 def main(connection: Connection) -> None:
     version: Version = connection.get_version()
@@ -46,14 +103,22 @@ def main(connection: Connection) -> None:
     if version.patch < VERSION.patch:
         print("out-patched server", file=stderr)
 
+    updater: Callable[[Connection], None]
+    if len(argv) < 2:
+        updater = master_update
+        print(f"Using default updater, Available are {UPDATERS.keys()}")
+    else:
+        name: str = argv[1].lower()
+        if name in UPDATERS:
+            updater = UPDATERS[name]
+        else:
+            print(f"{name} is not an updater. Available are {UPDATERS.keys()}", file=stderr)
+            return
+
     start = time()
     while time() - start <= RUN_FOR_SEC:
-        try:
-            update(connection)
-        except KeyboardInterrupt:
-            print("^C", file=stderr)
-            break
-        sleep(0.1)
+        updater(connection)
+        sleep(SLEEP_FOR)
 
 
 if __name__ == "__main__":
