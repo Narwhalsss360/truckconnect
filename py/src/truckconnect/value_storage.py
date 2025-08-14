@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from struct import unpack_from
-from typing import Callable, TypeGuard, TypeVar, Type
+from typing import Any, Callable, TypeGuard, TypeVar, Type
 from scssdk_telemetry.scssdk_dataclasses import TYPE_SIZE_BY_ID
 
 
@@ -134,6 +134,19 @@ type ValueTypes = (
     list
 )
 
+VALUE_TYPES: tuple[type, ...] = (
+    bool,
+    int,
+    float,
+    SCSValueFVector,
+    SCSValueDVector,
+    SCSValueEuler,
+    SCSValueFPlacement,
+    SCSValueDPlacement,
+    str,
+    list
+)
+
 
 type ValueStorageTypes = (
     tuple[bool, ValueTypes] |
@@ -169,6 +182,25 @@ def is_value_vector_storage(storage: ValueStorageTypes, t: Type[T]) -> TypeGuard
         isinstance(storage, list) and
         all(isinstance(x, t) for x in storage)
     )
+
+
+def is_storage_type(obj: Any) -> TypeGuard[ValueStorageTypes]:
+    if isinstance(obj, tuple):
+        if len(obj) == 2:
+            return (
+                isinstance(obj[0], bool) and
+                isinstance(obj[1], VALUE_TYPES)
+            )
+        elif len(obj) == 3:
+            return (
+                isinstance(obj[0], bool) and
+                isinstance(obj[1], list) and
+                all(isinstance(x, VALUE_TYPES) for x in obj[1]) and
+                isinstance(obj[2], int)
+            )
+    elif isinstance(obj, list):
+        return all(isinstance(x, VALUE_TYPES) for x in obj)
+    return False
 
 
 DESERIALIZER_BY_ID: list[None | Callable[[BufferType, int], tuple[ValueTypes, int]]] = [
