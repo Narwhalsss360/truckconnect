@@ -1,6 +1,16 @@
 from dataclasses import dataclass, field
-from typing import Callable
-from .value_storage import BufferType, SCSValueType, ValueStorageTypes, value_storage_from_bytes, value_array_storage_from_bytes
+from typing import Callable, Type, TypeGuard, TypeVar
+from .value_storage import (
+    BufferType,
+    SCSValueType,
+    ValueStorageTypes,
+    is_storage_type,
+    is_value_storage,
+    is_value_array_storage,
+    is_value_vector_storage,
+    value_storage_from_bytes,
+    value_array_storage_from_bytes
+)
 from .telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Telemetry, TelemetryType, telemetries
 from .master_structure import (
@@ -129,3 +139,18 @@ class DataDefinition:
                 deserialized_definition.append(deserialized_list)
 
         return deserialized_definition, total_read
+
+
+T = TypeVar("T")
+
+
+def is_value_storage_array(trailer_array: list, t: Type[T]) -> TypeGuard[list[tuple[bool, T]]]:
+    return all(is_storage_type(x) and is_value_storage(x, t) for x in trailer_array)
+
+
+def is_value_array_storage_array(trailer_array: list, t: Type[T]) -> TypeGuard[list[tuple[bool, T, int]]]:
+    return all(is_storage_type(x) and is_value_array_storage(x, t) for x in trailer_array)
+
+
+def is_value_vector_storage_array(trailer_array: list, t: Type[T]) -> TypeGuard[list[list[T]]]:
+    return all(is_storage_type(x) and is_value_vector_storage(x, t) for x in trailer_array)

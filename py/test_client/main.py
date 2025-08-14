@@ -4,7 +4,7 @@ from typing import Callable
 from truckconnect.connection import CommunicationError, CommunicationResult, Connection, TrailerIndexOrCount
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
-from truckconnect.data import DataDefinition, DataMember
+from truckconnect.data import DataDefinition, DataMember, is_value_storage_array
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.value_storage import SCSValueType, is_storage_type, value_storage_from_bytes, is_value_storage
 from truckconnect.master_structure import Master
@@ -96,6 +96,7 @@ def data_definitions_update(connection: Connection) -> None:
             DataMember(TelemetryID.TruckChannelSpeed),
             DataMember(TelemetryID.TruckChannelEngineRpm),
             DataMember(TelemetryID.TruckChannelEngineGear),
+            DataMember(TelemetryID.TrailerChannelConnected, SCS_TELEMETRY_trailers_count)
         ]
     )
 
@@ -112,7 +113,7 @@ def data_definitions_update(connection: Connection) -> None:
         connection.collector.bytearray,
         Connection.DATA_DEFINITION_DATA_START
     )
-    game_time_deserialized, speed_deserialized, rpm_deserialized, gear_deserialized = deserialized
+    game_time_deserialized, speed_deserialized, rpm_deserialized, gear_deserialized, trailers_connected_deserialized = deserialized
 
     assert is_storage_type(game_time_deserialized) and is_value_storage(game_time_deserialized, int)
     game_time_initialized, game_time = game_time_deserialized
@@ -126,6 +127,9 @@ def data_definitions_update(connection: Connection) -> None:
     assert is_storage_type(gear_deserialized) and is_value_storage(gear_deserialized, int)
     gear_initialized, gear = gear_deserialized
 
+    assert isinstance(trailers_connected_deserialized, list) and is_value_storage_array(trailers_connected_deserialized, bool)
+    trailers_connected: list[tuple[bool, bool]] = trailers_connected_deserialized
+
     gear_str: str
     if gear_initialized:
         if gear > 0:
@@ -137,11 +141,19 @@ def data_definitions_update(connection: Connection) -> None:
     else:
         gear_str = "---"
 
+    trailers_connected_str: str = ""
+    for initialized, connected in trailers_connected:
+        if initialized:
+            trailers_connected_str += "Y" if connected else "N"
+        else:
+            trailers_connected_str += "?"
+
     print(
         f"Time: {game_time if game_time_initialized else "---"} | "
         f"{f"{speed:0.2f}" if speed_initialized else "---"} m/s | "
         f"{f"{rpm:0.0f}" if rpm_initialized else "---"} rpm | "
-        f"{gear_str}"
+        f"{gear_str} | "
+        f"{trailers_connected_str}"
     )
 
 
