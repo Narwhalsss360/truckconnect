@@ -1,9 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from truckconnect.telemetry_id import TelemetryID
+from types import TracebackType
 from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP
-from nstreamcom import Collector
+from nstreamcom.nencode import encode
+from truckconnect.telemetry_id import TelemetryID
+from scssdk_truckconnect.truckconnect import Version
+from nstreamcom import Collector, encode_with_size
 
 
 @dataclass
@@ -69,7 +72,7 @@ class CommunicationError(Exception):
 
 
 class Connection:
-    PORT: int = 52787
+    PORT: int = 52878
     TELEMETRY_DATA_START: int = 1 + 2
     DATA_DEFINITION_DATA_START: int = 1 + 1
     DEFINED_DATA_DATA_START: int = 1 + 1
@@ -86,3 +89,85 @@ class Connection:
     @property
     def connected(self) -> bool:
         return self._connected
+
+    def connect(self) -> None:
+        if self.connected:
+            raise CommunicationError(CommunicationResult.AlreadyConnected)
+        self.socket.connect(self.addr)
+        self._connected = True
+
+    def receive_one(self) -> None:
+        self._ensure_connected("receive_one")
+        if self.pending_request == RequestType.NoRequest:
+            raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
+
+        if not (recv := self.socket.recv(1)):
+            raise CommunicationError(CommunicationResult.Disconnected)
+        self.collector.collect(recv[0])
+
+    def receive_all(self) -> None:
+        self._ensure_connected("receive_all")
+        if self.pending_request == RequestType.NoRequest:
+            raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
+
+        if self.collector.data_ready:
+            self.collector.reset()
+        while not self.collector.error_state and not self.collector.data_ready:
+            if not (recv := self.socket.recv(1)):
+                raise CommunicationError(CommunicationResult.Disconnected)
+            self.collector.collect(recv[0])
+
+    def get_version(self) -> Version:
+        self._ensure_connected("get_version")
+        self._ensure_pending_request(RequestType.NoRequest)
+
+        self.pending_request = RequestType.Version
+        self.socket.send(encode_with_size([RequestType.Version.value]))
+        self.receive_all()
+        self.pending_request = RequestType.NoRequest
+
+        self._ensure_received_request(RequestType.Version)
+        if self.collector.next_size != 1 + 4:
+            raise CommunicationError(CommunicationResult.UnknownData)
+
+        return Version.from_int(int.from_bytes(self.collector.bytearray[1:4], "little"))
+
+    def disconnect(self) -> None:
+        if not self.connected:
+            raise CommunicationError(CommunicationResult.NotConnected)
+        self.socket.close()
+        self.pending_request = RequestType.NoRequest
+        self.pending_telemetry_id = TelemetryID.Invalid
+        self.pending_trailer_index_or_count = TrailerIndexOrCount()
+        self.collector.reset()
+        self._connected = False
+
+    def __enter__(self) -> Connection:
+        if not self.connected:
+            self.connect()
+        return self
+
+    def __exit__(self, t: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
+        if self.connected:
+            self.disconnect()
+
+    def _ensure_connected(self, operation_name: str) -> None:
+        if not self.connected:
+            raise CommunicationError(CommunicationResult.Disconnected, f"'{operation_name}' requires a connection.")
+
+    def _ensure_received_request(self, request_type: RequestType) -> None:
+        if self.collector.next_size == 0:
+            raise CommunicationError(CommunicationResult.UnknownData)
+
+        if self.collector.bytearray[0] == RequestType.ErrorResponse.value:
+            raise CommunicationError(CommunicationResult(self.collector.bytearray[0]))
+
+        if self.collector.bytearray[0] != request_type.value:
+            raise CommunicationError(CommunicationResult.ReceivedOtherResponse)
+
+    def _ensure_pending_request(self, request_type: RequestType, message: str | None = None) -> None:
+        if self.pending_request != request_type:
+            if message:
+                raise CommunicationError(CommunicationResult.OtherRequestPending, message)
+            else:
+                raise CommunicationError(CommunicationResult.OtherRequestPending)
