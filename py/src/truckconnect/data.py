@@ -1,5 +1,29 @@
 from dataclasses import dataclass, field
+from typing import Callable
+from .value_storage import BufferType, SCSValueType, ValueStorageTypes, value_storage_from_bytes, value_array_storage_from_bytes
 from .telemetry_id import TelemetryID
+from scssdk_truckconnect.truckconnect import Telemetry, TelemetryType, telemetries
+from .master_structure import (
+    GameplayPlayerUseTrainInfo,
+    GameplayPlayerUseFerryInfo,
+    GameplayPlayerTollgatePaidInfo,
+    GameplayPlayerFinedInfo,
+    GameplayJobDeliveredInfo,
+    GameplayJobCancelledInfo,
+    ConfigurationJobInfo,
+    ConfigurationTrailerInfo,
+    ConfigurationTruckInfo,
+    ConfigurationHshifterInfo,
+    ConfigurationControlsInfo,
+    ConfigurationSubstancesInfo,
+    Trailer,
+    Truck,
+    General,
+    Channels,
+    Gameplay,
+    Configuration,
+    Master
+)
 
 
 @dataclass
@@ -15,6 +39,54 @@ class DataMember:
         ])
 
 
+DeserializedType = (
+    ValueStorageTypes |
+    GameplayPlayerUseTrainInfo |
+    GameplayPlayerUseFerryInfo |
+    GameplayPlayerTollgatePaidInfo |
+    GameplayPlayerFinedInfo |
+    GameplayJobDeliveredInfo |
+    GameplayJobCancelledInfo |
+    ConfigurationJobInfo |
+    ConfigurationTrailerInfo |
+    ConfigurationTruckInfo |
+    ConfigurationHshifterInfo |
+    ConfigurationControlsInfo |
+    ConfigurationSubstancesInfo |
+    Trailer |
+    Truck |
+    General |
+    Channels |
+    Gameplay |
+    Configuration |
+    Master |
+    list
+)
+
+
+NON_CHANNEL_DESERIALIZERS: dict[TelemetryID, Callable[[BufferType, int], tuple[DeserializedType, int]]] = {
+    TelemetryID.GameplayPlayerUseTrainInfo: GameplayPlayerUseTrainInfo.from_bytes,
+    TelemetryID.GameplayPlayerUseFerryInfo: GameplayPlayerUseFerryInfo.from_bytes,
+    TelemetryID.GameplayPlayerTollgatePaidInfo: GameplayPlayerTollgatePaidInfo.from_bytes,
+    TelemetryID.GameplayPlayerFinedInfo: GameplayPlayerFinedInfo.from_bytes,
+    TelemetryID.GameplayJobDeliveredInfo: GameplayJobDeliveredInfo.from_bytes,
+    TelemetryID.GameplayJobCancelledInfo: GameplayJobCancelledInfo.from_bytes,
+    TelemetryID.ConfigurationJobInfo: ConfigurationJobInfo.from_bytes,
+    TelemetryID.ConfigurationTrailerInfo: ConfigurationTrailerInfo.from_bytes,
+    TelemetryID.ConfigurationTruckInfo: ConfigurationTruckInfo.from_bytes,
+    TelemetryID.ConfigurationHshifterInfo: ConfigurationHshifterInfo.from_bytes,
+    TelemetryID.ConfigurationControlsInfo: ConfigurationControlsInfo.from_bytes,
+    TelemetryID.ConfigurationSubstancesInfo: ConfigurationSubstancesInfo.from_bytes,
+    TelemetryID.Trailer: Trailer.from_bytes,
+    TelemetryID.Truck: Truck.from_bytes,
+    TelemetryID.General: General.from_bytes,
+    TelemetryID.Channels: Channels.from_bytes,
+    TelemetryID.Gameplay: Gameplay.from_bytes,
+    TelemetryID.Configuration: Configuration.from_bytes,
+    TelemetryID.Master: Master.from_bytes
+}
+
+
 @dataclass
 class DataDefinition:
     INVALID_DATA_DEFINITION_ID = 255
@@ -28,3 +100,32 @@ class DataDefinition:
         for member in self.members:
             as_bytes.extend(member.to_bytes())
         return as_bytes
+
+    def deserialize(self, buffer: BufferType, offset: int = 0) -> tuple[list[DeserializedType], int]:
+        deserialized_definition: list[DeserializedType] = []
+        total_read: int = 0
+
+        for member in self.members:
+            telemetry: Telemetry = telemetries()[member.id.value]
+            deserializer: Callable[[BufferType, int], tuple[DeserializedType, int]]
+            if telemetry.telemetry_type == TelemetryType.Channel:
+                if telemetry.indexed:
+                    deserializer = lambda buffer, offset: value_array_storage_from_bytes(SCSValueType(telemetry.scs_type_id), telemetry.as_channel.max_count, buffer, offset)
+                else:
+                    deserializer = lambda buffer, offset: value_storage_from_bytes(SCSValueType(telemetry.scs_type_id), buffer, offset)
+            else:
+                deserializer = NON_CHANNEL_DESERIALIZERS[member.id]
+
+            if member.trailer_count == 0:
+                deserialized, read = deserializer(buffer, offset + total_read)
+                total_read += read
+                deserialized_definition.append(deserialized)
+            else:
+                deserialized_list: list[DeserializedType] = []
+                for _ in range(member.trailer_count):
+                    deserialized, read = deserializer(buffer, offset + total_read)
+                    total_read += read
+                    deserialized_list.append(deserialized)
+                deserialized_definition.append(deserialized_list)
+
+        return deserialized_definition, total_read

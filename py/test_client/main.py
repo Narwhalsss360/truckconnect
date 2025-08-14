@@ -6,7 +6,7 @@ from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
 from truckconnect.data import DataDefinition, DataMember
 from truckconnect.telemetry_id import TelemetryID
-from truckconnect.value_storage import SCSValueType, value_storage_from_bytes, is_value_storage
+from truckconnect.value_storage import SCSValueType, is_storage_type, value_storage_from_bytes, is_value_storage
 from truckconnect.master_structure import Master
 
 
@@ -108,44 +108,25 @@ def data_definitions_update(connection: Connection) -> None:
         data_definitions_update(connection)
         return
 
-    total_read = 0
-    game_time_deserialized, read = value_storage_from_bytes(
-        SCSValueType.SCS_VALUE_TYPE_u32,
+    deserialized, _ = definition.deserialize(
         connection.collector.bytearray,
-        Connection.DATA_DEFINITION_DATA_START + total_read
+        Connection.DATA_DEFINITION_DATA_START
     )
-    assert is_value_storage(game_time_deserialized, int)
-    total_read += read
+    game_time_deserialized, speed_deserialized, rpm_deserialized, gear_deserialized = deserialized
+
+    assert is_storage_type(game_time_deserialized) and is_value_storage(game_time_deserialized, int)
     game_time_initialized, game_time = game_time_deserialized
 
-    speed_deserialized, read = value_storage_from_bytes(
-        SCSValueType.SCS_VALUE_TYPE_float,
-        connection.collector.bytearray,
-        Connection.DATA_DEFINITION_DATA_START + total_read
-    )
-    assert is_value_storage(speed_deserialized, float)
-    total_read += read
+    assert is_storage_type(speed_deserialized) and is_value_storage(speed_deserialized, float)
     speed_initialized, speed = speed_deserialized
 
-    rpm_deserialized, read = value_storage_from_bytes(
-        SCSValueType.SCS_VALUE_TYPE_float,
-        connection.collector.bytearray,
-        Connection.DATA_DEFINITION_DATA_START + total_read
-    )
-    assert is_value_storage(rpm_deserialized, float)
-    total_read += read
+    assert is_storage_type(rpm_deserialized) and is_value_storage(rpm_deserialized, float)
     rpm_initialized, rpm = rpm_deserialized
 
-    gear_deserialized, read = value_storage_from_bytes(
-        SCSValueType.SCS_VALUE_TYPE_s32,
-        connection.collector.bytearray,
-        Connection.DATA_DEFINITION_DATA_START + total_read
-    )
-    assert is_value_storage(gear_deserialized, int)
-    total_read += read
+    assert is_storage_type(gear_deserialized) and is_value_storage(gear_deserialized, int)
     gear_initialized, gear = gear_deserialized
-    gear_str: str
 
+    gear_str: str
     if gear_initialized:
         if gear > 0:
             gear_str = f"A{gear}"
