@@ -6,6 +6,7 @@ from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP
 from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version
 from nstreamcom import Collector, encode_with_size
+from .data import DataDefinition
 
 
 @dataclass
@@ -84,6 +85,7 @@ class Connection:
         self.pending_telemetry_id: TelemetryID = TelemetryID.Invalid
         self.pending_trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount()
         self.collector = Collector()
+        self.definitions: list[DataDefinition] = []
 
     @property
     def connected(self) -> bool:
@@ -153,6 +155,7 @@ class Connection:
             raise CommunicationError(CommunicationResult.OtherTrailerIndexRequestPending)
 
         self.receive_all()
+        self.clear_pending_request()
         self._ensure_received_request(RequestType.TelemetryID, minimum_size=3)
 
         if telemetry_id.value != self.collector.bytearray[1]:
@@ -161,7 +164,66 @@ class Connection:
         if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != self.pending_trailer_index_or_count:
             raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
 
+    def get_definition(self, id_or_definition: int | DataDefinition) -> DataDefinition | None:
+        if isinstance(id_or_definition, int):
+            try:
+                return next(filter(lambda d: d.id == id_or_definition, self.definitions))
+            except StopIteration:
+               return None
+        else:
+            try:
+                self.definitions.index(id_or_definition)
+                return id_or_definition
+            except ValueError:
+                return None
+
+    def register_data_definition(self, definition: DataDefinition) -> None:
+        if self.get_definition(definition) is not None:
+            raise CommunicationError(CommunicationResult.AlreadyRegistered)
+
+        self._ensure_connected("register_data_definition")
+        self._ensure_pending_request(RequestType.NoRequest)
+        self.socket.send(encode_with_size(
+            bytearray([RequestType.RegisterDataDefinition.value]) + definition.to_bytes()
+        ))
+        self.pending_request = RequestType.RegisterDataDefinition
+        self.receive_all()
         self.clear_pending_request()
+        self._ensure_received_request(RequestType.RegisterDataDefinition, exact_size=2)
+        if self.collector.bytearray[1] != definition.id:
+            raise CommunicationError(CommunicationResult.UnknownData)
+
+        self.definitions.append(definition)
+
+    def request_data_definition(self, id_or_definition: int| DataDefinition) -> None:
+        if (definition := self.get_definition(id_or_definition)) is None:
+            raise CommunicationError(CommunicationResult.NotRegistered)
+
+        self._ensure_connected("request_data_definition")
+        self._ensure_pending_request(RequestType.NoRequest)
+        self.socket.send(encode_with_size([RequestType.DefinedData.value, definition.id]))
+        self.pending_request = RequestType.DefinedData
+        self.receive_all()
+        self.clear_pending_request()
+        self._ensure_received_request(RequestType.DefinedData, minimum_size=2)
+        if self.collector.bytearray[1] != definition.id:
+            raise CommunicationError(CommunicationResult.UnknownData)
+
+    def unregister_data_definition(self, id_or_definition: int | DataDefinition) -> None:
+        if (definition := self.get_definition(id_or_definition)) is None:
+            raise CommunicationError(CommunicationResult.NotRegistered)
+
+        self._ensure_connected("unregister_data_definition")
+        self._ensure_pending_request(RequestType.NoRequest)
+        self.socket.send(encode_with_size([RequestType.UnregisterDataDefinition.value, definition.id]))
+        self.pending_request = RequestType.UnregisterDataDefinition
+        self.receive_all()
+        self.clear_pending_request()
+        self._ensure_received_request(RequestType.UnregisterDataDefinition, exact_size=2)
+        if self.collector.bytearray[1] != definition.id:
+            raise CommunicationError(CommunicationResult.UnknownData)
+
+        self.definitions.remove(definition)
 
     def disconnect(self) -> None:
         if not self.connected:

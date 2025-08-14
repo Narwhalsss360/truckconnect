@@ -1,9 +1,10 @@
 from sys import stderr, argv
 from time import time, sleep
 from typing import Callable
-from truckconnect.connection import Connection, TrailerIndexOrCount
+from truckconnect.connection import CommunicationError, CommunicationResult, Connection, TrailerIndexOrCount
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
+from truckconnect.data import DataDefinition, DataMember
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.value_storage import SCSValueType, value_storage_from_bytes, is_value_storage
 from truckconnect.master_structure import Master
@@ -87,10 +88,87 @@ def trailer_telemetries_update(connection: Connection) -> None:
     print(out)
 
 
+def data_definitions_update(connection: Connection) -> None:
+    definition: DataDefinition = DataDefinition(
+        0,
+        [
+            DataMember(TelemetryID.ChannelGameTime),
+            DataMember(TelemetryID.TruckChannelSpeed),
+            DataMember(TelemetryID.TruckChannelEngineRpm),
+            DataMember(TelemetryID.TruckChannelEngineGear),
+        ]
+    )
+
+    try:
+        connection.request_data_definition(definition)
+    except CommunicationError as err:
+        if err.communication_result != CommunicationResult.NotRegistered:
+            raise err
+        connection.register_data_definition(definition)
+        data_definitions_update(connection)
+        return
+
+    total_read = 0
+    game_time_deserialized, read = value_storage_from_bytes(
+        SCSValueType.SCS_VALUE_TYPE_u32,
+        connection.collector.bytearray,
+        Connection.DATA_DEFINITION_DATA_START + total_read
+    )
+    assert is_value_storage(game_time_deserialized, int)
+    total_read += read
+    game_time_initialized, game_time = game_time_deserialized
+
+    speed_deserialized, read = value_storage_from_bytes(
+        SCSValueType.SCS_VALUE_TYPE_float,
+        connection.collector.bytearray,
+        Connection.DATA_DEFINITION_DATA_START + total_read
+    )
+    assert is_value_storage(speed_deserialized, float)
+    total_read += read
+    speed_initialized, speed = speed_deserialized
+
+    rpm_deserialized, read = value_storage_from_bytes(
+        SCSValueType.SCS_VALUE_TYPE_float,
+        connection.collector.bytearray,
+        Connection.DATA_DEFINITION_DATA_START + total_read
+    )
+    assert is_value_storage(rpm_deserialized, float)
+    total_read += read
+    rpm_initialized, rpm = rpm_deserialized
+
+    gear_deserialized, read = value_storage_from_bytes(
+        SCSValueType.SCS_VALUE_TYPE_s32,
+        connection.collector.bytearray,
+        Connection.DATA_DEFINITION_DATA_START + total_read
+    )
+    assert is_value_storage(gear_deserialized, int)
+    total_read += read
+    gear_initialized, gear = gear_deserialized
+    gear_str: str
+
+    if gear_initialized:
+        if gear > 0:
+            gear_str = f"A{gear}"
+        elif gear == 0:
+            gear_str = "N"
+        else:
+            gear_str = f"R{-gear}"
+    else:
+        gear_str = "---"
+
+    print(
+        f"Time: {game_time if game_time_initialized else "---"} | "
+        f"{f"{speed:0.2f}" if speed_initialized else "---"} m/s | "
+        f"{f"{rpm:0.0f}" if rpm_initialized else "---"} rpm | "
+        f"{gear_str}"
+    )
+
+
 UPDATERS: dict[str, Callable[[Connection], None]] = {
     "speed": speed_update,
     "master": master_update,
-    "trailer": trailer_telemetries_update
+    "trailer": trailer_telemetries_update,
+    "definitions": data_definitions_update
 }
 
 
