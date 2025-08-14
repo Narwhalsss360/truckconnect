@@ -10,3 +10,6 @@
 	path = "C#/NStreamCom"
 	url = git@github.com:Narwhalsss360/NStreamCom
 	branch = csharp
+[submodule "py/depends/NStreamCom"]
+	path = py/depends/NStreamCom
+	url = git@github.com:Narwhalsss360/NStreamCom

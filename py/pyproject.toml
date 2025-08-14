@@ -9,7 +9,8 @@ authors = [
 ]
 description = "TCP/IP based telemetry for scs software's ETS2/ATS"
 dependencies = [
-    "scssdk-truckconnect-telemetry"
+    "scssdk-truckconnect-telemetry",
+    "nstreamcom"
 ]
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }

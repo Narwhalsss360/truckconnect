@@ -1,9 +1,8 @@
-from truckconnect import TelemetryID
-from scssdk_truckconnect.truckconnect import Telemetry
+from truckconnect.connection import Connection
 
 
 def main() -> None:
-    ...
+    connection: Connection = Connection()
 
 
 if __name__ == "__main__":
