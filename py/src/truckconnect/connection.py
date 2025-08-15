@@ -3,10 +3,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 from types import TracebackType
 from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP
+from typing import Callable, Type, TypeVar
 from truckconnect.telemetry_id import TelemetryID
-from scssdk_truckconnect.truckconnect import Version
+from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
 from nstreamcom import Collector, encode_with_size
-from .data import DataDefinition
+from truckconnect.value_storage import BufferType, value_storage_from_bytes, value_array_storage_from_bytes, SCSValueType
+from .data import DATA_DEFINITION_ATTR_NAME, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
+
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -164,6 +169,32 @@ class Connection:
         if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != self.pending_trailer_index_or_count:
             raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
 
+    def request_telemetry(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[DeserializedType, int]:
+        trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
+        self.send_request_for(telemetry_id, trailer_index_or_count)
+        self.receive_for_request(telemetry_id, trailer_index_or_count)
+
+        telemetry: Telemetry = telemetries()[telemetry_id.value]
+        deserializer: Callable[[BufferType, int], tuple[DeserializedType, int]]
+        if telemetry.telemetry_type == TelemetryType.Channel:
+            if telemetry.indexed:
+                deserializer = lambda buffer, offset: value_array_storage_from_bytes(SCSValueType(telemetry.scs_type_id), telemetry.as_channel.max_count, buffer, offset)
+            else:
+                deserializer = lambda buffer, offset: value_storage_from_bytes(SCSValueType(telemetry.scs_type_id), buffer, offset)
+        else:
+            deserializer = NON_CHANNEL_DESERIALIZERS[telemetry_id]
+
+        if trailer_index_or_count.is_count:
+            deserialized_list: list[DeserializedType] = []
+            total_read: int = 0
+            for _ in range(trailer_index_or_count.index_or_count):
+                deserialized, read = deserializer(self.collector.bytearray, Connection.TELEMETRY_DATA_START + total_read)
+                total_read += read
+                deserialized_list.append(deserialized)
+            return deserialized_list, total_read
+        else:
+            return deserializer(self.collector.bytearray, Connection.TELEMETRY_DATA_START)
+
     def get_definition(self, id_or_definition: int | DataDefinition) -> DataDefinition | None:
         if isinstance(id_or_definition, int):
             try:
@@ -177,26 +208,40 @@ class Connection:
             except ValueError:
                 return None
 
-    def register_data_definition(self, definition: DataDefinition) -> None:
-        if self.get_definition(definition) is not None:
+    def register_data_definition(self, definition_or_type: DataDefinition | type) -> None:
+        if isinstance(definition_or_type, type):
+            if not hasattr(definition_or_type, DATA_DEFINITION_ATTR_NAME):
+                raise TypeError("The provided type is not a data definition")
+            definition_or_type = getattr(definition_or_type, DATA_DEFINITION_ATTR_NAME)
+            assert isinstance(definition_or_type, DataDefinition)
+
+        if self.get_definition(definition_or_type) is not None:
             raise CommunicationError(CommunicationResult.AlreadyRegistered)
 
         self._ensure_connected("register_data_definition")
         self._ensure_pending_request(RequestType.NoRequest)
         self.socket.send(encode_with_size(
-            bytearray([RequestType.RegisterDataDefinition.value]) + definition.to_bytes()
+            bytearray([RequestType.RegisterDataDefinition.value]) + definition_or_type.to_bytes()
         ))
         self.pending_request = RequestType.RegisterDataDefinition
         self.receive_all()
         self.clear_pending_request()
         self._ensure_received_request(RequestType.RegisterDataDefinition, exact_size=2)
-        if self.collector.bytearray[1] != definition.id:
+        if self.collector.bytearray[1] != definition_or_type.id:
             raise CommunicationError(CommunicationResult.UnknownData)
 
-        self.definitions.append(definition)
+        self.definitions.append(definition_or_type)
 
-    def request_data_definition(self, id_or_definition: int| DataDefinition) -> None:
-        if (definition := self.get_definition(id_or_definition)) is None:
+    def request_data_definition(self, id_or_definition_or_type: int | DataDefinition | Type[T]) -> T | None:
+        cls: type | None = None
+        if isinstance(id_or_definition_or_type, type):
+            cls = id_or_definition_or_type
+            if not hasattr(id_or_definition_or_type, DATA_DEFINITION_ATTR_NAME):
+                raise TypeError("The provided type is not a data definition")
+            id_or_definition_or_type = getattr(id_or_definition_or_type, DATA_DEFINITION_ATTR_NAME)
+            assert isinstance(id_or_definition_or_type, DataDefinition)
+
+        if (definition := self.get_definition(id_or_definition_or_type)) is None:
             raise CommunicationError(CommunicationResult.NotRegistered)
 
         self._ensure_connected("request_data_definition")
@@ -209,8 +254,17 @@ class Connection:
         if self.collector.bytearray[1] != definition.id:
             raise CommunicationError(CommunicationResult.UnknownData)
 
-    def unregister_data_definition(self, id_or_definition: int | DataDefinition) -> None:
-        if (definition := self.get_definition(id_or_definition)) is None:
+        if cls is not None:
+            return cls(*(definition.deserialize(self.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)[0]))
+
+    def unregister_data_definition(self, id_or_definition_or_type: int | DataDefinition | type) -> None:
+        if isinstance(id_or_definition_or_type, type):
+            if not hasattr(id_or_definition_or_type, DATA_DEFINITION_ATTR_NAME):
+                raise TypeError("The provided type is not a data definition")
+            id_or_definition_or_type = getattr(id_or_definition_or_type, DATA_DEFINITION_ATTR_NAME)
+            assert isinstance(id_or_definition_or_type, DataDefinition)
+
+        if (definition := self.get_definition(id_or_definition_or_type)) is None:
             raise CommunicationError(CommunicationResult.NotRegistered)
 
         self._ensure_connected("unregister_data_definition")
