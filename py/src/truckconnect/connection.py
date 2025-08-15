@@ -166,7 +166,7 @@ class Connection:
         if telemetry_id.value != self.collector.bytearray[1]:
             raise CommunicationError(CommunicationResult.ReceivedOtherTelemetry)
 
-        if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != self.pending_trailer_index_or_count:
+        if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != trailer_index_or_count:
             raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
 
     def request_telemetry(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[DeserializedType, int]:
