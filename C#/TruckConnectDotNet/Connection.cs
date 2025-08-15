@@ -91,7 +91,12 @@ namespace TruckConnect
             ConnectAsync().Wait();
         }
 
-        public void ClearPendingRequest() => PendingRequest = RequestType.None;
+        public void ClearPendingRequest()
+        {
+            PendingRequest = RequestType.None;
+            m_pendingID = TelemetryID.Invalid;
+            m_pendingTrailerIndexOrCount = new();
+        }
 
         public async Task SendRequestForAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default)
         {
@@ -350,8 +355,11 @@ namespace TruckConnect
 
         public void Disconnect()
         {
+            if (Connected)
+                throw new CommunicationErrorException(CommunicationResult.NotConnected);
             m_socket.Close();
             Collector.Reset();
+            ClearPendingRequest();
         }
 
         private void EnsureConnected(string operationName)

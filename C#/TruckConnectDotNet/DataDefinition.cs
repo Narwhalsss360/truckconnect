@@ -4,13 +4,15 @@ namespace TruckConnect
 {
     public class DataDefinition
     {
+        public static readonly int INVALID_DATA_DEFINITION_ID = 255;
+
         public readonly int DefinitionID;
 
         public readonly DataMember[] Members;
 
         private DataDefinition()
         {
-            DefinitionID = 256;
+            DefinitionID = INVALID_DATA_DEFINITION_ID;
             Members = Array.Empty<DataMember>();
         }
 
