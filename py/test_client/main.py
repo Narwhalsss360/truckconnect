@@ -4,11 +4,10 @@ from typing import Callable
 from truckconnect.connection import CommunicationError, CommunicationResult, Connection, TrailerIndexOrCount
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
-from truckconnect.data import DataDefinition, DataMember, is_value_storage_array
+from truckconnect.data import get_definition, data_definition, member
 from truckconnect.telemetry_id import TelemetryID
-from truckconnect.value_storage import SCSValueType, is_storage_type, value_storage_from_bytes, is_value_storage
+from truckconnect.value_storage import SCSValueType, value_storage_from_bytes, is_value_storage
 from truckconnect.master_structure import Master
-
 
 RUN_FOR_SEC: float = 5 * 60
 SLEEP_FOR: float = 0.050
@@ -88,17 +87,18 @@ def trailer_telemetries_update(connection: Connection) -> None:
     print(out)
 
 
+@data_definition(0)
+class Definition:
+    game_time: tuple[bool, int] = member(telemetry_id=TelemetryID.ChannelGameTime)
+    speed: tuple[bool, float] = member(telemetry_id=TelemetryID.TruckChannelSpeed)
+    rpm: tuple[bool, float] = member(telemetry_id=TelemetryID.TruckChannelEngineRpm)
+    gear: tuple[bool, int] = member(telemetry_id=TelemetryID.TruckChannelEngineGear)
+    trailers_connected: list[tuple[bool, bool]] = member(telemetry_id=TelemetryID.TrailerChannelConnected, trailer_count=SCS_TELEMETRY_trailers_count)
+
+
 def data_definitions_update(connection: Connection) -> None:
-    definition: DataDefinition = DataDefinition(
-        0,
-        [
-            DataMember(TelemetryID.ChannelGameTime),
-            DataMember(TelemetryID.TruckChannelSpeed),
-            DataMember(TelemetryID.TruckChannelEngineRpm),
-            DataMember(TelemetryID.TruckChannelEngineGear),
-            DataMember(TelemetryID.TrailerChannelConnected, SCS_TELEMETRY_trailers_count)
-        ]
-    )
+    if (definition := get_definition(Definition)) is None:
+        assert False
 
     try:
         connection.request_data_definition(definition)
@@ -113,22 +113,13 @@ def data_definitions_update(connection: Connection) -> None:
         connection.collector.bytearray,
         Connection.DATA_DEFINITION_DATA_START
     )
-    game_time_deserialized, speed_deserialized, rpm_deserialized, gear_deserialized, trailers_connected_deserialized = deserialized
 
-    assert is_storage_type(game_time_deserialized) and is_value_storage(game_time_deserialized, int)
-    game_time_initialized, game_time = game_time_deserialized
-
-    assert is_storage_type(speed_deserialized) and is_value_storage(speed_deserialized, float)
-    speed_initialized, speed = speed_deserialized
-
-    assert is_storage_type(rpm_deserialized) and is_value_storage(rpm_deserialized, float)
-    rpm_initialized, rpm = rpm_deserialized
-
-    assert is_storage_type(gear_deserialized) and is_value_storage(gear_deserialized, int)
-    gear_initialized, gear = gear_deserialized
-
-    assert isinstance(trailers_connected_deserialized, list) and is_value_storage_array(trailers_connected_deserialized, bool)
-    trailers_connected: list[tuple[bool, bool]] = trailers_connected_deserialized
+    data = Definition(*deserialized)
+    game_time_initialized, game_time = data.game_time
+    speed_initialized, speed = data.speed
+    rpm_initialized, rpm = data.rpm
+    gear_initialized, gear = data.gear
+    trailers_connected: list[tuple[bool, bool]] = data.trailers_connected
 
     gear_str: str
     if gear_initialized:

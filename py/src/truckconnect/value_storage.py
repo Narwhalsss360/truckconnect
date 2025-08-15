@@ -148,6 +148,23 @@ VALUE_TYPES: tuple[type, ...] = (
 )
 
 
+SCS_VALUE_TYPE_TO_TYPE: dict[SCSValueType, type] = {
+    SCSValueType.SCS_VALUE_TYPE_bool: bool,
+    SCSValueType.SCS_VALUE_TYPE_s32: int,
+    SCSValueType.SCS_VALUE_TYPE_u32: int,
+    SCSValueType.SCS_VALUE_TYPE_u64: int,
+    SCSValueType.SCS_VALUE_TYPE_float: float,
+    SCSValueType.SCS_VALUE_TYPE_double: float,
+    SCSValueType.SCS_VALUE_TYPE_fvector: SCSValueFVector,
+    SCSValueType.SCS_VALUE_TYPE_dvector: SCSValueDVector,
+    SCSValueType.SCS_VALUE_TYPE_euler: SCSValueEuler,
+    SCSValueType.SCS_VALUE_TYPE_fplacement: SCSValueFPlacement,
+    SCSValueType.SCS_VALUE_TYPE_dplacement: SCSValueDPlacement,
+    SCSValueType.SCS_VALUE_TYPE_string: str,
+    SCSValueType.SCS_VALUE_TYPE_s64: int,
+}
+
+
 type ValueStorageTypes = (
     tuple[bool, ValueTypes] |
     tuple[bool, list[ValueTypes], int] |
