@@ -1451,7 +1451,7 @@ class General:
 class Channels:
     general: General = field(default_factory=General)
     truck: Truck = field(default_factory=Truck)
-    trailer: list[Trailer] = field(default_factory=lambda: [])
+    trailer: list[Trailer] = field(default_factory=lambda: [Trailer() for _ in range(SCS_TELEMETRY_trailers_count)])
 
     @staticmethod
     def from_bytes(buffer: BufferType, offset: int = 0) -> tuple[Channels, int]:
@@ -1525,7 +1525,7 @@ class Configuration:
     configuration_controls_info: ConfigurationControlsInfo = field(default_factory=ConfigurationControlsInfo)
     configuration_hshifter_info: ConfigurationHshifterInfo = field(default_factory=ConfigurationHshifterInfo)
     configuration_truck_info: ConfigurationTruckInfo = field(default_factory=ConfigurationTruckInfo)
-    configuration_trailer_info: list[ConfigurationTrailerInfo] = field(default_factory=lambda: [])
+    configuration_trailer_info: list[ConfigurationTrailerInfo] = field(default_factory=lambda: [ConfigurationTrailerInfo() for _ in range(SCS_TELEMETRY_trailers_count)])
     configuration_job_info: ConfigurationJobInfo = field(default_factory=ConfigurationJobInfo)
 
     @staticmethod
