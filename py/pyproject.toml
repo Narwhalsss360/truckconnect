@@ -26,3 +26,7 @@ version = "0.1.0"
 
 [project.urls]
 Repository = "https://github.com/Narwhalsss360/truckconnect"
+
+[project.scripts]
+truckconnect-util = "truckconnect_util.__main__:main"
+tcutil = "truckconnect_util.__main__:main"
