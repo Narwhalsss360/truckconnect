@@ -8,7 +8,7 @@ from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
 from nstreamcom import Collector, encode_with_size
 from truckconnect.value_storage import BufferType, value_storage_from_bytes, value_array_storage_from_bytes, SCSValueType
-from .data import DATA_DEFINITION_ATTR_NAME, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
+from .data import DATA_DEFINITION_ATTR_NAME, NON_CHANNEL_TYPES, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
 
 
 T = TypeVar("T")
@@ -169,8 +169,18 @@ class Connection:
         if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != trailer_index_or_count:
             raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
 
-    def request_telemetry(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[DeserializedType, int]:
+    def request_telemetry(
+        self,
+        telemetry_id: TelemetryID | Type[T],
+        trailer_index_or_count: TrailerIndexOrCount | None = None
+    ) -> tuple[T, int] | tuple[DeserializedType, int]:
+        if isinstance(telemetry_id, type):
+            type_to_id: dict[type, TelemetryID] = { v: k for k, v in NON_CHANNEL_TYPES.items() }
+            if telemetry_id not in type_to_id:
+                raise TypeError(f"The type's '{telemetry_id}' telemetry ID could not be inferred.")
+            telemetry_id = type_to_id[telemetry_id]
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
+
         self.send_request_for(telemetry_id, trailer_index_or_count)
         self.receive_for_request(telemetry_id, trailer_index_or_count)
 
@@ -194,6 +204,13 @@ class Connection:
             return deserialized_list, total_read
         else:
             return deserializer(self.collector.bytearray, Connection.TELEMETRY_DATA_START)
+
+    def request_telemetry_structure(self, structure_type: Type[T], trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[T, int]:
+        if (telemetry_id := { v: k for k, v in NON_CHANNEL_TYPES.items() }.get(structure_type)) is None:
+            raise TypeError(f"The type's '{structure_type}' telemetry ID could not be inferred.")
+        structure, read = self.request_telemetry(telemetry_id, trailer_index_or_count)
+        assert isinstance(structure, structure_type)
+        return structure, read
 
     def get_definition(self, id_or_definition: int | DataDefinition) -> DataDefinition | None:
         if isinstance(id_or_definition, int):

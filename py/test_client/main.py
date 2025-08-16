@@ -41,12 +41,7 @@ def speed_update(connection: Connection) -> None:
 
 
 def master_update(connection: Connection) -> None:
-    connection.send_request_for(TelemetryID.Master)
-    connection.receive_for_request(TelemetryID.Master)
-    master, _ = Master.from_bytes(
-        connection.collector.bytearray,
-        Connection.TELEMETRY_DATA_START
-    )
+    master, _ = connection.request_telemetry_structure(Master)
 
     _, paused = master.channels.general.channel_paused
     if paused:
