@@ -1,10 +1,11 @@
-from sys import argv
+from sys import argv, stderr
 import dataclasses
 from dataclasses import Field, asdict, is_dataclass
 from typing import Any, Optional
 from socket import gethostbyname
 from pathlib import Path
 from json import dumps, loads, JSONEncoder
+from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
 from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
@@ -194,7 +195,7 @@ def get_version(hostname: str = "127.0.0.1") -> str | None:
 def fetch_telemetry(
     telemetry_id: TelemetryID,
     hostname: str = "127.0.0.1",
-    listen: bool = False,
+    listen: Optional[float] = None,
     *,
     index: Optional[int] = None,
     count: Optional[int] = None,
@@ -210,11 +211,15 @@ def fetch_telemetry(
         trailer_index_or_count.index_or_count = count
 
     with Connection(gethostbyname(hostname)) as connection:
-        if not listen:
+        if listen is None:
             return connection.request_telemetry(telemetry_id, trailer_index_or_count)
+
+        if listen < 0:
+            raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
         try:
             while True:
                 print(repr(connection.request_telemetry(telemetry_id, trailer_index_or_count)))
+                sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
 
@@ -307,7 +312,7 @@ def undefine(id: int, *, deffile: Optional[Path] = None) -> None:
 
 
 @cli.cmd("fetch-definition", help="Fetch and already defined definition")
-def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: bool = False, deffile: Optional[Path] = None) -> str | None:
+def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[float] = None, deffile: Optional[Path] = None) -> str | None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         raise CommandArgumentError(f"File {str(deffile)} does not exist.")
@@ -327,15 +332,19 @@ def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: bool = False,
 
     with Connection(gethostbyname(hostname)) as connection:
         connection.register_data_definition(definition)
-        if not listen:
+        if listen is None:
             connection.request_data_definition(definition)
             deserialized, _ = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
             return f"Definition {id}:\n" + defined_data_str(definition, deserialized)
+
+        if listen < 0:
+            raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
         try:
             while True:
                 connection.request_data_definition(definition)
                 deserialized, _ = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
                 print(defined_data_str(definition, deserialized))
+                sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
 
@@ -350,6 +359,7 @@ def retvals(command: Command, retval: Any | None) -> None:
 
 @cli.errors()
 def errors(command: Command, exc: Exception) -> None:
+    print(f"An error occurred executing commmand {command.name}: {exc}", file=stderr)
     raise exc
 
 
