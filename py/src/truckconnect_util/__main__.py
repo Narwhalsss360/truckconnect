@@ -77,6 +77,31 @@ def data_member_from_str(s: str) -> DataMember:
     return DataMember(id, count)
 
 
+def load_definitions(deffile: Path) -> list[DataDefinition]:
+    if not deffile.exists():
+        raise FileExistsError(f"{deffile} does not exist")
+
+    definitions: list[DataDefinition] = []
+    with open(deffile, "r", encoding="utf-8") as deffile_io:
+        for definition in loads(deffile_io.read()):
+            members: list[DataMember] = []
+            for member_dct in definition["members"]:
+                members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
+            definitions.append(DataDefinition(definition["id"], members))
+    return definitions
+
+
+def write_definitions(deffile: Path, definitions: list[DataDefinition]) -> None:
+    with open(deffile, "w", encoding="utf-8") as deffile_io:
+        deffile_io.write(
+            dumps(
+                [asdict(definition) for definition in definitions],
+                indent=4,
+                cls=TelemetryIDJSONEncoder
+            )
+        )
+
+
 class DataMemberVarArgsParser(DataMember):
     def __init__(self, s: str) -> None:
         parsed = data_member_from_str(s)
@@ -227,54 +252,27 @@ def fetch_telemetry(
 @cli.cmd(help="Define a data definition, Data member entry: TelemetryID|TelemetryID[count...]")
 def define(id: int, *members: DataMemberVarArgsParser, deffile: Optional[Path] = None) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
-
-    definitions: list[DataDefinition] = []
-    if deffile.exists():
-        with open(deffile, "r", encoding="utf-8") as deffile_io:
-            for definition in loads(deffile_io.read()):
-                load_members: list[DataMember] = []
-                for member_dct in definition["members"]:
-                    load_members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
-                definitions.append(DataDefinition(definition["id"], load_members))
-
+    definitions: list[DataDefinition] = load_definitions(deffile) if deffile.exists() else []
     definitions.append(DataDefinition(id, list(members)))
-
-    with open(deffile, "w", encoding="utf-8") as deffile_io:
-        deffile_io.write(
-            dumps(
-                [asdict(definition) for definition in definitions],
-                indent=4,
-                cls=TelemetryIDJSONEncoder
-            )
-        )
+    write_definitions(deffile, definitions)
 
 
 @cli.cmd(help="Show data definition by id, or all (default, no id)")
-def definition(id: Optional[int] = None, *, deffile: Optional[Path] = None, oneline: bool = False) -> None:
-    if deffile is None:
-        if not DEFAULT_DEFINITIONS_PATH.exists():
-            return
-        deffile = DEFAULT_DEFINITIONS_PATH
-
+def definition(id: Optional[int] = None, *, deffile: Optional[Path] = None, oneline: Optional[bool] = None) -> None:
+    deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
-        raise CommandArgumentError(f"File {str(deffile)} does not exist.")
+        return
 
-    definitions: list[DataDefinition] = []
-    with open(deffile, "r", encoding="utf-8") as deffile_io:
-        for definition in loads(deffile_io.read()):
-            members: list[DataMember] = []
-            for member_dct in definition["members"]:
-                members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
-            definitions.append(DataDefinition(definition["id"], members))
-
-    printer = oneline_data_definition if oneline else wrap_dc_str
+    definitions: list[DataDefinition] = load_definitions(deffile)
 
     if id is None:
+        printer = oneline_data_definition if oneline or (oneline is None) else wrap_dc_str
         for definition in definitions:
             print(printer(definition))
         return
 
     try:
+        printer = oneline_data_definition if oneline or (oneline is not None) else wrap_dc_str
         print(printer(next(filter(lambda d: d.id == id, definitions))))
     except StopIteration:
         raise CommandArgumentError(f"{id} not defined.")
@@ -284,46 +282,24 @@ def definition(id: Optional[int] = None, *, deffile: Optional[Path] = None, onel
 def undefine(id: int, *, deffile: Optional[Path] = None) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
-        raise CommandArgumentError(f"File {str(deffile)} does not exist.")
-
-    definitions: list[DataDefinition] = []
-    with open(deffile, "r", encoding="utf-8") as deffile_io:
-        for definition in loads(deffile_io.read()):
-            members: list[DataMember] = []
-            for member_dct in definition["members"]:
-                members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
-            definitions.append(DataDefinition(definition["id"], members))
+        raise CommandArgumentError(f"Definition file {deffile} does not exist")
+    definitions: list[DataDefinition] = load_definitions(deffile)
 
     try:
         i, _ = next(filter(lambda i_d: i_d[1].id == id, enumerate(definitions)))
         definitions.pop(i)
-        print(f"Undefined {id}")
+        print(f"Undefined definition {id}")
     except StopIteration:
         raise CommandArgumentError(f"{id} not defined.")
-
-    with open(deffile, "w", encoding="utf-8") as deffile_io:
-        deffile_io.write(
-            dumps(
-                [asdict(definition) for definition in definitions],
-                indent=4,
-                cls=TelemetryIDJSONEncoder
-            )
-        )
+    write_definitions(deffile, definitions)
 
 
 @cli.cmd("fetch-definition", help="Fetch and already defined definition")
 def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[float] = None, deffile: Optional[Path] = None) -> str | None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
-        raise CommandArgumentError(f"File {str(deffile)} does not exist.")
-
-    definitions: list[DataDefinition] = []
-    with open(deffile, "r", encoding="utf-8") as deffile_io:
-        for definition_dct in loads(deffile_io.read()):
-            members: list[DataMember] = []
-            for member_dct in definition_dct["members"]:
-                members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
-            definitions.append(DataDefinition(definition_dct["id"], members))
+        raise CommandArgumentError(f"Definition file {deffile} does not exist")
+    definitions: list[DataDefinition] = load_definitions(deffile)
 
     try:
         definition: DataDefinition = next(filter(lambda d: d.id == id, definitions))
@@ -347,6 +323,7 @@ def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[floa
                 sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
+
 
 @cli.retvals()
 def retvals(command: Command, retval: Any | None) -> None:
