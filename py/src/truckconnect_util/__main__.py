@@ -1,12 +1,14 @@
 from sys import argv, stderr
 import dataclasses
 from dataclasses import Field, asdict, is_dataclass
-from typing import Any, Optional
+from types import NoneType
+from typing import Annotated, Any, Optional
 from socket import gethostbyname
 from pathlib import Path
 from json import dumps, loads, JSONEncoder
 from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
+from npycli.parameters import Alias, CommandParameter, Description, ParameterKind, ParseHooks
 from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
 from truckconnect.telemetry_id import TelemetryID
@@ -185,7 +187,10 @@ def oneline_data_definition(definition: DataDefinition) -> str:
 
 
 @cli.cmd(help="Show all telemetries, or specify a telemetry to show details of")
-def telemetry(telemetry_id: Optional[TelemetryID] = None, oneline: Optional[bool] = None) -> None:
+def telemetry(
+    telemetry_id: Annotated[Optional[TelemetryID], Alias("telemetry-id", private=True), Description("The telemetry id name to show information for.")] = None,
+    oneline: Annotated[Optional[bool], Description("Output telemetry information in one line.")] = None
+) -> None:
     if telemetry_id is None:
         oneline = True if oneline is None else oneline
         if oneline:
@@ -206,8 +211,10 @@ def telemetry(telemetry_id: Optional[TelemetryID] = None, oneline: Optional[bool
         print(oneline_telemetry(telemetries()[telemetry_id.value]))
 
 
-@cli.cmd("get-version")
-def get_version(hostname: str = "127.0.0.1") -> str | None:
+@cli.cmd("get-version", help="Get the version of this client, and then the truckconnect server.")
+def get_version(
+    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1"
+) -> str | None:
     print(f"Client version: {str(VERSION)}")
     with Connection(gethostbyname(hostname)) as connection:
         try:
@@ -218,12 +225,12 @@ def get_version(hostname: str = "127.0.0.1") -> str | None:
 
 @cli.cmd("fetch-telemetry", help="Fetch a specific telemetry")
 def fetch_telemetry(
-    telemetry_id: TelemetryID,
-    hostname: str = "127.0.0.1",
-    listen: Optional[float] = None,
+    telemetry_id: Annotated[TelemetryID, Alias("telemetry-id", private=True), Description("The telemetry id to fetch.")],
+    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
+    listen: Annotated[Optional[float], Description("Specify a listent interval in seconds to continually fetch. Default will only fetch once.")] = None,
     *,
-    index: Optional[int] = None,
-    count: Optional[int] = None,
+    index: Annotated[Optional[int], Alias("trailer-index"), Description("The trailer index to get telemetry for. Must be used only for trailer telemetries and cannot be used with count.")] = None,
+    count: Annotated[Optional[int], Alias("trailer-count"), Description("The trailer count to get telemetry for. Must be used only for trailer telemetries and cannot be used with index.")] = None,
 ) -> tuple[DeserializedType, int] | str:
     trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount(False, 0)
 
@@ -250,7 +257,11 @@ def fetch_telemetry(
 
 
 @cli.cmd(help="Define a data definition, Data member entry: TelemetryID|TelemetryID[count...]")
-def define(id: int, *members: DataMemberVarArgsParser, deffile: Optional[Path] = None) -> None:
+def define(
+    id: Annotated[int, Description("The id to assign to this definition."), ParseHooks(None, lambda id: min(max(0, id), 255))],
+    *members: Annotated[DataMember, Description("The data members. Formats: 'TelemetryID' or 'TelemetryID[<count>]'.")],
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None
+) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     definitions: list[DataDefinition] = load_definitions(deffile) if deffile.exists() else []
     definitions.append(DataDefinition(id, list(members)))
@@ -258,7 +269,12 @@ def define(id: int, *members: DataMemberVarArgsParser, deffile: Optional[Path] =
 
 
 @cli.cmd(help="Show data definition by id, or all (default, no id)")
-def definition(id: Optional[int] = None, *, deffile: Optional[Path] = None, oneline: Optional[bool] = None) -> None:
+def definition(
+    id: Annotated[Optional[int], Description("The id of the definition to show information for. Default is all.")] = None,
+    *,
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
+    oneline: Annotated[Optional[bool], Description("Output definition information in one line.")] = None
+) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         return
@@ -279,7 +295,11 @@ def definition(id: Optional[int] = None, *, deffile: Optional[Path] = None, onel
 
 
 @cli.cmd(help="Undefine a definition")
-def undefine(id: int, *, deffile: Optional[Path] = None) -> None:
+def undefine(
+    id: Annotated[int, Description("The id of the definition to undefine.")],
+    *,
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None
+) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         raise CommandArgumentError(f"Definition file {deffile} does not exist")
@@ -325,11 +345,152 @@ def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[floa
             return "\n^C"
 
 
+@cli.cmd(name='help', help='Show help for a command or all commands.')
+def help_cmd(
+    command_name: Optional[str] = None,
+    parameter_name: Optional[str] = None,
+    /,
+    extended: Annotated[bool, Description("Show extended information.")] = False
+) -> str:
+    def type_name(t: type) -> str:
+        if t == NoneType:
+            return str(None)
+        return t.__name__
+
+    def annotation_preview(parameter: CommandParameter) -> str:
+        if parameter.annotation_preview:
+            return parameter.annotation_preview
+        out: str = ""
+        for i, t in enumerate(parameter.argument_types):
+            out += type_name(t)
+            if i != len(parameter.argument_types) - 1:
+                out += " | "
+        return out
+
+    def default_preview(parameter: CommandParameter) -> str | None:
+        if parameter.default == parameter.empty:
+            return None
+        if parameter.default_preview:
+            return parameter.default_preview
+        return repr(parameter.default)
+
+    def basic_parameter_help(parameter: CommandParameter) -> str:
+        if (
+            parameter.default != parameter.empty and
+            parameter.argument_types[0] == bool and
+            parameter.kind in (ParameterKind.POSITIONAL_OR_KEYWORD, ParameterKind.KEYWORD_ONLY)
+        ):
+            return (
+                "["
+                    f"{parameter.name}: "
+                    f"{annotation_preview(parameter)} = {default_preview(parameter)}"
+                "]"
+            )
+        else:
+            return (
+                "<"
+                f"{"*" if parameter.kind == ParameterKind.VAR_POSITIONAL else ""}"
+                f"{"**" if parameter.kind == ParameterKind.VAR_KEYWORD else ""}"
+                f"{parameter.name}: "
+                f"{annotation_preview(parameter)}"
+                f"{"" if (default := default_preview(parameter)) is None else f" = {default}"}"
+                ">"
+            )
+
+    def extended_parameter_help(parameter: CommandParameter) -> str:
+        tabstr = TAB_CHARS
+        out = tabstr
+        for i, name in enumerate(parameter.names):
+            out += name
+            if i != len(parameter.names) - 1:
+                out += " "
+        out += "\n"
+
+        tabstr = TAB_CHARS * 2
+        out += f"{tabstr}Kind: {parameter.kind.name}\n"
+        out += f"{tabstr}Annotation: {annotation_preview(parameter)}\n"
+
+        out += f"{tabstr}Types:\n"
+        for i, t in enumerate(parameter.argument_types):
+            out += f"{tabstr}{TAB_CHARS}{type_name(t)}"
+            if i != len(parameter.argument_types) - 1:
+                out += "\n"
+
+        if (default := default_preview(parameter)) is not None:
+            out += f"\n{tabstr}Default: {default}"
+
+        if parameter.parse_hooks is not None:
+            out += f"\n{tabstr}Parse Hooks:"
+            if parameter.parse_hooks.pre is not None:
+                out += f"\n{tabstr}{TAB_CHARS}Pre-Hook: {getattr(parameter.parse_hooks.pre, "__name__", "...")}"
+            if parameter.parse_hooks.post is not None:
+                out += f"\n{tabstr}{TAB_CHARS}Post-Hook: {getattr(parameter.parse_hooks.post, "__name__", "...")}"
+            if parameter.parse_hooks.err is not None:
+                out += f"\n{tabstr}{TAB_CHARS}Error-Hook: {getattr(parameter.parse_hooks.err, "__name__", "...")}"
+
+        if parameter.description:
+            out += f"\n{tabstr}Description: {parameter.description.replace("\n", f"\n{tabstr}")}"
+
+        return out
+
+    def basic_command_help(command: Command) -> str:
+        out: str = f"{command.name} "
+        last_positional_only_index: int = -1
+        for i, parameter in enumerate(command.parameters):
+            if parameter.kind == ParameterKind.POSITIONAL_ONLY:
+                last_positional_only_index = i
+            else:
+                break
+
+        for i, parameter in enumerate(command.parameters):
+            out += basic_parameter_help(parameter)
+            if i == last_positional_only_index:
+                out += " /"
+            if i != len(command.parameters) - 1:
+                out += " "
+        return out
+
+    def extended_command_help(command: Command) -> str:
+        out: str = ""
+        for i, name in enumerate(command.names):
+            out += name
+            if i != len(command.names) - 1:
+                out += " "
+        out += "\n"
+
+        out += "Parameters:\n"
+        for i, parameter in enumerate(command.parameters):
+            out += extended_parameter_help(parameter)
+            if i != len(command.parameters) - 1:
+                out += "\n"
+
+        return out
+
+    command_help, parameter_help = (extended_command_help, extended_parameter_help) if extended else (basic_command_help, basic_parameter_help)
+
+    if command_name is None:
+        out: str = ""
+        for i, command in enumerate(cli.commands):
+            out += f"{command_help(command)}"
+            if i != len(cli.commands) - 1:
+                out += "\n"
+        return out
+
+    if (command := cli.get_command(command_name)) is None:
+        return f"{command_name} is not a command."
+
+    if parameter_name is not None:
+        if (parameter := next(filter(lambda p: parameter_name in p.names, command.parameters)), None) is None:
+            return f"'{parameter_name}' is not a parameter"
+        return parameter_help(parameter)
+    return command_help(command)
+
+
 @cli.retvals()
 def retvals(command: Command, retval: Any | None) -> None:
     if retval is not None:
         if isinstance(retval, str):
-            print(f"{command.name}:{retval}")
+            print(f"{command.name}:{'\n' if '\n' in retval else ""}{retval}")
         else:
             print(f"{command.name}:{repr(retval)}")
 
