@@ -13,3 +13,6 @@
 [submodule "py/depends/NStreamCom"]
 	path = py/depends/NStreamCom
 	url = git@github.com:Narwhalsss360/NStreamCom
+[submodule "py/depends/npycli"]
+	path = py/depends/npycli
+	url = git@github.com:Narwhalsss360/npycli
