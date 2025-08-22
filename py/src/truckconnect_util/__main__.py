@@ -260,10 +260,17 @@ def fetch_telemetry(
 def define(
     id: Annotated[int, Description("The id to assign to this definition."), ParseHooks(None, lambda id: min(max(0, id), 255))],
     *members: Annotated[DataMember, Description("The data members. Formats: 'TelemetryID' or 'TelemetryID[<count>]'.")],
-    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
+    overwrite: Annotated[bool, Description("Overwrite existing definition with same id.")] = False
 ) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     definitions: list[DataDefinition] = load_definitions(deffile) if deffile.exists() else []
+    existing: DataDefinition | None = next(filter(lambda d: d.id == id, definitions), None)
+    if existing is not None:
+        if not overwrite:
+            raise CommandArgumentError(f"A definition with id {id} already exists.")
+        definitions.remove(existing)
+
     definitions.append(DataDefinition(id, list(members)))
     write_definitions(deffile, definitions)
 
