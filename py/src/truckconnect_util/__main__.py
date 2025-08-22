@@ -28,6 +28,11 @@ DEFAULT_DEFINITIONS_PATH: Path = Path.home() / ".tcutildef.json"
 
 def telemetry_id_from_str(s: str) -> TelemetryID:
     try:
+        return TelemetryID(int(s))
+    except ValueError:
+        ...
+
+    try:
         return TelemetryID[s]
     except KeyError:
         raise ParsingError(f"The following is not a telemetry id: '{s}'")
@@ -111,6 +116,7 @@ def type_from_str(s: str) -> type:
 
 
 cli: CLI = CLI(
+    "truckconnect util",
     parsers={
         TelemetryID: telemetry_id_from_str,
         bool: bool_from_str,
@@ -207,10 +213,13 @@ def telemetry(
 
 @cli.cmd("get-version", help="Get the version of this client, and then the truckconnect server.")
 def get_version(
-    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1"
+    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
+    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
 ) -> str | None:
     print(f"Client version: {str(VERSION)}")
     with Connection(gethostbyname(hostname)) as connection:
+        if socket_timeout and socket_timeout > 0:
+            connection.socket.settimeout(socket_timeout)
         try:
             print(f"Server version: {str(connection.get_version())}")
         except KeyboardInterrupt:
@@ -225,6 +234,7 @@ def fetch_telemetry(
     *,
     index: Annotated[Optional[int], Alias("trailer-index"), Description("The trailer index to get telemetry for. Must be used only for trailer telemetries and cannot be used with count.")] = None,
     count: Annotated[Optional[int], Alias("trailer-count"), Description("The trailer count to get telemetry for. Must be used only for trailer telemetries and cannot be used with index.")] = None,
+    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
 ) -> tuple[DeserializedType, int] | str:
     trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount(False, 0)
 
@@ -237,6 +247,8 @@ def fetch_telemetry(
         trailer_index_or_count.index_or_count = count
 
     with Connection(gethostbyname(hostname)) as connection:
+        if socket_timeout and socket_timeout > 0:
+            connection.socket.settimeout(socket_timeout)
         if listen is None:
             return connection.request_telemetry(telemetry_id, trailer_index_or_count)
 
@@ -316,7 +328,13 @@ def undefine(
 
 
 @cli.cmd("fetch-definition", help="Fetch and already defined definition")
-def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[float] = None, deffile: Optional[Path] = None) -> str | None:
+def fetch_definition(
+    id: Annotated[int, Description("The id of the definition to fetch.")],
+    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
+    listen: Annotated[Optional[float], Description("Specify a listent interval in seconds to continually fetch. Default will only fetch once.")] = None,
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
+    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
+) -> str | None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         raise CommandArgumentError(f"Definition file {deffile} does not exist")
@@ -328,6 +346,8 @@ def fetch_definition(id: int, hostname: str = "127.0.0.1", listen: Optional[floa
         raise CommandArgumentError(f"{id} not defined.")
 
     with Connection(gethostbyname(hostname)) as connection:
+        if socket_timeout and socket_timeout > 0:
+            connection.socket.settimeout(socket_timeout)
         connection.register_data_definition(definition)
         if listen is None:
             connection.request_data_definition(definition)
