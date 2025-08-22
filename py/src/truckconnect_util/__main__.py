@@ -104,12 +104,6 @@ def write_definitions(deffile: Path, definitions: list[DataDefinition]) -> None:
         )
 
 
-class DataMemberVarArgsParser(DataMember):
-    def __init__(self, s: str) -> None:
-        parsed = data_member_from_str(s)
-        super().__init__(parsed.id, parsed.trailer_count)
-
-
 def type_from_str(s: str) -> type:
     if not isinstance(t := globals().get(s.strip()), type):
         raise ParsingError(f"{s} is not a type.")
