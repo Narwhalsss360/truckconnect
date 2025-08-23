@@ -180,7 +180,7 @@ def is_value_array_storage_array(trailer_array: list, t: Type[T]) -> TypeGuard[l
     return all(is_storage_type(x) and is_value_array_storage(x, t) for x in trailer_array)
 
 
-def is_value_vector_storage_array(trailer_array: list, t: Type[T]) -> TypeGuard[list[list[T]]]:
+def is_value_vector_storage_array(trailer_array: list, t: Type[T] | None = None) -> TypeGuard[list[list[T]]]:
     return all(is_storage_type(x) and is_value_vector_storage(x, t) for x in trailer_array)
 
 

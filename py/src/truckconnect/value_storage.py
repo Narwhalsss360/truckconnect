@@ -175,49 +175,37 @@ type ValueStorageTypes = (
 T = TypeVar("T")
 
 
-def is_value_storage(storage: ValueStorageTypes, t: Type[T]) -> TypeGuard[tuple[bool, T]]:
+def is_value_storage(storage: ValueStorageTypes, t: Type[T] | None = None) -> TypeGuard[tuple[bool, T]]:
+    types: tuple[type, ...] = (t,) if t else VALUE_TYPES
     return (
         isinstance(storage, tuple) and
         len(storage) == 2 and
-        isinstance(storage[0], bool) and isinstance(storage[1], t)
+        isinstance(storage[0], bool) and isinstance(storage[1], types)
     )
 
 
-def is_value_array_storage(storage: ValueStorageTypes, t: Type[T]) -> TypeGuard[tuple[bool, list[T], int]]:
+def is_value_array_storage(storage: ValueStorageTypes, t: Type[T] | None = None) -> TypeGuard[tuple[bool, list[T], int]]:
+    types: tuple[type, ...] = (t,) if t else VALUE_TYPES
     return (
         isinstance(storage, tuple) and
         len(storage) == 3 and
         isinstance(storage[0], bool) and
         isinstance(storage[1], list) and
-        all(isinstance(x, t) for x in storage[1]) and
+        all(isinstance(x, types) for x in storage[1]) and
         isinstance(storage[2], int)
     )
 
 
-def is_value_vector_storage(storage: ValueStorageTypes, t: Type[T]) -> TypeGuard[list[T]]:
+def is_value_vector_storage(storage: ValueStorageTypes, t: Type[T] | None = None) -> TypeGuard[list[T]]:
+    types: tuple[type, ...] = (t,) if t else VALUE_TYPES
     return (
         isinstance(storage, list) and
-        all(isinstance(x, t) for x in storage)
+        all(isinstance(x, types) for x in storage)
     )
 
 
 def is_storage_type(obj: Any) -> TypeGuard[ValueStorageTypes]:
-    if isinstance(obj, tuple):
-        if len(obj) == 2:
-            return (
-                isinstance(obj[0], bool) and
-                isinstance(obj[1], VALUE_TYPES)
-            )
-        elif len(obj) == 3:
-            return (
-                isinstance(obj[0], bool) and
-                isinstance(obj[1], list) and
-                all(isinstance(x, VALUE_TYPES) for x in obj[1]) and
-                isinstance(obj[2], int)
-            )
-    elif isinstance(obj, list):
-        return all(isinstance(x, VALUE_TYPES) for x in obj)
-    return False
+    return is_value_storage(obj) or is_value_array_storage(obj) or is_value_vector_storage(obj)
 
 
 DESERIALIZER_BY_ID: list[None | Callable[[BufferType, int], tuple[ValueTypes, int]]] = [
