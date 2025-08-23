@@ -23,6 +23,7 @@ def main() -> None:
 
             general, bytes_read = connection.request_telemetry(TelemetryID.General)
             assert isinstance(general, General)
+            print(f"{bytes_read} bytes read")
             print(general)
             sleep(SLEEP_FOR_SECS)
 

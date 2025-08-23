@@ -27,7 +27,7 @@ def main() -> None:
             if not speed_initialized:
                 print("<uninitialized>")
             else:
-                print(f"{speed:0.2f} m/s")
+                print(f"{speed:0.2f} m/s (f{bytes_read} bytes read)")
             sleep(SLEEP_FOR_SECS)
 
 

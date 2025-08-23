@@ -2,7 +2,6 @@ from time import sleep
 from os import get_terminal_size
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from truckconnect.data import data_definition, member
-from truckconnect.master_structure import GameplayPlayerUseFerryInfo, General
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.connection import Connection
 
