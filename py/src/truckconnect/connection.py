@@ -336,7 +336,7 @@ class Connection:
             raise CommunicationError(CommunicationResult.UnknownData)
 
         if self.collector.bytearray[0] == RequestType.ErrorResponse.value:
-            raise CommunicationError(CommunicationResult(self.collector.bytearray[0]))
+            raise CommunicationError(CommunicationResult(self.collector.bytearray[1]))
 
         if self.collector.bytearray[0] != request_type.value:
             raise CommunicationError(CommunicationResult.ReceivedOtherResponse)

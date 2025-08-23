@@ -254,7 +254,11 @@ bool process_client(client& client) {
                 return send_error_response(client, communication_result::invalid_telemetry);
             }
 
-            if (metadata::is_trailer_telemetry(meta.id)) {
+            if (
+                metadata::is_trailer_telemetry(meta.id) &&
+                member.trailer_count != metadata::INVALID_TRAILER_INDEX &&
+                member.trailer_count > 0
+            ) {
                 if (member.trailer_count > SCS_TELEMETRY_trailers_count) {
                     return send_error_response(client, communication_result::trailer_count_out_of_bounds);
                 }
@@ -267,7 +271,7 @@ bool process_client(client& client) {
                     append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response);
                 }
             } else {
-                const uint32_t& offset = metadata::master_offset_of(meta.id);
+                const uint32_t& offset = metadata::master_offset_of(meta.id, 0);
                 if (offset == metadata::INVALID_OFFSET) {
                     return send_error_response(client, communication_result::invalid_telemetry);
                 }
