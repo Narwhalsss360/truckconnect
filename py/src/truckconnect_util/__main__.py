@@ -2,7 +2,7 @@ from sys import argv, stderr
 import dataclasses
 from dataclasses import Field, asdict, is_dataclass
 from types import NoneType
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any, Callable, Optional
 from socket import gethostbyname
 from pathlib import Path
 from json import dumps, loads, JSONEncoder
@@ -13,6 +13,7 @@ from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.connection import Connection, TrailerIndexOrCount
+from truckconnect.value_storage import is_value_array_storage, is_value_storage, is_value_vector_storage
 
 
 class TelemetryIDJSONEncoder(JSONEncoder):
@@ -128,8 +129,9 @@ cli: CLI = CLI(
 )
 
 
-def wrap_dc_str(instance, tabs: int = 0) -> str:
-    out: str = f"{TAB_CHARS * tabs}{type(instance).__name__}(\n"
+def wrap_dc_str(instance, tabs: int = 0, repr_function: Callable[[Any], str] | None = None) -> str:
+    repr_function = repr_function or repr
+    out: str = f"{type(instance).__name__}(\n"
     fields: tuple[Field[Any], ...] = tuple(filter(lambda f: f.repr, dataclasses.fields(instance)))
     tabstr: str = TAB_CHARS * (tabs + 1)
     for i, field in enumerate(fields):
@@ -137,24 +139,30 @@ def wrap_dc_str(instance, tabs: int = 0) -> str:
         value = getattr(instance, field.name)
 
         if isinstance(value, list):
-            out += "[\n"
-            for j, item in enumerate(value):
-                out += wrap_dc_str(item, tabs + 2) if is_dataclass(item) else f"{tabstr}{TAB_CHARS}{repr(item)}"
-                if j != len(value) - 1:
-                    out += ","
-                out += "\n"
-            out += f"{tabstr}]"
+            if not value:
+                out += "[]"
+            else:
+                out += "[\n"
+                for j, item in enumerate(value):
+                    out += f"{tabstr}{TAB_CHARS}{wrap_dc_str(item, tabs + 2, repr_function) if is_dataclass(item) else repr_function(item)}"
+                    if j != len(value) - 1:
+                        out += ","
+                    out += "\n"
+                out += f"{tabstr}]"
         elif isinstance(value, dict):
-            out += "{\n"
-            for j, (k, v) in enumerate(value.items()):
-                out += f"{tabstr}{TAB_CHARS}{k}: "
-                out += wrap_dc_str(v, tabs + 2) if is_dataclass(v) else f"{tabstr}{TAB_CHARS}{repr(v)}"
-                if j != len(value) - 1:
-                    out += ","
-                out += "\n"
-            out += f"{tabstr}}}"
+            if not value:
+                out += "{}"
+            else:
+                out += "{\n"
+                for j, (k, v) in enumerate(value.items()):
+                    out += f"{tabstr}{TAB_CHARS}{k}: "
+                    out += wrap_dc_str(v, tabs + 2, repr_function) if is_dataclass(v) else f"{tabstr}{TAB_CHARS}{repr_function(v)}"
+                    if j != len(value) - 1:
+                        out += ","
+                    out += "\n"
+                out += f"{tabstr}}}"
         else:
-            out += wrap_dc_str(value, tabs + 1) if is_dataclass(value) else repr(value)
+            out += wrap_dc_str(value, tabs + 1, repr_function) if is_dataclass(value) else repr_function(value)
 
         if i != len(fields) - 1:
             out += ","
@@ -167,11 +175,50 @@ def oneline_telemetry(telemetry: Telemetry) -> str:
     return f"{TelemetryID(telemetry.id)}({telemetry.id}): {telemetry.telemetry_type}"
 
 
-def defined_data_str(definition: DataDefinition, deserialized_data: list[DeserializedType]) -> str:
+def telemetry_value_pretty_print(storage: Any, oneline: bool = False) -> str:
+    UNINITIALIZED: str = "<uninitialized>"
+
+
+    if is_value_storage(storage):
+        return str(storage[1]) if storage[0] else UNINITIALIZED
+
+    if is_value_array_storage(storage):
+        if not storage[0]:
+            return UNINITIALIZED
+        out: str = "["
+        for i, x in enumerate(storage[1]):
+            out += telemetry_value_pretty_print(x) if i < storage[2] else UNINITIALIZED
+            if i != len(storage[1]) - 1:
+                out += ", "
+        out += "]"
+        return out
+    elif is_value_vector_storage(storage):
+        out: str = "["
+        for i, x in enumerate(storage):
+            out += telemetry_value_pretty_print(x)
+            if i != len(storage) - 1:
+                out += ", "
+        out += "]"
+        return out
+    elif isinstance(storage, list):
+        out: str = "["
+        for i, x in enumerate(storage):
+            out += telemetry_value_pretty_print(x)
+            if i != len(storage) - 1:
+                out += ", "
+        out += "]"
+        return out
+    elif is_dataclass(storage):
+        return str(storage) if oneline else wrap_dc_str(storage, repr_function=telemetry_value_pretty_print)
+    else:
+        return str(storage)
+
+
+def defined_data_str(definition: DataDefinition, deserialized_data: list[DeserializedType], oneline: bool) -> str:
     assert len(definition.members) == len(deserialized_data)
     out: str = ""
     for member, data in zip(definition.members, deserialized_data):
-        out += f"{member.id.name}: {data}\n"
+        out += f"{member.id.name}: {telemetry_value_pretty_print(data, oneline)}\n"
     return out
 
 
@@ -234,7 +281,9 @@ def fetch_telemetry(
     *,
     index: Annotated[Optional[int], Alias("trailer-index"), Description("The trailer index to get telemetry for. Must be used only for trailer telemetries and cannot be used with count.")] = None,
     count: Annotated[Optional[int], Alias("trailer-count"), Description("The trailer count to get telemetry for. Must be used only for trailer telemetries and cannot be used with index.")] = None,
-    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
+    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None,
+    oneline: Annotated[bool, Description("Print all dataclasses in one line.")] = False,
+    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False
 ) -> tuple[DeserializedType, int] | str:
     trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount(False, 0)
 
@@ -250,13 +299,15 @@ def fetch_telemetry(
         if socket_timeout and socket_timeout > 0:
             connection.socket.settimeout(socket_timeout)
         if listen is None:
-            return connection.request_telemetry(telemetry_id, trailer_index_or_count)
+            deserialized, read = connection.request_telemetry(telemetry_id, trailer_index_or_count)
+            return f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}"
 
         if listen < 0:
             raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
         try:
             while True:
-                print(repr(connection.request_telemetry(telemetry_id, trailer_index_or_count)))
+                deserialized, read = connection.request_telemetry(telemetry_id, trailer_index_or_count)
+                print(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}")
                 sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
@@ -332,8 +383,11 @@ def fetch_definition(
     id: Annotated[int, Description("The id of the definition to fetch.")],
     hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
     listen: Annotated[Optional[float], Description("Specify a listent interval in seconds to continually fetch. Default will only fetch once.")] = None,
+    *,
     deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
-    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
+    socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None,
+    oneline: Annotated[bool, Description("Print all dataclasses in one line.")] = False,
+    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False
 ) -> str | None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
@@ -351,16 +405,16 @@ def fetch_definition(
         connection.register_data_definition(definition)
         if listen is None:
             connection.request_data_definition(definition)
-            deserialized, _ = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
-            return f"Definition {id}:\n" + defined_data_str(definition, deserialized)
+            deserialized, read = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
+            return f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline)
 
         if listen < 0:
             raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
         try:
             while True:
                 connection.request_data_definition(definition)
-                deserialized, _ = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
-                print(defined_data_str(definition, deserialized))
+                deserialized, read = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
+                print(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline))
                 sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
