@@ -23,6 +23,58 @@ class TelemetryIDJSONEncoder(JSONEncoder):
         return super().default(o)
 
 
+class DefinitionsData:
+    def __init__(self, deffile: Path, allow_default: bool = False) -> None:
+        self.deffile: Path = deffile
+        self.definitions: list[DataDefinition] = []
+        self.names: dict[str, int] = {}
+
+        if not deffile.exists():
+            if allow_default:
+                return
+            raise FileExistsError(f"{deffile} does not exist")
+
+        with open(deffile, "r", encoding="utf-8") as deffile_io:
+            loaded: dict = loads(deffile_io.read())
+            for definition in loaded["definitions"]:
+                members: list[DataMember] = []
+                for member_dct in definition["members"]:
+                    members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
+                self.definitions.append(DataDefinition(definition["id"], members))
+            self.names = loaded["names"]
+
+    def index(self, id_or_name: int | str) -> int:
+        if isinstance(id_or_name, int):
+            try:
+                i, _ = next(filter(lambda i_d: i_d[1].id == id, enumerate(self.definitions)))
+                return i
+            except StopIteration:
+                return -1
+        if id_or_name not in self.names:
+            raise KeyError(f"{id_or_name} is not a registered name.")
+        return self.index(self.names[id_or_name])
+
+    def __getitem__(self, id_or_name: int | str) -> DataDefinition | None:
+        if isinstance(id_or_name, int):
+            return next(filter(lambda d: d.id == id_or_name, self.definitions), None)
+        if id_or_name not in self.names:
+            raise KeyError(f"{id_or_name} is not a registered name.")
+        return self[self.names[id_or_name]]
+
+    def commit(self) -> None:
+        with open(self.deffile, "w", encoding="utf-8") as deffile_io:
+            deffile_io.write(
+                dumps(
+                    {
+                        "names": self.names,
+                        "definitions": [asdict(definition) for definition in self.definitions]
+                    },
+                    indent=4,
+                    cls=TelemetryIDJSONEncoder
+                )
+            )
+
+
 TAB_CHARS: str = " " * 4
 DEFAULT_DEFINITIONS_PATH: Path = Path.home() / ".tcutildef.json"
 
@@ -83,31 +135,6 @@ def data_member_from_str(s: str) -> DataMember:
     count = 0 if count == -1 else count
     id = telemetry_id_from_str(id)
     return DataMember(id, count)
-
-
-def load_definitions(deffile: Path) -> list[DataDefinition]:
-    if not deffile.exists():
-        raise FileExistsError(f"{deffile} does not exist")
-
-    definitions: list[DataDefinition] = []
-    with open(deffile, "r", encoding="utf-8") as deffile_io:
-        for definition in loads(deffile_io.read()):
-            members: list[DataMember] = []
-            for member_dct in definition["members"]:
-                members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
-            definitions.append(DataDefinition(definition["id"], members))
-    return definitions
-
-
-def write_definitions(deffile: Path, definitions: list[DataDefinition]) -> None:
-    with open(deffile, "w", encoding="utf-8") as deffile_io:
-        deffile_io.write(
-            dumps(
-                [asdict(definition) for definition in definitions],
-                indent=4,
-                cls=TelemetryIDJSONEncoder
-            )
-        )
 
 
 def type_from_str(s: str) -> type:
@@ -315,26 +342,43 @@ def fetch_telemetry(
 
 @cli.cmd(help="Define a data definition, Data member entry: TelemetryID|TelemetryID[count...]")
 def define(
-    id: Annotated[int, Description("The id to assign to this definition."), ParseHooks(None, lambda id: min(max(0, id), 255))],
+    id: Annotated[int, Description("The id/alias to assign to this definition."), ParseHooks(None, lambda id: min(max(0, id), 255))],
     *members: Annotated[DataMember, Description("The data members. Formats: 'TelemetryID' or 'TelemetryID[<count>]'.")],
     deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
     overwrite: Annotated[bool, Description("Overwrite existing definition with same id.")] = False
 ) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
-    definitions: list[DataDefinition] = load_definitions(deffile) if deffile.exists() else []
-    existing: DataDefinition | None = next(filter(lambda d: d.id == id, definitions), None)
+
+    definitions_data: DefinitionsData = DefinitionsData(deffile, True)
+    existing: DataDefinition | None = next(filter(lambda d: d.id == id, definitions_data.definitions), None)
     if existing is not None:
         if not overwrite:
             raise CommandArgumentError(f"A definition with id {id} already exists.")
-        definitions.remove(existing)
+        definitions_data.definitions.remove(existing)
 
-    definitions.append(DataDefinition(id, list(members)))
-    write_definitions(deffile, definitions)
+    definitions_data.definitions.append(DataDefinition(id, list(members)))
+    definitions_data.commit()
 
+
+@cli.cmd("alias-definition")
+def alias_definition(
+    id: Annotated[int, Description("The id of the definition to alias.")],
+    alias: Annotated[str, Description("Alias of the definition")],
+    *,
+    deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
+    overwrite: Annotated[bool, Description("Overwrite existing alias.")] = False
+) -> None:
+    deffile = deffile or DEFAULT_DEFINITIONS_PATH
+    definitions_data: DefinitionsData = DefinitionsData(deffile, True)
+    if alias in definitions_data.names:
+        if not overwrite:
+            raise CommandArgumentError(f"Alias ${alias} already exists.")
+    definitions_data.names[alias] = id
+    definitions_data.commit()
 
 @cli.cmd(help="Show data definition by id, or all (default, no id)")
 def definition(
-    id: Annotated[Optional[int], Description("The id of the definition to show information for. Default is all.")] = None,
+    id: Annotated[Optional[int | str], Description("The id/alias of the definition to show information for. Default is all.")] = None,
     *,
     deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
     oneline: Annotated[Optional[bool], Description("Output definition information in one line.")] = None
@@ -343,44 +387,42 @@ def definition(
     if not deffile.exists():
         return
 
-    definitions: list[DataDefinition] = load_definitions(deffile)
+    definitions_Data: DefinitionsData = DefinitionsData(deffile)
 
     if id is None:
         printer = oneline_data_definition if oneline or (oneline is None) else wrap_dc_str
-        for definition in definitions:
+        for definition in definitions_Data.definitions:
             print(printer(definition))
         return
 
-    try:
-        printer = oneline_data_definition if oneline or (oneline is not None) else wrap_dc_str
-        print(printer(next(filter(lambda d: d.id == id, definitions))))
-    except StopIteration:
+    printer = oneline_data_definition if oneline or (oneline is not None) else wrap_dc_str
+    if (definition := definitions_Data[id]) is None:
         raise CommandArgumentError(f"{id} not defined.")
+    print(printer(definition))
 
 
 @cli.cmd(help="Undefine a definition")
 def undefine(
-    id: Annotated[int, Description("The id of the definition to undefine.")],
+    id: Annotated[int | str, Description("The id/alias of the definition to undefine.")],
     *,
     deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None
 ) -> None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         raise CommandArgumentError(f"Definition file {deffile} does not exist")
-    definitions: list[DataDefinition] = load_definitions(deffile)
+    definitions_data: DefinitionsData = DefinitionsData(deffile)
 
-    try:
-        i, _ = next(filter(lambda i_d: i_d[1].id == id, enumerate(definitions)))
-        definitions.pop(i)
-        print(f"Undefined definition {id}")
-    except StopIteration:
+    if (index := definitions_data.index(id)) == -1:
         raise CommandArgumentError(f"{id} not defined.")
-    write_definitions(deffile, definitions)
+
+    definitions_data.definitions.pop(index)
+    print(f"Undefined definition {id}")
+    definitions_data.commit()
 
 
 @cli.cmd("fetch-definition", help="Fetch and already defined definition")
 def fetch_definition(
-    id: Annotated[int, Description("The id of the definition to fetch.")],
+    id: Annotated[int | str, Description("The id/alias of the definition to fetch.")],
     hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
     listen: Annotated[Optional[float], Description("Specify a listent interval in seconds to continually fetch. Default will only fetch once.")] = None,
     *,
@@ -392,11 +434,9 @@ def fetch_definition(
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
         raise CommandArgumentError(f"Definition file {deffile} does not exist")
-    definitions: list[DataDefinition] = load_definitions(deffile)
+    definitions_data: DefinitionsData = DefinitionsData(deffile)
 
-    try:
-        definition: DataDefinition = next(filter(lambda d: d.id == id, definitions))
-    except StopIteration:
+    if (definition := definitions_data[id]) is None:
         raise CommandArgumentError(f"{id} not defined.")
 
     with Connection(gethostbyname(hostname)) as connection:
