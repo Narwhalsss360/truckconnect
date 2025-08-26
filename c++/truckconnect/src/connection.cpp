@@ -92,11 +92,11 @@ namespace truckconnect {
                 return communication_result::unknown_data;
             }
 
-            if (connection.collector.buffer()[0] != request_type::error_response) {
+            if (connection.collector.buffer()[0] == request_type::error_response) {
                 return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
             }
 
-            version = version_t(*reinterpret_cast<const uint32_t*>(&connection.collector.buffer()[1]));
+            version = version_t(apply_offset<uint32_t>(connection.collector.buffer().data(), 1));
             connection.clear_pending_request();
             return communication_result::success;
         }
