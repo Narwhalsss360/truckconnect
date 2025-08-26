@@ -1,4 +1,5 @@
 ﻿using TruckConnect;
+using Version = TruckConnect.Version;
 
 const int GAME_STATUS_ID = 0;
 
@@ -6,7 +7,17 @@ TimeSpan runFor = TimeSpan.FromMinutes(5);
 
 Connection connection = new();
 await connection.ConnectAsync();
+Version version = await connection.GetVersion();
 
+if (version.Major != Version.CurrentVersion.Major || version.Minor != Version.CurrentVersion.Minor) {
+    Console.Error.WriteLine($"Version Mismatch Client:{Version.CurrentVersion},  Server:{version}");
+    return;
+}
+
+if (version.Patch != Version.CurrentVersion.Patch || version.Patch != Version.CurrentVersion.Patch) {
+    Console.Error.WriteLine($"Version Mismatch Client:{Version.CurrentVersion},  Server:{version}");
+    Console.Error.WriteLine($"{(version.Patch > Version.CurrentVersion.Patch ? "Client" : "Server")} is missing patches.");
+}
 GaugeCluster cluster = new();
 
 DataDefinition gameStatusDefinition = DataDefinition.Define<GameStatus>(GAME_STATUS_ID);

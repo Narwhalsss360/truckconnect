@@ -154,6 +154,19 @@ int main() {
         return 1;
     }
 
+    truckconnect::version_t version;
+    result = truckconnect::communication::get_version(connection, version);
+
+    if (result != truckconnect::communication::communication_result::success) {
+        cout << "get_version(...) failure code : " << truckconnect::communication::communication_result_string[result] << endl;
+        return 1;
+    }
+
+    if (version.major != truckconnect::version.major || version.minor != truckconnect::version.minor) {
+        cout << "Version mismatch, client:" << std::to_string(truckconnect::version) << ", server:" << std::to_string(version) << endl;
+        return 1;
+    }
+
     //Register your data definition, this also does some static checks to avoid foot-guns.
     result = truckconnect::communication::register_data_definition<gauge_cluster>(connection);
     if (result != truckconnect::communication::communication_result::success) {

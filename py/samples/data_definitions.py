@@ -1,6 +1,7 @@
 from time import sleep
 from os import get_terminal_size
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
+from scssdk_truckconnect.truckconnect import VERSION, Version
 from truckconnect.data import data_definition, member
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.connection import Connection
@@ -31,6 +32,11 @@ class GaugeCluster:
 def main() -> None:
     # Or use connection.connect(), connection.disconnect() for manual resource management.
     with Connection(IP) as connection:
+        version: Version = connection.get_version()
+        if version.major != VERSION.major or version.minor != VERSION.minor:
+            print(f"Version mismatch Client:{VERSION}, Server: {version}")
+            return
+
         connection.register_data_definition(GameStatus)
         connection.register_data_definition(GaugeCluster)
         while True:

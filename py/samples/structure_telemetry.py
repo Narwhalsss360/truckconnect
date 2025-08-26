@@ -1,4 +1,5 @@
 from time import sleep
+from scssdk_truckconnect.truckconnect import VERSION, Version
 from truckconnect.master_structure import General
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.connection import Connection
@@ -12,6 +13,11 @@ SLEEP_FOR_SECS: float = 0.050
 def main() -> None:
     # Or use connection.connect(), connection.disconnect() for manual resource management.
     with Connection(IP) as connection:
+        version: Version = connection.get_version()
+        if version.major != VERSION.major or version.minor != VERSION.minor:
+            print(f"Version mismatch Client:{VERSION}, Server: {version}")
+            return
+
         while True:
             paused_tuple, bytes_read = connection.request_telemetry(TelemetryID.ChannelPaused)
             assert is_storage_type(paused_tuple) and is_value_storage(paused_tuple, bool), "Paused must be a tuple[bool, bool] => initialized, value"
