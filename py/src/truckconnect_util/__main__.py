@@ -205,9 +205,8 @@ def oneline_telemetry(telemetry: Telemetry) -> str:
 def telemetry_value_pretty_print(storage: Any, oneline: bool = False) -> str:
     UNINITIALIZED: str = "<uninitialized>"
 
-
     if is_value_storage(storage):
-        return str(storage[1]) if storage[0] else UNINITIALIZED
+        return telemetry_value_pretty_print(storage[1], oneline) if storage[0] else UNINITIALIZED
 
     if is_value_array_storage(storage):
         if not storage[0]:
