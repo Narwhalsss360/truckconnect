@@ -1,0 +1,243 @@
+# Master Structure
+
+> [!IMPORTANT]
+> - All channels are constant size. 
+> - All configuration and gameplay event structs have a `latest` member which is a `u32` that increments when there is new data. Currently, you must poll this value to see when a gameplay event occurs.
+
+_Type Language:_ C++ | C# | Python
+
+- Master: `master_storage` | `MasterStorage` | `Master`
+    - Configuration: `configuration_storage` | `ConfigurationStorage` | `Configuration`
+        - ConfigurationSubstancesInfo: `configuration_substances_storage` | `ConfigurationSubstancesStorage` | `ConfigurationSubstancesInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - Id: `value_vector_storage<std::string>` | `ValueListStorage<String>` | `list[str]`
+        - ConfigurationControlsInfo: `configuration_controls_storage` | `ConfigurationControlsStorage` | `ConfigurationControlsInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - ShifterType: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+        - ConfigurationHshifterInfo: `configuration_hshifter_storage` | `ConfigurationHshifterStorage` | `ConfigurationHshifterInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - SelectorCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - SlotGear: `value_vector_storage<int32_t>` | `ValueListStorage<Int32>` | `list[int]`
+            - SlotHandlePosition: `value_vector_storage<uint32_t>` | `ValueListStorage<UInt32>` | `list[int]`
+            - SlotSelectors: `value_vector_storage<uint32_t>` | `ValueListStorage<UInt32>` | `list[int]`
+        - ConfigurationTruckInfo: `configuration_truck_storage` | `ConfigurationTruckStorage` | `ConfigurationTruckInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - BrandId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Brand: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Id: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Name: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - FuelCapacity: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - FuelWarningFactor: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - AdblueCapacity: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - AdblueWarningFactor: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - AirPressureWarning: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - AirPressureEmergency: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - OilPressureWarning: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - WaterTemperatureWarning: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - BatteryVoltageWarning: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - RpmLimit: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - ForwardGearCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - ReverseGearCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - DifferentialRatio: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - RetarderStepCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - CabinPosition: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - ForwardRatio: `value_vector_storage<float>` | `ValueListStorage<Single>` | `list[float]`
+            - ReverseRatio: `value_vector_storage<float>` | `ValueListStorage<Single>` | `list[float]`
+            - HeadPosition: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - HookPosition: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - LicensePlate: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - LicensePlateCountry: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - LicensePlateCountryId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - WheelCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - WheelPosition: `value_vector_storage<scs_value_fvector_t>` | `ValueListStorage<SCSValueFVector>` | `list[SCSValueFVector]`
+            - WheelSteerable: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelSimulated: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelRadius: `value_vector_storage<float>` | `ValueListStorage<Single>` | `list[float]`
+            - WheelPowered: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelLiftable: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+        - ConfigurationTrailerInfo × 10: `configuration_trailer_storage` | `ConfigurationTrailerStorage` | `ConfigurationTrailerInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - Id: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - CargoAccessoryId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - HookPosition: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - BrandId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Brand: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Name: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - ChainType: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - BodyType: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - LicensePlate: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - LicensePlateCountry: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - LicensePlateCountryId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - WheelCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - WheelPosition: `value_vector_storage<scs_value_fvector_t>` | `ValueListStorage<SCSValueFVector>` | `list[SCSValueFVector]`
+            - WheelSteerable: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelSimulated: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelRadius: `value_vector_storage<float>` | `ValueListStorage<Single>` | `list[float]`
+            - WheelPowered: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+            - WheelLiftable: `value_vector_storage<bool>` | `ValueListStorage<Boolean>` | `list[bool]`
+        - ConfigurationJobInfo: `configuration_job_storage` | `ConfigurationJobStorage` | `ConfigurationJobInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - CargoId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Cargo: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - CargoMass: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - DestinationCityId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - CargoUnitMass: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - CargoUnitCount: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - DestinationCity: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceCityId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceCity: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - DestinationCompanyId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - DestinationCompany: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceCompanyId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceCompany: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - Income: `value_storage<uint64_t>` | `ValueStorage<UInt64>` | `tuple[bool, int]`
+            - DeliveryTime: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - IsCargoLoaded: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - JobMarket: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SpecialJob: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - PlannedDistanceKm: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+    - Gameplay: `gameplay_storage` | `GameplayStorage` | `Gameplay`
+        - GameplayJobCancelledInfo: `gameplay_job_cancelled_storage` | `GameplayJobCancelledStorage` | `GameplayJobCancelledInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - CancelPenalty: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+        - GameplayJobDeliveredInfo: `gameplay_job_delivered_storage` | `GameplayJobDeliveredStorage` | `GameplayJobDeliveredInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - Revenue: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+            - EarnedXp: `value_storage<int32_t>` | `ValueStorage<Int32>` | `tuple[bool, int]`
+            - CargoDamage: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - DistanceKm: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - DeliveryTime: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - AutoParkUsed: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - AutoLoadUsed: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+        - GameplayPlayerFinedInfo: `gameplay_player_fined_storage` | `GameplayPlayerFinedStorage` | `GameplayPlayerFinedInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - FineOffence: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - FineAmount: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+        - GameplayPlayerTollgatePaidInfo: `gameplay_player_tollgate_paid_storage` | `GameplayPlayerTollgatePaidStorage` | `GameplayPlayerTollgatePaidInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - PayAmount: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+        - GameplayPlayerUseFerryInfo: `gameplay_player_use_ferry_storage` | `GameplayPlayerUseFerryStorage` | `GameplayPlayerUseFerryInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - PayAmount: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+            - SourceName: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - TargetName: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - TargetId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+        - GameplayPlayerUseTrainInfo: `gameplay_player_use_train_storage` | `GameplayPlayerUseTrainStorage` | `GameplayPlayerUseTrainInfo`
+            - Latest: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - PayAmount: `value_storage<int64_t>` | `ValueStorage<Int64>` | `tuple[bool, int]`
+            - SourceName: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - TargetName: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - SourceId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+            - TargetId: `value_storage<std::string>` | `ValueStorage<String>` | `tuple[bool, str]`
+    - Channels: `channels_storage` | `ChannelsStorage` | `Channels`
+        - General: `general_storage` | `GeneralStorage` | `General`
+            - ChannelPaused: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - ChannelLocalScale: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - ChannelGameTime: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - ChannelMultiplayerTimeOffset: `value_storage<int32_t>` | `ValueStorage<Int32>` | `tuple[bool, int]`
+            - ChannelNextRestStop: `value_storage<int32_t>` | `ValueStorage<Int32>` | `tuple[bool, int]`
+            - JobChannelCargoDamage: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+        - Truck: `truck_storage` | `TruckStorage` | `Truck`
+            - TruckChannelWorldPlacement: `value_storage<scs_value_dplacement_t>` | `ValueStorage<SCSValueDPlacement>` | `tuple[bool, SCSValueDPlacement]`
+            - TruckChannelLocalLinearVelocity: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelLocalAngularVelocity: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelLocalLinearAcceleration: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelLocalAngularAcceleration: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelCabinOffset: `value_storage<scs_value_fplacement_t>` | `ValueStorage<SCSValueFPlacement>` | `tuple[bool, SCSValueFPlacement]`
+            - TruckChannelCabinAngularVelocity: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelCabinAngularAcceleration: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TruckChannelHeadOffset: `value_storage<scs_value_fplacement_t>` | `ValueStorage<SCSValueFPlacement>` | `tuple[bool, SCSValueFPlacement]`
+            - TruckChannelSpeed: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEngineRpm: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEngineGear: `value_storage<int32_t>` | `ValueStorage<Int32>` | `tuple[bool, int]`
+            - TruckChannelDisplayedGear: `value_storage<int32_t>` | `ValueStorage<Int32>` | `tuple[bool, int]`
+            - TruckChannelInputSteering: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelInputThrottle: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelInputBrake: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelInputClutch: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEffectiveSteering: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEffectiveThrottle: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEffectiveBrake: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelEffectiveClutch: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelCruiseControl: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelHshifterSlot: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - TruckChannelHshifterSelector × 2: `value_array_storage<bool, 2>` | `ValueArrayStorage<Boolean>` | `tuple[bool, list[bool], int]`
+            - TruckChannelParkingBrake: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelMotorBrake: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelRetarderLevel: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - TruckChannelBrakeAirPressure: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelBrakeAirPressureWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelBrakeAirPressureEmergency: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelBrakeTemperature: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelFuel: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelFuelWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelFuelAverageConsumption: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelFuelRange: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelAdblue: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelAdblueWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelOilPressure: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelOilPressureWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelOilTemperature: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWaterTemperature: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWaterTemperatureWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelBatteryVoltage: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelBatteryVoltageWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelElectricEnabled: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelEngineEnabled: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLblinker: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelRblinker: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelHazardWarning: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightLblinker: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightRblinker: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightParking: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightLowBeam: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightHighBeam: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightAuxFront: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - TruckChannelLightAuxRoof: `value_storage<uint32_t>` | `ValueStorage<UInt32>` | `tuple[bool, int]`
+            - TruckChannelLightBeacon: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightBrake: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLightReverse: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelWipers: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelDashboardBacklight: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelDifferentialLock: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLiftAxle: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelLiftAxleIndicator: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelTrailerLiftAxle: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelTrailerLiftAxleIndicator: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TruckChannelWearEngine: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWearTransmission: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWearCabin: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWearChassis: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWearWheels: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelOdometer: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelNavigationDistance: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelNavigationTime: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelNavigationSpeedLimit: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TruckChannelWheelSuspDeflection × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TruckChannelWheelOnGround × 14: `value_array_storage<bool, 14>` | `ValueArrayStorage<Boolean>` | `tuple[bool, list[bool], int]`
+            - TruckChannelWheelSubstance × 14: `value_array_storage<uint32_t, 14>` | `ValueArrayStorage<UInt32>` | `tuple[bool, list[int], int]`
+            - TruckChannelWheelVelocity × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TruckChannelWheelSteering × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TruckChannelWheelRotation × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TruckChannelWheelLift × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TruckChannelWheelLiftOffset × 14: `value_array_storage<float, 14>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+        - Trailer × 10: `trailer_storage` | `TrailerStorage` | `Trailer`
+            - TrailerChannelConnected: `value_storage<bool>` | `ValueStorage<Boolean>` | `tuple[bool, bool]`
+            - TrailerChannelCargoDamage: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TrailerChannelWorldPlacement: `value_storage<scs_value_dplacement_t>` | `ValueStorage<SCSValueDPlacement>` | `tuple[bool, SCSValueDPlacement]`
+            - TrailerChannelLocalLinearVelocity: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TrailerChannelLocalAngularVelocity: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TrailerChannelLocalLinearAcceleration: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TrailerChannelLocalAngularAcceleration: `value_storage<scs_value_fvector_t>` | `ValueStorage<SCSValueFVector>` | `tuple[bool, SCSValueFVector]`
+            - TrailerChannelWearBody: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TrailerChannelWearChassis: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TrailerChannelWearWheels: `value_storage<float>` | `ValueStorage<Single>` | `tuple[bool, float]`
+            - TrailerChannelWheelSuspDeflection × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TrailerChannelWheelOnGround × 19: `value_array_storage<bool, 19>` | `ValueArrayStorage<Boolean>` | `tuple[bool, list[bool], int]`
+            - TrailerChannelWheelSubstance × 19: `value_array_storage<uint32_t, 19>` | `ValueArrayStorage<UInt32>` | `tuple[bool, list[int], int]`
+            - TrailerChannelWheelVelocity × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TrailerChannelWheelSteering × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TrailerChannelWheelRotation × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TrailerChannelWheelLift × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
+            - TrailerChannelWheelLiftOffset × 19: `value_array_storage<float, 19>` | `ValueArrayStorage<Single>` | `tuple[bool, list[float], int]`
