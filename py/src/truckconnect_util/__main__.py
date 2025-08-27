@@ -6,7 +6,7 @@ from types import NoneType
 from typing import Annotated, Any, Callable, Optional
 from socket import gethostbyname
 from pathlib import Path
-from json import dumps, loads, JSONEncoder
+from json import dumps, load, loads, JSONEncoder
 from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
 from npycli.parameters import Alias, CommandParameter, Description, ParameterKind, ParseHooks
@@ -38,11 +38,34 @@ class DefinitionsData:
 
         with open(deffile, "r", encoding="utf-8") as deffile_io:
             loaded: dict = loads(deffile_io.read())
+            if "definitions" not in loaded:
+                raise TypeError("deffile must contain \"definitions\" key")
+
+            if not isinstance(loaded["definitions"], list):
+                raise TypeError("deffile must \"definitions\" must be a list of DataDefinition")
+
             for definition in loaded["definitions"]:
+                if "members" not in definition:
+                    raise TypeError("deffile definition must contain \"members\" key")
+
+                if not isinstance(definition["members"], list):
+                    raise TypeError("deffile definition \"members\" must be a list of DataMember")
+
                 members: list[DataMember] = []
                 for member_dct in definition["members"]:
+                    if "id" not in member_dct or "trailer_count" not in member_dct:
+                        raise TypeError("deffile definition \"members\" must be a list of DataMember")
                     members.append(DataMember(TelemetryID(member_dct["id"]), member_dct["trailer_count"]))
                 self.definitions.append(DataDefinition(definition["id"], members))
+
+            if "names" not in loaded:
+                raise TypeError("deffile must contain \"names\" key.")
+
+            if not isinstance(loaded["names"], dict):
+                raise TypeError("deffile \"names\" must be an object mapping strings to ints")
+            for k, v in loaded["names"].items():
+                if not isinstance(k, str) or not isinstance(v, int):
+                    raise TypeError("deffile \"names\" must be an object mapping strings to ints")
             self.names = loaded["names"]
 
     def index(self, id_or_name: int | str) -> int:
