@@ -1,32 +1,52 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Generate truckconnect_telemetry",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scssdk-telemetry/truckconnect.py",
-            "cwd": "${workspaceFolder}/scssdk-telemetry",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Generate C++ Files",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scssdk-telemetry/cpp.py",
-            "cwd": "${workspaceFolder}/scssdk-telemetry",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Generate C# Files",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scssdk-telemetry/csharp.py",
-            "cwd": "${workspaceFolder}/scssdk-telemetry",
-            "console": "integratedTerminal"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "tcutil fetch-telemetry --listen: 0.05",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "truckconnect_util",
+      "args": [
+        "fetch-telemetry",
+        "${input:telemetry_id}",
+        "${input:hostname}",
+        "0.05"
+      ]
+    },
+    {
+      "name": "tcutil fetch-definition --listen: 0.05",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "truckconnect_util",
+      "args": [
+        "fetch-definition",
+        "${input:definition_id}",
+        "${input:hostname}",
+        "0.05"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+        "id": "telemetry_id",
+        "type": "promptString",
+        "description": "Telemetry ID",
+        "default": "Invalid"
+    },
+    {
+        "id": "definition_id",
+        "type": "promptString",
+        "description": "Definition ID or Alias",
+        "default": ""
+    },
+    {
+        "id": "hostname",
+        "type": "promptString",
+        "description": "Hostname",
+        "default": "localhost"
+    }
+  ]
 }

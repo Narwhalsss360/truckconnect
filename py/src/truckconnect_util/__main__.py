@@ -1,5 +1,6 @@
 from sys import argv, stderr
 import dataclasses
+from os import get_terminal_size
 from dataclasses import Field, asdict, is_dataclass
 from types import NoneType
 from typing import Annotated, Any, Callable, Optional
@@ -9,6 +10,7 @@ from json import dumps, loads, JSONEncoder
 from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
 from npycli.parameters import Alias, CommandParameter, Description, ParameterKind, ParseHooks
+from npycli.ansi import ANSIControl, CURSOR_UP, CURSOR_HORIZONTAL_ABSOLUTE
 from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
 from truckconnect.telemetry_id import TelemetryID
@@ -73,6 +75,47 @@ class DefinitionsData:
                     cls=TelemetryIDJSONEncoder
                 )
             )
+
+
+class InPlacePrint:
+    def __init__(self) -> None:
+        self.last_string: str | None = None
+
+    @staticmethod
+    def wrap_and_pad_lines(string: str) -> str:
+        terminal_size = get_terminal_size()
+        lines: list[str] = string.split("\n")
+        for i in range(len(lines)):
+            if len(lines[i]) > terminal_size.columns:
+                this, next = lines[i][:terminal_size.columns], lines[i][terminal_size.columns:]
+                lines[i] = this
+                lines.insert(i + 1, next)
+            lines[i] = f"{lines[i].ljust(terminal_size.columns)}{"" if i == len(lines) - 1 else "\n"}"
+        return "".join(lines)
+
+    def print(self, string: str) -> bool:
+        string = InPlacePrint.wrap_and_pad_lines(string)
+        line_count: int = string.count('\n') + 1
+        terminal_size = get_terminal_size()
+        if terminal_size.lines < line_count:
+            print(string, end="")
+            self.last_string = None
+            return False
+
+        if self.last_string is None:
+            self.last_string = string
+            print(string, end="")
+            return True
+
+        ANSIControl.send(CURSOR_HORIZONTAL_ABSOLUTE.with_args(0))
+        if (cursor_up_count := self.last_string.count("\n")) != 0:
+            ANSIControl.send(CURSOR_UP.with_args(cursor_up_count))
+        print(string, end="")
+        self.last_string = string
+        return True
+
+    def __call__(self, string: str) -> bool:
+        return self.print(string)
 
 
 TAB_CHARS: str = " " * 4
@@ -278,7 +321,7 @@ def telemetry(
         print("N/A")
         return
 
-    if oneline == False or oneline is None:
+    if not oneline or oneline is None:
         print(wrap_dc_str(telemetries()[telemetry_id.value]))
     else:
         print(oneline_telemetry(telemetries()[telemetry_id.value]))
@@ -309,7 +352,8 @@ def fetch_telemetry(
     count: Annotated[Optional[int], Alias("trailer-count"), Description("The trailer count to get telemetry for. Must be used only for trailer telemetries and cannot be used with index.")] = None,
     socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None,
     oneline: Annotated[bool, Description("Print all dataclasses in one line.")] = False,
-    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False
+    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False,
+    no_ansi: Annotated[bool, Alias("no-ansi", private=False), Description("Non-ANSI Terminal.")] = False
 ) -> tuple[DeserializedType, int] | str:
     trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount(False, 0)
 
@@ -329,11 +373,14 @@ def fetch_telemetry(
             return f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}"
 
         if listen < 0:
-            raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
+            raise CommandArgumentError("'listen' must be an integer representing the update interval is seconds.")
+
+        in_place_print: InPlacePrint = InPlacePrint()
+        printer = print if no_ansi else in_place_print
         try:
             while True:
                 deserialized, read = connection.request_telemetry(telemetry_id, trailer_index_or_count)
-                print(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}")
+                printer(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}")
                 sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
@@ -374,6 +421,7 @@ def alias_definition(
             raise CommandArgumentError(f"Alias ${alias} already exists.")
     definitions_data.names[alias] = id
     definitions_data.commit()
+
 
 @cli.cmd(help="Show data definition by id, or all (default, no id)")
 def definition(
@@ -428,7 +476,8 @@ def fetch_definition(
     deffile: Annotated[Optional[Path], Description("Definition file to use.")] = None,
     socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None,
     oneline: Annotated[bool, Description("Print all dataclasses in one line.")] = False,
-    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False
+    show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False,
+    no_ansi: Annotated[bool, Alias("no-ansi", private=False), Description("Non-ANSI Terminal.")] = False
 ) -> str | None:
     deffile = deffile or DEFAULT_DEFINITIONS_PATH
     if not deffile.exists():
@@ -448,12 +497,15 @@ def fetch_definition(
             return f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline)
 
         if listen < 0:
-            raise CommandArgumentError(f"'listen' must be an integer representing the update interval is seconds.")
+            raise CommandArgumentError("'listen' must be an integer representing the update interval is seconds.")
         try:
+            in_place_print: InPlacePrint = InPlacePrint()
+            printer = print if no_ansi else in_place_print
+
             while True:
                 connection.request_data_definition(definition)
                 deserialized, read = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
-                print(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline))
+                printer(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline))
                 sleep(listen)
         except KeyboardInterrupt:
             return "\n^C"
@@ -491,7 +543,7 @@ def help_cmd(
     def basic_parameter_help(parameter: CommandParameter) -> str:
         if (
             parameter.default != parameter.empty and
-            parameter.argument_types[0] == bool and
+            parameter.argument_types[0] is bool and
             parameter.kind in (ParameterKind.POSITIONAL_OR_KEYWORD, ParameterKind.KEYWORD_ONLY)
         ):
             return (
