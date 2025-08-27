@@ -50,7 +50,8 @@ namespace TruckConnect
 			init => _customChannel = TelemetryType == TelemetryType.Channel ? value : throw new InvalidOperationException("This property is only available for channels.");
 		}
 
-		public static Metadata ByID(TelemetryID id) => Array.Find(METADATA, metadata => metadata.ID == id) ?? throw new ArgumentException("Metadata not found", nameof(id));
+		public static Metadata ByID(TelemetryID id)
+			=> id == TelemetryID.Invalid ? throw new ArgumentException("Metadata not found", nameof(id)) : METADATA[(int)id];
 
 		public static readonly Metadata[] METADATA =
 		[
