@@ -434,16 +434,19 @@ def definition(
     if not deffile.exists():
         return
 
-    definitions_Data: DefinitionsData = DefinitionsData(deffile)
+    definitions_data: DefinitionsData = DefinitionsData(deffile)
 
     if id is None:
         printer = oneline_data_definition if oneline or (oneline is None) else wrap_dc_str
-        for definition in definitions_Data.definitions:
+        for definition in definitions_data.definitions:
             print(printer(definition))
+        print("Aliases:")
+        for name, id in definitions_data.names.items():
+            print(f"{name}: {id}")
         return
 
     printer = oneline_data_definition if oneline or (oneline is not None) else wrap_dc_str
-    if (definition := definitions_Data[id]) is None:
+    if (definition := definitions_data[id]) is None:
         raise CommandArgumentError(f"{id} not defined.")
     print(printer(definition))
 
