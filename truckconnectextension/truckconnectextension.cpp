@@ -42,8 +42,8 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 }
 
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
-    constexpr const std::clock_t NOTIFY_LAP_INTERVAL = 5000;
-    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL = 5 * 60 * 1000;
+    constexpr const std::clock_t NOTIFY_LAP_INTERVAL = 5000 * CLOCKS_PER_SEC / 1000;
+    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL = 5 * 60 * 1000 * CLOCKS_PER_SEC / 1000;
 
     static std::clock_t now;
     static std::clock_t last_lap = {};
