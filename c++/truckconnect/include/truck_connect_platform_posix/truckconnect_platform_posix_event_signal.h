@@ -1,25 +1,21 @@
 #pragma once
 #include "truckconnect_platform_posix.h"
+#include <cerrno>
+#include <cstdint>
 #include <ctime>
-#include <locale>
-#include <mutex>
 #include <pthread.h>
 
 namespace truckconnect {
     namespace platform {
         namespace event_signal {
-            struct user_space_signal {
-                bool signaled;
-
-                std::mutex mutex = {};
-
-                pthread_t main_id = pthread_t();
-
-                user_space_signal(bool initial_state, pthread_t main_id)
-                    : signaled(initial_state), main_id(main_id) {}
+            struct cond_var_bundle {
+                pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+                pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+                bool signaled = false;
+                pthread_t creator = pthread_t();
             };
 
-            using signal = user_space_signal*;
+            using signal = cond_var_bundle*;
 
             constexpr const signal INVALID_SIGNAL = nullptr;
 
@@ -40,42 +36,59 @@ namespace truckconnect {
             };
 
             static inline signal create_signal(bool initial_state = false) {
-                return new user_space_signal(initial_state, pthread_self());
+                cond_var_bundle* bundle = new cond_var_bundle;
+                bundle->creator = pthread_self();
+                bundle->signaled = initial_state;
+                pthread_cond_init(&bundle->cond, NULL); // Documented to never return an error value
+                return bundle;
             }
 
             static signal_state wait(const signal& signal, timeout_int timeout = NO_TIMEOUT) {
-                std::clock_t end = std::clock() + (timeout * CLOCKS_PER_SEC) / 1000;
+                if (pthread_self() == signal->creator) {
+                    return signal_state::error;
+                }
 
-                do {
-                    signal->mutex.lock();
-                    if (signal->signaled) {
-                        if (pthread_self() != signal->main_id) {
-                            signal->signaled = false;
-                        }
-                        signal->mutex.unlock();
-                        return signal_state::signaled;
+                if (pthread_mutex_lock(&signal->mutex) != 0) {
+                    return signal_state::error;
+                }
+
+                signal_state state;
+                if (signal->signaled) {
+                    state = signal_state::signaled;
+                } else if (timeout == NO_TIMEOUT) {
+                    pthread_cond_wait(&signal->cond, &signal->mutex);
+                    state = signal_state::signaled;
+                } else {
+                    timespec ts;
+                    ts.tv_sec = timeout / 1000;
+                    ts.tv_nsec = (timeout % 1000) * 1000000;
+                    if (pthread_cond_timedwait(&signal->cond, &signal->mutex, &ts) == ETIMEDOUT) {
+                        state = signal_state::not_signaled;
+                    } else {
+                        state = signal_state::signaled;
                     }
-                    signal->mutex.unlock();
-                } while (std::clock() < end);
+                }
+                signal->signaled = false;
 
-                return signal_state::not_signaled;
+                if (pthread_mutex_unlock(&signal->mutex) != 0) {
+                    return signal_state::error;
+                }
+
+                return state;
             }
 
             static signal_state signaled(const signal& signal) {
-                return wait(signal, 0);
+                return signal->signaled ? signal_state::signaled : signal_state::not_signaled;
             }
 
             static bool set(const signal& signal) {
-                signal->mutex.lock();
                 signal->signaled = true;
-                signal->mutex.unlock();
+                pthread_cond_signal(&signal->cond);
                 return true;
             }
 
             static bool reset(const signal& signal) {
-                signal->mutex.lock();
                 signal->signaled = false;
-                signal->mutex.unlock();
                 return true;
             }
 

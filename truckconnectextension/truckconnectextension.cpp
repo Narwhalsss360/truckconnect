@@ -42,8 +42,10 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 }
 
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
-    constexpr const std::clock_t NOTIFY_LAP_INTERVAL = 5000 * CLOCKS_PER_SEC / 1000;
-    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL = 5 * 60 * 1000 * CLOCKS_PER_SEC / 1000;
+    constexpr const std::clock_t NOTIFY_LAP_INTERVAL_MS = 5000;
+    constexpr const std::clock_t NOTIFY_LAP_INTERVAL_CLOCK = NOTIFY_LAP_INTERVAL_MS * CLOCKS_PER_SEC / 1000;
+    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL_MS = 5 * 60 * 1000;
+    constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL_CLOCK = NOTIFY_MEMORY_USAGE_INTERVAL_MS * CLOCKS_PER_SEC / 1000;
 
     static std::clock_t now;
     static std::clock_t last_lap = {};
@@ -54,8 +56,8 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
     switch (event_signal::signaled(frame_end_signal())) {
         case event_signal::signal_state::signaled:
         laps++;
-        if (now - last_lap >= NOTIFY_LAP_INTERVAL) {
-            console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher thread " + to_string(laps) + " times in the last " + to_string(NOTIFY_LAP_INTERVAL) + "ms.");
+        if (now - last_lap >= NOTIFY_LAP_INTERVAL_CLOCK) {
+            console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher thread " + to_string(laps) + " times in the last " + to_string(NOTIFY_LAP_INTERVAL_MS) + "ms.");
             laps = 0;
             last_lap = now;
         }
@@ -72,7 +74,7 @@ SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_conte
         console_log(SCS_LOG_TYPE_error, IDENTSTR(frame_end), "Signal signaled(...) unknown result."); break;
     }
 
-    if (now - last_memory_notify >= NOTIFY_MEMORY_USAGE_INTERVAL) {
+    if (now - last_memory_notify >= NOTIFY_MEMORY_USAGE_INTERVAL_CLOCK) {
         console_log(SCS_LOG_TYPE_message, "Master structure memory usage: " + to_string(memory_usage(current_master())) + " bytes.");
         last_memory_notify = now;
     }
