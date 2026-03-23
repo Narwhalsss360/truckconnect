@@ -6,10 +6,10 @@ from types import NoneType
 from typing import Annotated, Any, Callable, Optional
 from socket import gethostbyname
 from pathlib import Path
-from json import dumps, load, loads, JSONEncoder
+from json import dumps, loads, JSONEncoder
 from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
-from npycli.parameters import Alias, CommandParameter, Description, ParameterKind, ParseHooks
+from npycli.parameters import Alias, CommandParameter, CommandParameterType, Description, ParameterKind, ParseHooks
 from npycli.ansi import ANSIControl, CURSOR_UP, CURSOR_HORIZONTAL_ABSOLUTE
 from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
@@ -160,7 +160,7 @@ def telemetry_id_from_str(s: str) -> TelemetryID:
 def bool_from_str(s: str) -> bool:
     s = s.strip().lower()
     truthy: tuple[str, ...] = "true", "yes", "y", "1"
-    falsy: tuple[str, ...] = "false", "no", "m", "0"
+    falsy: tuple[str, ...] = "false", "no", "n", "0"
 
     if s in truthy:
         return True
@@ -544,7 +544,7 @@ def help_cmd(
     /,
     extended: Annotated[bool, Description("Show extended information.")] = False
 ) -> str:
-    def type_name(t: type) -> str:
+    def type_name(t: CommandParameterType) -> str:
         if t == NoneType:
             return str(None)
         return t.__name__
