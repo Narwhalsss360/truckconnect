@@ -697,7 +697,7 @@ def main() -> None:
     try:
         cli.exec(argv[1:])
     except EmptyEntriesError:
-        pass
+        cli.exec(["help"])
     except CLIError as err:
         print(f'{err.__class__.__name__}: {err.args[0]}')
 
