@@ -330,20 +330,20 @@ namespace truckconnect {
             return arrange_recursive(bytes, offset + read, out, i + 1);
         }
 
-
         template <typename data_structure>
         bool arrange(const std::vector<uint8_t>& bytes, const uint32_t& offset, data_structure& out) {
             using member_info = data_member_info_container<data_structure>;
 
-
-            if (member_info::reinterpretable) {
+            if constexpr (member_info::reinterpretable) {
                 if (bytes.size() - offset >= sizeof(data_structure)) {
                     out = apply_offset<data_structure>(bytes.data(), offset);
                     return true;
                 }
-            }
 
-            return arrange_recursive(bytes, offset, out, 0);
+                return false;
+            } else {
+                return arrange_recursive(bytes, offset, out, 0);
+            }
         }
 
         static inline bool arrange(const data_definition_value& defintition, const std::vector<uint8_t>& data, const uint32_t& offset, std::vector<uint8_t>& out) {
