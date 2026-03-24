@@ -1,6 +1,6 @@
 #pragma once
 #ifdef __unix__
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(TRUCKCONNECT_DEBUG)
 #define TRUCKCONNECT_DEBUG
 #endif
 

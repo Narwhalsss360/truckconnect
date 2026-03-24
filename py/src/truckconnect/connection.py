@@ -1,8 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
+from re import finditer
 from types import TracebackType
-from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP
+from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP, SHUT_RDWR
 from typing import Callable, Type, TypeVar
 from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
@@ -299,7 +300,13 @@ class Connection:
     def disconnect(self) -> None:
         if not self.connected:
             raise CommunicationError(CommunicationResult.NotConnected)
+
+        try:
+            self.socket.shutdown(SHUT_RDWR)
+        except OSError:
+            pass
         self.socket.close()
+
         self.pending_request = RequestType.NoRequest
         self.pending_telemetry_id = TelemetryID.Invalid
         self.pending_trailer_index_or_count = TrailerIndexOrCount()

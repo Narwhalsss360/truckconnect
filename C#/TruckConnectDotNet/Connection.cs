@@ -355,9 +355,18 @@ namespace TruckConnect
 
         public void Disconnect()
         {
-            if (Connected)
+            if (!Connected)
                 throw new CommunicationErrorException(CommunicationResult.NotConnected);
-            m_socket.Close();
+
+            try
+            {
+                m_socket.Shutdown(SocketShutdown.Both);
+            }
+            finally
+            {
+                m_socket.Close();
+            }
+
             Collector.Reset();
             ClearPendingRequest();
         }

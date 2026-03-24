@@ -34,7 +34,24 @@ namespace truckconnect {
                 return fcntl(socket, F_SETFL, fcntl_flags) != -1;
             }
 
-            static error_int close_socket(socket socket) {
+            static bool set_reuseable_address(socket socket) {
+                int true_int = 1;
+                return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &true_int, sizeof(true_int)) != -1;
+            }
+
+            static bool shut_read(socket socket) {
+                return shutdown(socket, SHUT_RD) != -1;
+            }
+
+            static bool shut_write(socket socket) {
+                return shutdown(socket, SHUT_WR) != -1;
+            }
+
+            static error_int close_socket(socket socket, int linger_for = 4) {
+                linger so_linger;
+                so_linger.l_onoff = 1;
+                so_linger.l_linger = linger_for;
+                setsockopt(socket, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger));
                 return close(socket);
             }
 

@@ -26,7 +26,24 @@ namespace truckconnect {
                 return ioctlsocket(socket, FIONBIO, &mode) != ERROR_RESULT;
             }
 
-            static error_int close_socket(socket socket) {
+            static bool set_reuseable_address(socket socket) {
+                int true_int = 1;
+                return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&true_int, sizeof(true_int)) != -1;
+            }
+
+            static bool shut_read(socket socket) {
+                return shutdown(socket, SD_RECEIVE) != -1;
+            }
+
+            static bool shut_write(socket socket) {
+                return shutdown(socket, SD_SEND) != -1;
+            }
+
+            static error_int close_socket(socket socket, int linger_for = 4) {
+                linger so_linger;
+                so_linger.l_onoff = 1;
+                so_linger.l_linger = linger_for;
+                setsockopt(socket, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger));
                 return closesocket(socket);
             }
 

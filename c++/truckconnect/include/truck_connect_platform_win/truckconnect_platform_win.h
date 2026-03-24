@@ -1,6 +1,6 @@
 #pragma once
 #ifdef _WIN32
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(TRUCKCONNECT_DEBUG)
 #define TRUCKCONNECT_DEBUG
 #endif
 

@@ -1,4 +1,6 @@
 #include "process_client.h"
+#include "scssdk/scssdk.h"
+#include "truckconnectextension.h"
 
 using std::vector;
 using std::to_string;
@@ -11,9 +13,24 @@ using namespace truckconnect::platform;
 using namespace truckconnect::communication;
 
 void cleanup_client(client& client) {
-    if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
-        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "close_socket(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
+    if (!sockets::shut_write(client.connection.socket)) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(cleanup_client), "shut_write(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
     }
+
+    int recv_read;
+    char discard_buffer[64];
+    do {
+        recv_read = recv(client.connection.socket, discard_buffer, sizeof(discard_buffer), 0);
+    } while (recv_read > 0);
+
+    if (!sockets::shut_read(client.connection.socket)) {
+        console_log(SCS_LOG_TYPE_warning, IDENTSTR(cleanup_client), "shut_read(" + to_string(client.connection.addr) + ") error " + to_string(sockets::last_error()) + ", socket closed incorrectly.");
+    }
+
+    if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
+        console_log(SCS_LOG_TYPE_warning, IDENTSTR(cleanup_client), "close_socket(" + to_string(client.connection.addr) + ") error " + to_string(sockets::last_error()) + ", socket closed incorrectly.");
+    }
+
     client.connection.socket = sockets::INVALID;
 }
 
@@ -62,6 +79,7 @@ bool read_new_pending_request(client& client) {
         int received = recv(client.connection.socket, reinterpret_cast<char* const>(&data), 1, 0);
 
         if (received == 0) {
+            cleanup_client(client);
             return false;
         }
 

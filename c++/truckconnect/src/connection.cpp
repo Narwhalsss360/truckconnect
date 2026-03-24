@@ -483,6 +483,9 @@ namespace truckconnect {
                 return communication_result::not_connected;
             }
 
+            (void)sockets::shut_write(connection.socket);
+            (void)sockets::shut_read(connection.socket);
+
             if (sockets::close_socket(connection.socket) == sockets::ERROR_RESULT) {
                 return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }

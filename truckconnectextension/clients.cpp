@@ -41,6 +41,10 @@ bool clients_init() {
         return false;
     }
 
+    if (!sockets::set_reuseable_address(listener)) {
+        console_log(SCS_LOG_TYPE_warning, IDENTSTR(clients_init), "set_reusable_address(...) failure " + to_string(sockets::last_error()) + ", binding may fail.");
+    }
+
     sockaddr_in all;
     all.sin_family = AF_INET;
     *reinterpret_cast<uint32_t* const>(&all.sin_addr) = 0;
@@ -112,14 +116,30 @@ void clients_deinit() {
         dispatcher.join();
     }
 
-    for (client& client : clients) {
-        if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "close_socket(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
-        }
-    }
-    clients.clear();
-
     cleanup_listener();
+    for (client& client : clients) {
+        if (!sockets::shut_write(client.connection.socket)) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "shut_write(" + to_string(client.connection.addr) + ") critical error " + to_string(sockets::last_error()) + ", potentially leaking socket.");
+        }
+
+        int recv_read;
+        char discard_buffer[64];
+        do {
+            recv_read = recv(client.connection.socket, discard_buffer, sizeof(discard_buffer), 0);
+        } while (recv_read > 0);
+
+        if (!sockets::shut_read(client.connection.socket)) {
+            console_log(SCS_LOG_TYPE_warning, IDENTSTR(clients_deinit), "shut_read(" + to_string(client.connection.addr) + ") error " + to_string(sockets::last_error()) + ", socket closed incorrectly.");
+        }
+
+        if (sockets::close_socket(client.connection.socket) == sockets::ERROR_RESULT) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "close_socket(" + to_string(client.connection.addr) + ") error " + to_string(sockets::last_error()) + ", socket closed incorrectly.");
+        }
+
+        client.connection.socket = sockets::INVALID;
+    }
+
+    clients.clear();
 
     if (!sockets::deinitialize()) {
         console_log(SCS_LOG_TYPE_error, IDENTSTR(clients_deinit), "Sockets deinitialization error.");
