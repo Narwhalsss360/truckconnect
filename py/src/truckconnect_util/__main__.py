@@ -362,7 +362,7 @@ def get_version(
         try:
             print(f"Server version: {str(connection.get_version())}")
         except KeyboardInterrupt:
-            return "\n^C"
+            return
 
 
 @cli.cmd("fetch-telemetry", help="Fetch a specific telemetry")
@@ -377,7 +377,7 @@ def fetch_telemetry(
     oneline: Annotated[bool, Description("Print all dataclasses in one line.")] = False,
     show_read: Annotated[bool, Alias("show-read", private=False), Description("Show how many bytes were deserialized.")] = False,
     no_ansi: Annotated[bool, Alias("no-ansi", private=False), Description("Non-ANSI Terminal.")] = False
-) -> tuple[DeserializedType, int] | str:
+) -> tuple[DeserializedType, int] | str | None:
     trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount(False, 0)
 
     if index is not None and count is not None:
@@ -406,7 +406,7 @@ def fetch_telemetry(
                 printer(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}")
                 sleep(listen)
         except KeyboardInterrupt:
-            return "\n^C"
+            return
 
 
 @cli.cmd(help="Define a data definition, Data member entry: TelemetryID|TelemetryID[count...]")
@@ -534,7 +534,7 @@ def fetch_definition(
                 printer(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline))
                 sleep(listen)
         except KeyboardInterrupt:
-            return "\n^C"
+            return
 
 
 @cli.cmd(name='help', help='Show help for a command or all commands.')
