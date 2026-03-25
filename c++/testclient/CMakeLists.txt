@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.22)
 
 project(testclient CXX)
 set(CMAKE_BUILD_TYPE Debug)
@@ -54,9 +54,7 @@ target_link_libraries(
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(
-        testclient
-        PUBLIC
-        TRUCKCONNECT_DEBUG
-    )
+    if(WIN32 AND NOT MSVC)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    endif()
 endif()

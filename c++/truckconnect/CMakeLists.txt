@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.22)
 
 project(truckconnect CXX)
 set(CMAKE_CXX_STANDARD 17)
@@ -78,3 +78,15 @@ file(
 add_library(truckconnect STATIC ${truckconnect_sources})
 target_include_directories(truckconnect PUBLIC "${truckconnect_include_path}")
 target_link_libraries(truckconnect nstreamcom)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(WIN32 AND NOT MSVC)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    endif()
+
+    target_compile_definitions(
+        truckconnect
+        PUBLIC
+        TRUCKCONNECT_DEBUG
+    )
+endif()
