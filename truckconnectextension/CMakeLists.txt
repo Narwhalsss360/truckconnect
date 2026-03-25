@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.22)
 
 project(truckconnectextension CXX)
 set(BUILD_SHARED_LIBS ON)
@@ -45,19 +45,29 @@ file(
     "${truckconnectextension_src_path}/*.cpp"
 )
 
+set(truckconnectextension_module_file "module.def")
+cmake_path(
+    SET
+    truckconnectextension_module_file
+    NORMALIZE
+    "${truckconnectextension_path}/${truckconnectextension_module_file}"
+)
+
 add_library(
     truckconnectextension
+    SHARED
     "${test_client_translation_units}"
+    "${truckconnectextension_module_file}"
 )
 target_link_libraries(
     truckconnectextension
     truckconnect
 )
 
+set_target_properties(truckconnectextension PROPERTIES ENABLE_EXPORTS TRUE)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(
-        truckconnectextension
-        PUBLIC
-        TRUCKCONNECT_DEBUG
-    )
+    if(WIN32 AND NOT MSVC)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    endif()
 endif()
