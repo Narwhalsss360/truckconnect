@@ -7,31 +7,70 @@ _See more [documentation](./docs/)_
 
 ---
 
+# Submodules
+
+Remember when cloning or pulling, to run `git submodule update --init --recursive`.
+
+---
+
 # Game Extension
 
-Currently only _tested_ on Windows. The game extension `.dll` should be placed in the `bin/win_xxx/plugins` directory in the game directory. The developer console will occasionally show some important messages such as when a client connects, disconnects, or an unexpected request comes in. The extension would also log when the dispatcher (client processing) thread is slower than the game thread which is unexpected, but may happen for large operations, this _may_ important because there are no synchronization devices. The amount of memory being used is also cached.
+The game extension `.dll`/`.so` should be placed in the `bin/win_xxx/plugins`/`bin/linux_xxx/plugins` directory in the game directory. The developer console will occasionally show some important messages such as when a client connects, disconnects, or an unexpected request comes in. The extension would also log when the dispatcher (client processing) thread is slower than the game thread which is unexpected, but may happen for large operations, this _may_ important because there are no synchronization devices. The amount of memory being used is also logged.
 
 ---
 
 # Note For Python
 
 The usage of the python API is mixed between the `scssdk_truckconnect` module in the `truckconnect` repository. 
-Use `truckconnect` for connections, data definitions, the master structure, telemetry id enumerations, value storage and corresponding functions. Use `scssdk_truckconnect` for all else. 
+Use `truckconnect` for connections, data definitions, the master structure, telemetry id enumerations, value storage and corresponding functions, that is, client api. Use `scssdk_truckconnect` for all else. 
+
+---
 
 # Building
 
-All required include directories are named `include`, and all source directories are named `src`, within `C++/` 
+_**Ensure that you have updated all submodules.**_
 
-Use VisualStudio for C# projects.
+## C++ (Client)
 
-*Minimum C++: c++17*
+_Minimum C++: c++17_
 
-## Build "System": Makefile
+_If you're using CMake,_ in your CMakeLists.txt, `add_subdirectory` `c++/truckconnect` and `target_link_libraries` `truckconnect`.
 
-`truckconnectextension` has a Makefile for building the game extension.
-The `c++` directory has a Makefile for building the `testclient`
+_If you're not using CMake,_ all required include directories are named `include`, and all source directories are named `src`, within `c++/truckconnect` and also `c++/NStreamCom`. If debugging, either defined `_DEBUG` (automagically defined from MSVC in the debug configuration) or `TRUCKCONNECT_DEBUG`.
 
-## Build System: VisualStudio
+## C++ (Extension)
+
+_Minimum C++: c++17_
+
+_If you're using Visual Studio, see the Visual Studio section below._
+
+Perform the usual CMake build process (in the `truckconnectextension` directory):
+- Generate the build files:
+	- `cmake -S . -B build`
+	- _For debugging,_ `cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug`
+- Build
+	- `cmake --build build`
+
+## Python (installation)
+
+Currently, for development purposes all required dependencies are included in this repository. Install each of these dependencies by running `python -m pip path/to/project` where `path/to/project` is the directory with the `pyproject.toml` file. Optionally use `-e` editable for debugging.
+
+The modules should be installed in the following order:
+- `scssdk-telemetry` which is named `scssdk-truckconnect-telemetry`
+- `py/depends/npycli`, `py/depends/NStreamCom`
+- `py` which is named `truckconnect`
+
+`scssdk-truckconnect-telemetry` includes the `scssdk_telemetry` module since it's a branch of that original repository, and the `scssdk_truckconnect` module which is the module for this project.
+
+`npycli` is the CLI "framework" 
+
+`py` includes the python implementation of this project. It includes the `truckconnect` module which is for creating programs using the `truckconnect` API. It also includes `truckconnect_util` which is a command line interface program to perform basic operations on the `truckconnect` API. Invoke the utility by running either
+
+- `python -m truckconnect_util`,
+- `truckconnect_util` or
+- `tcutil`
+
+## Visual Studio (C++, C#)
 
 - C++ Shared Items Project: `C++/NStreamCom/...`
 	- Encoding/Decoding library.
@@ -63,7 +102,8 @@ The `c++` directory has a Makefile for building the `testclient`
 
 ### Cross-Platform Compatibility
 
-Currently only confirmed on windows, the build system is VisualStudio. API calls are wrapped in a `truckconnect::platform` namespace for cross-platform/compiler implementations. 
+API calls are wrapped in a `truckconnect::platform` namespace for cross-platform/compiler implementations.
+_On windows, linking with Winsock2 `Ws2_32.lib` is required. The `#pragma comment ...` for windows platform shall perform the link._
 
 ---
 
@@ -97,4 +137,10 @@ The output directory of the generated files are determined by the `OUTPUT_FOLDER
 
 ---
 
-*v0.1.0*
+# Note on Threading
+
+Currently, the cross-platform synchronization implementations _assume_ that there will always only ever be one other thread (for the extension), that is, the game thread and the \[client\] dispatcher thread.
+
+---
+
+_v0.1.0_
