@@ -19,7 +19,7 @@ cmake_path(
     "${repo}/${truckconnect_path}"
 )
 
-add_subdirectory("${truckconnect_path}" "build")
+add_subdirectory("${truckconnect_path}" "truckconnect")
 
 set(truckconnectextension_path "truckconnectextension")
 cmake_path(

@@ -40,7 +40,9 @@ file(
     "${nstreamcom_src_path}/*.cpp"
 )
 
-add_library(nstreamcom STATIC ${nstreamcom_sources})
+if(NOT TARGET nstreamcom)
+    add_library(nstreamcom STATIC ${nstreamcom_sources})
+endif()
 target_include_directories(nstreamcom PUBLIC "${nstreamcom_include_path}")
 
 set(truckconnect_path "c++/truckconnect")
@@ -75,7 +77,10 @@ file(
     "${truckconnect_src_path}/*.cpp"
 )
 
-add_library(truckconnect STATIC ${truckconnect_sources})
+if(NOT TARGET truckconnect)
+    add_library(truckconnect STATIC ${truckconnect_sources})
+endif()
+
 target_include_directories(truckconnect PUBLIC "${truckconnect_include_path}")
 target_link_libraries(truckconnect nstreamcom)
 

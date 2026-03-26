@@ -18,7 +18,7 @@ cmake_path(
     "${repo}/${truckconnect_path}"
 )
 
-add_subdirectory("${truckconnect_path}" "build")
+add_subdirectory("${truckconnect_path}" "truckconnect")
 
 set(testclient_path "c++/testclient")
 cmake_path(
