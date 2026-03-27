@@ -362,11 +362,19 @@ namespace TruckConnect
             {
                 m_socket.Shutdown(SocketShutdown.Both);
             }
-            finally
+            catch (SocketException)
+            { }
+
+            byte[] discardBuffer = new byte[1];
+            while (true)
             {
-                m_socket.Close();
+                if (m_socket.Receive(discardBuffer, SocketFlags.Peek) <= 0)
+                    break;
+                if (m_socket.Receive(discardBuffer) <= 0)
+                    break;
             }
 
+            m_socket.Close();
             Collector.Reset();
             ClearPendingRequest();
         }

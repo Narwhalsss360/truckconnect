@@ -486,6 +486,12 @@ namespace truckconnect {
             (void)sockets::shut_write(connection.socket);
             (void)sockets::shut_read(connection.socket);
 
+            int recv_read;
+            char discard_buffer[64];
+            do {
+                recv_read = recv(connection.socket, discard_buffer, sizeof(discard_buffer), 0);
+            } while (recv_read > 0);
+
             if (sockets::close_socket(connection.socket) == sockets::ERROR_RESULT) {
                 return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }

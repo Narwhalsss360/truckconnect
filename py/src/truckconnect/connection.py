@@ -303,8 +303,15 @@ class Connection:
 
         try:
             self.socket.shutdown(SHUT_RDWR)
-        except OSError:
+        except (OSError, RuntimeError):
             pass
+
+        try:
+            while self.socket.recv(64):
+                continue
+        except (OSError, RuntimeError, TimeoutError):
+            pass
+
         self.socket.close()
 
         self.pending_request = RequestType.NoRequest
