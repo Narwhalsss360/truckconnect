@@ -1,6 +1,8 @@
-#include "clients.h"
 #include <thread>
+#include <truck_connect_platform_win/truckconnect_platform_win_event_signal.h>
+#include "clients.h"
 #include "process_client.h"
+#include "truckconnectextension.h"
 
 #define LISTENER_BACKLOG (2)
 
@@ -13,6 +15,7 @@ using namespace truckconnect::platform::event_signal;
 sockets::socket listener = sockets::INVALID;
 thread dispatcher;
 volatile bool stop = false;
+const timeout_int& dispatcher_timeout = 500;
 void dispatcher_start();
 vector<client> clients;
 
@@ -92,11 +95,18 @@ void dispatcher_start() {
             }
         }
 
-        switch (wait(frame_end_signal())) {
+        timeout_int timeout;
+        if (current_master().channels.general.channel_paused.value || !current_master().channels.general.channel_paused.initialized) {
+            timeout = dispatcher_timeout;
+        } else {
+            timeout = event_signal::NO_TIMEOUT;
+        }
+
+        switch (wait(frame_end_signal(), timeout)) {
             case signal_state::signaled:
                 break;
             case signal_state::not_signaled:
-                console_log(SCS_LOG_TYPE_warning, IDENTSTR(dispatcher_start), "Unexpected not_signaled result from wait(...) with no timeout.");
+                // console_log(SCS_LOG_TYPE_warning, IDENTSTR(dispatcher_start), "Unexpected not_signaled result from wait(...) with no timeout.");
                 break;
             case signal_state::error:
                 console_log(SCS_LOG_TYPE_error, IDENTSTR(dispatcher_start), "Signal wait(...) error: " + to_string(event_signal::last_error()));
