@@ -59,13 +59,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datadefinition", "c++\sampl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{390F7D50-2591-4CE0-B2B9-19E4529249BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicTelemetry", "c#\samples\BasicTelemetry\BasicTelemetry.csproj", "{6BA69A0F-F50A-4B2E-B620-886F6B67A304}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicTelemetry", "C#\samples\BasicTelemetry\BasicTelemetry.csproj", "{6BA69A0F-F50A-4B2E-B620-886F6B67A304}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailerTelemetry", "c#\samples\TrailerTelemetry\TrailerTelemetry.csproj", "{30EAA766-F587-41F0-B0E8-091EF84E4A8D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailerTelemetry", "C#\samples\TrailerTelemetry\TrailerTelemetry.csproj", "{30EAA766-F587-41F0-B0E8-091EF84E4A8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDefinitions", "c#\samples\DataDefinitions\DataDefinitions.csproj", "{91648BC1-3B5E-4F84-9CC3-84FFF54B24D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDefinitions", "C#\samples\DataDefinitions\DataDefinitions.csproj", "{91648BC1-3B5E-4F84-9CC3-84FFF54B24D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructureTelemetry", "c#\samples\StructureTelemetry\StructureTelemetry.csproj", "{C0FDAE72-9C09-457E-A21A-A4981519514D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructureTelemetry", "C#\samples\StructureTelemetry\StructureTelemetry.csproj", "{C0FDAE72-9C09-457E-A21A-A4981519514D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nonblocking", "c++\samples\nonblocking\nonblocking.vcxproj", "{FD61D6E3-45E2-47F7-B119-A7C8E3B3F5BA}"
 EndProject

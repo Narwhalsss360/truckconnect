@@ -2,7 +2,6 @@
 #include <truckconnect>
 #include "clients.h"
 #include "process_client.h"
-#include "truck_connect_platform_posix/truckconnect_platform_posix_sockets.h"
 #include "truckconnectextension.h"
 
 #define LISTENER_BACKLOG (2)

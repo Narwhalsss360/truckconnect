@@ -1,0 +1,51 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/C#/">
+    <Project Path="C#/NStreamCom/src/NStreamCom/NStreamCom.csproj" />
+    <Project Path="C#/TestClientDotNet/TestClientDotNet.csproj" />
+    <Project Path="C#/TruckConnectDotNet/TruckConnectDotNet.csproj" />
+  </Folder>
+  <Folder Name="/C#/Samples/">
+    <Project Path="C#/samples/BasicTelemetry/BasicTelemetry.csproj" />
+    <Project Path="C#/samples/DataDefinitions/DataDefinitions.csproj" />
+    <Project Path="C#/samples/StructureTelemetry/StructureTelemetry.csproj" />
+    <Project Path="C#/samples/TrailerTelemetry/TrailerTelemetry.csproj" />
+  </Folder>
+  <Folder Name="/C++/">
+    <Project Path="../proto-truckconnect/NStreamCom/nstreamcom.vcxitems" Id="f6aabf94-ed61-41ac-aaad-e75510af8cff" />
+    <Project Path="c++/testclient/testclient.vcxproj" Id="e46bee7b-2ff6-49b9-8b9d-c6fa567039c2" />
+    <Project Path="c++/truckconnect/truckconnect.vcxitems" Id="07b6de3e-fdf6-4293-bba6-56ac2394ff27" />
+  </Folder>
+  <Folder Name="/C++/Samples/">
+    <Project Path="c++/samples/basictelemetry/basictelemetry.vcxproj" Id="218db0db-ee92-4fe9-9f83-3f5e9b69788e" />
+    <Project Path="c++/samples/datadefinition/datadefinition.vcxproj" Id="37769eb7-b153-4ae1-9d99-2e77c1c0416e" />
+    <Project Path="c++/samples/nonblocking/nonblocking.vcxproj" Id="fd61d6e3-45e2-47f7-b119-a7c8e3b3f5ba" />
+    <Project Path="c++/samples/structuretelemetry/structuretelemetry.vcxproj" Id="39dd1fd9-792d-413c-bcca-23f4381f5a97" />
+    <Project Path="c++/samples/trailertelemetry/trailertelemetry.vcxproj" Id="d996b66d-870a-455e-9f40-a127e96847c0" />
+  </Folder>
+  <Folder Name="/Repository Items/">
+    <File Path=".gitignore" />
+    <File Path=".gitmodules" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Repository Items/scssdk-telemetry/">
+    <File Path="scssdk-telemetry/.git" />
+    <File Path="scssdk-telemetry/.gitignore" />
+    <File Path="scssdk-telemetry/LICENSE" />
+    <File Path="scssdk-telemetry/README.md" />
+    <File Path="scssdk-telemetry/scssdk_dataclasses.py" />
+    <File Path="scssdk-telemetry/scssdk_telemetry.json" />
+    <File Path="scssdk-telemetry/scssdk_telemetry.yaml" />
+    <File Path="scssdk-telemetry/truckconnect.py" />
+  </Folder>
+  <Folder Name="/Repository Items/scssdk-telemetry/include/">
+    <File Path="scssdk-telemetry/include/extract_trailer_index.h" />
+    <File Path="scssdk-telemetry/include/storage.h" />
+  </Folder>
+  <Project Path="truckconnectextension/truckconnectextension.vcxproj" Id="4a867dcf-7b98-4d1f-b99d-64537f788236" />
+</Solution>
