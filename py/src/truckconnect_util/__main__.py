@@ -1,16 +1,17 @@
-from sys import argv, stderr
+from sys import argv, stderr, stdout
 import dataclasses
 from os import get_terminal_size
+from io import StringIO
 from dataclasses import Field, asdict, is_dataclass
 from types import NoneType
-from typing import Annotated, Any, Callable, Optional
+from typing import Annotated, Any, Callable, Optional, TextIO
 from socket import gethostbyname
 from pathlib import Path
 from json import dumps, loads, JSONEncoder
 from time import sleep
 from npycli import CLI, Command, EmptyEntriesError, ParsingError, CLIError, CommandArgumentError
 from npycli.parameters import Alias, CommandParameter, CommandParameterType, Description, ParameterKind, ParseHooks
-from npycli.ansi import ANSIControl, CURSOR_UP, CURSOR_HORIZONTAL_ABSOLUTE
+from npycli.ansi import CURSOR_UP, INSERT_NEW_LINE, strip_ansi
 from scssdk_truckconnect.truckconnect import VERSION, Telemetry, telemetries
 from truckconnect.data import DataDefinition, DataMember, DeserializedType
 from truckconnect.telemetry_id import TelemetryID
@@ -101,44 +102,102 @@ class DefinitionsData:
 
 
 class InPlacePrint:
-    def __init__(self) -> None:
-        self.last_string: str | None = None
+    def __init__(self, file: TextIO) -> None:
+        self.last_lines: list[str] | None = None
+        self._file: TextIO = file
 
     @staticmethod
-    def wrap_and_pad_lines(string: str) -> str:
-        terminal_size = get_terminal_size()
+    def wrap(string: str, columns: int) -> list[str]:
         lines: list[str] = string.split("\n")
-        for i in range(len(lines)):
-            if len(lines[i]) > terminal_size.columns:
-                this, next = lines[i][:terminal_size.columns], lines[i][terminal_size.columns:]
+        i: int = 0
+        while i < len(lines):
+            if len(strip_ansi(lines[i])) > columns:
+                this, next = lines[i][:columns], lines[i][columns:]
                 lines[i] = this
                 lines.insert(i + 1, next)
-            lines[i] = f"{lines[i].ljust(terminal_size.columns)}{"" if i == len(lines) - 1 else "\n"}"
-        return "".join(lines)
+            i += 1
+        return lines
 
-    def print(self, string: str) -> bool:
-        string = InPlacePrint.wrap_and_pad_lines(string)
-        line_count: int = string.count('\n') + 1
-        terminal_size = get_terminal_size()
-        if terminal_size.lines < line_count:
-            print(string, end="")
-            self.last_string = None
+    @staticmethod
+    def pad(lines: list[str], padding: list[int]) -> list[str]:
+        if len(lines) != len(padding):
+            raise ValueError("'lines' and 'padding' must be the same size.")
+
+        padded: list[str] = lines.copy()
+        for i, (padded_line, pad) in enumerate(zip(padded, padding)):
+            stripped_len: int = len(strip_ansi(padded_line))
+            if stripped_len < pad:
+                padded[i] = f"{padded[i]}{' ' * (pad - stripped_len)}"
+
+        return padded
+
+    def print(self, *values: Any, sep: str = " ", end: str = "\n") -> bool:
+        buffer: StringIO = StringIO()
+        print(*values, sep=sep, end=end, file=buffer, flush=True)
+        terminal_size = get_terminal_size(self._file.fileno())
+        lines: list[str] = InPlacePrint.wrap(buffer.getvalue(), terminal_size.columns)
+        with_clearing: list[str] = lines.copy()
+
+        if self.last_lines is not None:
+            if len(self.last_lines) > len(lines):
+                clearing_line: str = " " * terminal_size.columns
+                with_clearing.extend(clearing_line for _ in range(len(self.last_lines) - len(lines)))
+
+            padding: list[int] = [len(strip_ansi(last_line)) for last_line in self.last_lines]
+            if len(padding) < len(with_clearing):
+                padding.extend(0 for _ in range(len(lines) - len(padding)))
+            with_clearing = InPlacePrint.pad(with_clearing, padding)
+
+        self.last_lines = lines
+        print("\n".join(with_clearing), file=self._file)
+        if len(with_clearing) >= terminal_size.lines:
+            self.last_lines = None
+            if len(with_clearing) > len(lines):
+                CURSOR_UP(len(with_clearing) - len(lines), file=self._file)
             return False
 
-        if self.last_string is None:
-            self.last_string = string
-            print(string, end="")
-            return True
-
-        ANSIControl.send(CURSOR_HORIZONTAL_ABSOLUTE.with_args(0))
-        if (cursor_up_count := self.last_string.count("\n")) != 0:
-            ANSIControl.send(CURSOR_UP.with_args(cursor_up_count))
-        print(string, end="")
-        self.last_string = string
+        CURSOR_UP(len(with_clearing), file=self._file)
         return True
 
-    def __call__(self, string: str) -> bool:
-        return self.print(string)
+    def print_above(self, *values: Any, sep: str = " ", end: str = "") -> None:
+        buffer: StringIO = StringIO()
+        print(*values, sep=sep, end=end, file=buffer, flush=True)
+        terminal_size = get_terminal_size(self._file.fileno())
+        lines: list[str] = InPlacePrint.wrap(buffer.getvalue(), terminal_size.columns)
+
+        if not self.last_lines:
+            print("\n".join(lines), file=self._file)
+            return
+
+        INSERT_NEW_LINE(repeat=len(lines), file=self._file)
+        print("\n".join(lines), file=self._file)
+
+    def clear(self) -> bool:
+        if self.last_lines is None:
+            return True
+        terminal_size = get_terminal_size(self._file.fileno())
+        if len(self.last_lines) >= terminal_size.lines:
+            self.last_lines = None
+            return False
+
+        clearing_line: str = " " * terminal_size.columns
+        print("\n".join([clearing_line for _ in range(len(self.last_lines))]), file=self._file)
+        CURSOR_UP(len(self.last_lines), file=self._file)
+        return True
+
+    def done(self) -> bool:
+        if self.last_lines is None:
+            return True
+        terminal_size = get_terminal_size(self._file.fileno())
+        if len(self.last_lines) >= terminal_size.lines:
+            self.last_lines = None
+            return False
+
+        print("\n" * len(self.last_lines), end="", file=self._file)
+        return True
+
+    def __call__(self, *values: Any, sep: str = " ", end: str = "\n") -> bool:
+        return self.print(*values, sep=sep, end=end)
 
 
 TAB_CHARS: str = " " * 4
@@ -308,6 +367,10 @@ def telemetry_value_pretty_print(storage: Any, oneline: bool = False) -> str:
 
 def defined_data_str(definition: DataDefinition, deserialized_data: list[DeserializedType], oneline: bool) -> str:
     assert len(definition.members) == len(deserialized_data)
+    return "\n".join([
+        f"{member.id.name}: {telemetry_value_pretty_print(data, oneline)}"
+        for member, data in zip(definition.members, deserialized_data)
+    ])
     out: str = ""
     for member, data in zip(definition.members, deserialized_data):
         out += f"{member.id.name}: {telemetry_value_pretty_print(data, oneline)}\n"
@@ -352,10 +415,12 @@ def telemetry(
 
 @cli.cmd("get-version", help="Get the version of this client, and then the truckconnect server.")
 def get_version(
-    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running.")] = "127.0.0.1",
+    hostname: Annotated[str, Description("Hostname of computer with truckconnect server running. Use '-' to not connect to a server.")] = "127.0.0.1",
     socket_timeout: Annotated[Optional[float], Alias("socket-timeout", private=True), Description("Socket operation timeout in seconds.")] = None
 ) -> str | None:
     print(f"Client version: {str(VERSION)}")
+    if hostname == "-":
+        return
     with Connection(gethostbyname(hostname)) as connection:
         if socket_timeout and socket_timeout > 0:
             connection.socket.settimeout(socket_timeout)
@@ -398,15 +463,18 @@ def fetch_telemetry(
         if listen < 0:
             raise CommandArgumentError("'listen' must be an integer representing the update interval is seconds.")
 
-        in_place_print: InPlacePrint = InPlacePrint()
-        printer = print if no_ansi else in_place_print
+        in_place_print: InPlacePrint = InPlacePrint(stdout)
+        printer, end = (print, "\n") if no_ansi else (in_place_print, "")
         try:
             while True:
                 deserialized, read = connection.request_telemetry(telemetry_id, trailer_index_or_count)
-                printer(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}")
+                printer(f"{f"({read} bytes): " if show_read else ""}{telemetry_value_pretty_print(deserialized, oneline)}", end=end)
                 sleep(listen)
         except KeyboardInterrupt:
             return
+        finally:
+            if in_place_print == printer:
+                in_place_print.done()
 
 
 @cli.cmd(help="Define a data definition, Data member entry: TelemetryID|TelemetryID[count...]")
@@ -524,17 +592,20 @@ def fetch_definition(
 
         if listen < 0:
             raise CommandArgumentError("'listen' must be an integer representing the update interval is seconds.")
+        in_place_print: InPlacePrint = InPlacePrint(stdout)
+        printer, end = (print, "\n") if no_ansi else (in_place_print, "")
         try:
-            in_place_print: InPlacePrint = InPlacePrint()
-            printer = print if no_ansi else in_place_print
 
             while True:
                 connection.request_data_definition(definition)
                 deserialized, read = definition.deserialize(connection.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)
-                printer(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline))
+                printer(f"Definition {id}{f" ({read} bytes)" if show_read else ""}:\n" + defined_data_str(definition, deserialized, oneline), end=end)
                 sleep(listen)
         except KeyboardInterrupt:
             return
+        finally:
+            if in_place_print == printer:
+                in_place_print.done()
 
 
 @cli.cmd(name='help', help='Show help for a command or all commands.')
