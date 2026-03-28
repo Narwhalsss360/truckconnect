@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(TopLevelTruckConnect)
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(repo ".")
 cmake_path(ABSOLUTE_PATH repo NORMALIZE)
 

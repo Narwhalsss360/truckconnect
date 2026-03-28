@@ -84,11 +84,12 @@ endif()
 target_include_directories(truckconnect PUBLIC "${truckconnect_include_path}")
 target_link_libraries(truckconnect nstreamcom)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if(WIN32 AND NOT MSVC)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    endif()
+if(WIN32 AND NOT MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    target_link_libraries(truckconnect wsock32 ws2_32)
+endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(
         truckconnect
         PUBLIC

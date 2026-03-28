@@ -1,7 +1,8 @@
 #include <thread>
-#include <truck_connect_platform_win/truckconnect_platform_win_event_signal.h>
+#include <truckconnect>
 #include "clients.h"
 #include "process_client.h"
+#include "truck_connect_platform_posix/truckconnect_platform_posix_sockets.h"
 #include "truckconnectextension.h"
 
 #define LISTENER_BACKLOG (2)
@@ -83,6 +84,9 @@ void dispatcher_start() {
             if (sockets::last_error() != sockets::errors::SE_EWOULDBLOCK) {
                 console_log(SCS_LOG_TYPE_error, IDENTSTR(dispatcher_start), "accept(...) error: " + to_string(sockets::last_error()));
             }
+        } else if (!sockets::nonblocking(new_client.connection.socket)) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(dispatcher_start), "Not accepting client, could not set non-blocking mode.");
+            sockets::close_socket(new_client.connection.socket);
         } else {
             clients.push_back(new_client);
             console_log(SCS_LOG_TYPE_message, to_string(new_client.connection.addr) + " connected.");
@@ -90,7 +94,7 @@ void dispatcher_start() {
 
         for (uint32_t i = 0; i < clients.size(); i++) {
             if (!process_client(clients[i])) {
-                console_log(SCS_LOG_TYPE_message, IDENTSTR(dispatcher_start), "Client " + to_string(clients[i].connection.addr) + " disconncted.");
+                console_log(SCS_LOG_TYPE_message, IDENTSTR(dispatcher_start), "Client " + to_string(clients[i].connection.addr) + " disconnected.");
                 clients.erase(clients.begin() + i);
             }
         }

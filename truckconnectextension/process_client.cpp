@@ -54,10 +54,10 @@ void catch_and_print_send_error(client& client) {
         case sockets::errors::SE_ECONNRESET:
             break;
         case sockets::errors::SE_ECONNABORTED:
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(catch_and_print_send_error), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
             break;
         default:
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(send_catch_fail), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(catch_and_print_send_error), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
             break;
     }
 }
@@ -142,12 +142,24 @@ bool process_client(client& client) {
         return false;
     }
 
-    if (client.connection.pending_request == request_type::none) {
+    if (
+        client.connection.pending_request == request_type::none ||
+        client.connection.collector.state() != collector_states::COLLECTED
+    ) {
         return true;
     }
 
     static vector<uint8_t> response = vector<uint8_t>(3);
     static vector<uint8_t> encoded_response;
+
+    struct deferer {
+        std::function<void()> defered;
+        deferer(std::function<void()> defered) : defered(defered) {}
+        ~deferer() { defered(); }
+    } deferer([&]() {
+        client.connection.clear_pending_request();
+        client.connection.collector.reset();
+    });
 
     switch (client.connection.pending_request) {
     case request_type::telemetry_id: {
@@ -376,6 +388,5 @@ bool process_client(client& client) {
         break;
     }
 
-    client.connection.pending_request = request_type::none;
     return true;
 }

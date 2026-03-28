@@ -66,8 +66,6 @@ target_link_libraries(
 
 set_target_properties(truckconnectextension PROPERTIES ENABLE_EXPORTS TRUE)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if(WIN32 AND NOT MSVC)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    endif()
+if(WIN32 AND NOT MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
