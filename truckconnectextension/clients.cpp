@@ -15,7 +15,8 @@ using namespace truckconnect::platform::event_signal;
 sockets::socket listener = sockets::INVALID;
 thread dispatcher;
 volatile bool stop = false;
-const timeout_int& dispatcher_timeout = 500;
+constexpr const timeout_int& dispatcher_timeout = 500;
+constexpr const std::clock_t MINIMUM_COMMUNICATION_INTERVAL = 5 * CLOCKS_PER_SEC / 1000;
 void dispatcher_start();
 vector<client> clients;
 
@@ -91,7 +92,13 @@ void dispatcher_start() {
             console_log(SCS_LOG_TYPE_message, to_string(new_client.connection.addr) + " connected.");
         }
 
+        const std::time_t now = std::clock();
         for (uint32_t i = 0; i < clients.size(); i++) {
+            if (now - clients[i].last_communication_time < MINIMUM_COMMUNICATION_INTERVAL) {
+                continue;
+            }
+
+            clients[i].last_communication_time = MINIMUM_COMMUNICATION_INTERVAL;
             if (!process_client(clients[i])) {
                 console_log(SCS_LOG_TYPE_message, IDENTSTR(dispatcher_start), "Client " + to_string(clients[i].connection.addr) + " disconnected.");
                 clients.erase(clients.begin() + i);

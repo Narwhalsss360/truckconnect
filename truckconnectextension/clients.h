@@ -1,8 +1,10 @@
 #pragma once
 #include "truckconnectextension.h"
+#include <ctime>
 
 struct client {
     truckconnect::communication::connection connection;
+	std::clock_t last_communication_time = std::clock_t();
 };
 
 extern std::vector<client> clients;
