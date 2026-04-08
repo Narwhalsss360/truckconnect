@@ -1,79 +1,17 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from enum import Enum
 from types import TracebackType
 from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP, SHUT_RDWR
-from typing import Callable, Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar
+from asyncio import AbstractEventLoop, get_event_loop
 from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
 from nstreamcom import Collector, encode_with_size
 from truckconnect.value_storage import BufferType, value_storage_from_bytes, value_array_storage_from_bytes, SCSValueType
-from .data import DATA_DEFINITION_ATTR_NAME, NON_CHANNEL_TYPES, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
+from ..data import DATA_DEFINITION_ATTR_NAME, NON_CHANNEL_TYPES, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
+from ..connection import TrailerIndexOrCount, RequestType, CommunicationResult, CommunicationError
 
 
 T = TypeVar("T")
-
-
-@dataclass
-class TrailerIndexOrCount:
-    is_count: bool = field(default=False)
-    index_or_count: int = field(default=0)
-
-    @staticmethod
-    def from_int(as_int: int) -> TrailerIndexOrCount:
-        if not (0 <= as_int <= 255):
-            raise ValueError("integer must be within [0, 255]")
-        return TrailerIndexOrCount(as_int & 1 > 0, as_int >> 1)
-
-    def __int__(self) -> int:
-        return int(self.is_count) | (self.index_or_count << 1)
-
-
-class RequestType(Enum):
-    NoRequest = 0
-    TelemetryID = 1
-    RegisterDataDefinition = 2
-    DefinedData = 3
-    UnregisterDataDefinition = 4
-    Version = 5
-    ErrorResponse = 6
-
-
-class CommunicationResult(Enum):
-    Success = 0
-    GenericSocketError = 1
-    AlreadyConnected = 2
-    NotConnected = 3
-    Disconnected = 4
-    Incomplete = 5
-    CollectorError = 6
-    NoPendingRequest = 7
-    InvalidTelemetry = 8
-    InvalidTrailerIndex = 9
-    OtherRequestPending = 10
-    OtherTelemetryIDPending = 11
-    OtherTrailerIndexRequestPending = 12
-    ReceivedOtherResponse = 13
-    ReceivedOtherTelemetry = 14
-    ReceivedOtherTrailerIndex = 15
-    DeserializationFailure = 16
-    TrailerIndexOutOfBounds = 17
-    TrailerCountOutOfBounds = 18
-    TrailerIndexOrCountWasCount = 19
-    NullArgument = 20
-    Empty = 21
-    AlreadyRegistered = 22
-    OtherDefinedDataPending = 23
-    NotRegistered = 24
-    ArrangeError = 25
-    BadlyFormed = 26
-    UnknownData = 27
-
-
-class CommunicationError(Exception):
-    def __init__(self, communication_result: CommunicationResult, *args: object) -> None:
-        super().__init__(f"Communication Result:{communication_result}", *args)
-        self.communication_result = communication_result
 
 
 class Connection:
@@ -96,22 +34,25 @@ class Connection:
     def connected(self) -> bool:
         return self._connected
 
-    def connect(self) -> None:
+    async def connect(self, loop: Optional[AbstractEventLoop] = None) -> None:
+        loop = loop or get_event_loop()
         if self.connected:
             raise CommunicationError(CommunicationResult.AlreadyConnected)
-        self.socket.connect(self.addr)
+        await loop.sock_connect(self.socket, self.addr)
         self._connected = True
 
-    def receive_one(self) -> None:
+    async def receive_one(self, loop: Optional[AbstractEventLoop] = None) -> None:
+        loop = loop or get_event_loop()
         self._ensure_connected("receive_one")
         if self.pending_request == RequestType.NoRequest:
             raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
 
-        if not (recv := self.socket.recv(1)):
+        if not (recv := await loop.sock_recv(self.socket, 1)):
             raise CommunicationError(CommunicationResult.Disconnected)
         self.collector.collect(recv[0])
 
-    def receive_all(self) -> None:
+    async def receive_all(self, loop: Optional[AbstractEventLoop] = None) -> None:
+        loop = loop or get_event_loop()
         self._ensure_connected("receive_all")
         if self.pending_request == RequestType.NoRequest:
             raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
@@ -119,24 +60,25 @@ class Connection:
         if self.collector.data_ready:
             self.collector.reset()
         while not self.collector.error_state and not self.collector.data_ready:
-            if not (recv := self.socket.recv(1)):
+            if not (recv := await loop.sock_recv(self.socket, 1)):
                 raise CommunicationError(CommunicationResult.Disconnected)
             self.collector.collect(recv[0])
 
-    def get_version(self) -> Version:
+    async def get_version(self, loop: Optional[AbstractEventLoop] = None) -> Version:
         self._ensure_connected("get_version")
         self._ensure_pending_request(RequestType.NoRequest)
 
         self.pending_request = RequestType.Version
         self.socket.send(encode_with_size([RequestType.Version.value]))
-        self.receive_all()
+        await self.receive_all(loop)
         self.pending_request = RequestType.NoRequest
 
         self._ensure_received_request(RequestType.Version, exact_size=1 + 4)
 
         return Version.from_int(int.from_bytes(self.collector.bytearray[1:4], "little"))
 
-    def send_request_for(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> None:
+    def send_request_for(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None, loop: Optional[AbstractEventLoop] = None) -> None:
+        loop = loop or get_event_loop()
         self._ensure_connected("send_request_for")
         self._ensure_pending_request(RequestType.NoRequest)
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
@@ -149,7 +91,7 @@ class Connection:
         self.pending_telemetry_id = telemetry_id
         self.pending_trailer_index_or_count = trailer_index_or_count
 
-    def receive_for_request(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> None:
+    async def receive_for_request(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None, loop: Optional[AbstractEventLoop] = None) -> None:
         self._ensure_connected("receive_for_request")
         self._ensure_pending_request(RequestType.TelemetryID)
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
@@ -159,7 +101,7 @@ class Connection:
         if trailer_index_or_count != self.pending_trailer_index_or_count:
             raise CommunicationError(CommunicationResult.OtherTrailerIndexRequestPending)
 
-        self.receive_all()
+        await self.receive_all(loop)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.TelemetryID, minimum_size=3)
 
@@ -169,10 +111,11 @@ class Connection:
         if TrailerIndexOrCount.from_int(self.collector.bytearray[2]) != trailer_index_or_count:
             raise CommunicationError(CommunicationResult.ReceivedOtherTrailerIndex)
 
-    def request_telemetry(
+    async def request_telemetry(
         self,
         telemetry_id: TelemetryID | Type[T],
-        trailer_index_or_count: TrailerIndexOrCount | None = None
+        trailer_index_or_count: TrailerIndexOrCount | None = None,
+        loop: Optional[AbstractEventLoop] = None
     ) -> tuple[T, int] | tuple[DeserializedType, int]:
         if isinstance(telemetry_id, type):
             type_to_id: dict[type, TelemetryID] = { v: k for k, v in NON_CHANNEL_TYPES.items() }
@@ -181,8 +124,8 @@ class Connection:
             telemetry_id = type_to_id[telemetry_id]
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
 
-        self.send_request_for(telemetry_id, trailer_index_or_count)
-        self.receive_for_request(telemetry_id, trailer_index_or_count)
+        self.send_request_for(telemetry_id, trailer_index_or_count, loop)
+        await self.receive_for_request(telemetry_id, trailer_index_or_count, loop)
 
         telemetry: Telemetry = telemetries()[telemetry_id.value]
         deserializer: Callable[[BufferType, int], tuple[DeserializedType, int]]
@@ -205,10 +148,10 @@ class Connection:
         else:
             return deserializer(self.collector.bytearray, Connection.TELEMETRY_DATA_START)
 
-    def request_telemetry_structure(self, structure_type: Type[T], trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[T, int]:
-        if (telemetry_id := { v: k for k, v in NON_CHANNEL_TYPES.items() }.get(structure_type)) is None:
+    async def request_telemetry_structure(self, structure_type: Type[T], trailer_index_or_count: TrailerIndexOrCount | None = None, loop: Optional[AbstractEventLoop] = None) -> tuple[T, int]:
+        if (telemetry_id := {v: k for k, v in NON_CHANNEL_TYPES.items()}.get(structure_type)) is None:
             raise TypeError(f"The type's '{structure_type}' telemetry ID could not be inferred.")
-        structure, read = self.request_telemetry(telemetry_id, trailer_index_or_count)
+        structure, read = await self.request_telemetry(telemetry_id, trailer_index_or_count, loop)
         assert isinstance(structure, structure_type)
         return structure, read
 
@@ -217,7 +160,7 @@ class Connection:
             try:
                 return next(filter(lambda d: d.id == id_or_definition, self.definitions))
             except StopIteration:
-               return None
+                return None
         else:
             try:
                 self.definitions.index(id_or_definition)
@@ -225,7 +168,7 @@ class Connection:
             except ValueError:
                 return None
 
-    def register_data_definition(self, definition_or_type: DataDefinition | type) -> None:
+    async def register_data_definition(self, definition_or_type: DataDefinition | type, loop: Optional[AbstractEventLoop] = None) -> None:
         if isinstance(definition_or_type, type):
             if not hasattr(definition_or_type, DATA_DEFINITION_ATTR_NAME):
                 raise TypeError("The provided type is not a data definition")
@@ -241,7 +184,7 @@ class Connection:
             bytearray([RequestType.RegisterDataDefinition.value]) + definition_or_type.to_bytes()
         ))
         self.pending_request = RequestType.RegisterDataDefinition
-        self.receive_all()
+        await self.receive_all(loop)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.RegisterDataDefinition, exact_size=2)
         if self.collector.bytearray[1] != definition_or_type.id:
@@ -249,7 +192,7 @@ class Connection:
 
         self.definitions.append(definition_or_type)
 
-    def request_data_definition(self, id_or_definition_or_type: int | DataDefinition | Type[T]) -> T | None:
+    async def request_data_definition(self, id_or_definition_or_type: int | DataDefinition | Type[T], loop: Optional[AbstractEventLoop] = None) -> T | None:
         cls: type | None = None
         if isinstance(id_or_definition_or_type, type):
             cls = id_or_definition_or_type
@@ -265,7 +208,7 @@ class Connection:
         self._ensure_pending_request(RequestType.NoRequest)
         self.socket.send(encode_with_size([RequestType.DefinedData.value, definition.id]))
         self.pending_request = RequestType.DefinedData
-        self.receive_all()
+        await self.receive_all(loop)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.DefinedData, minimum_size=2)
         if self.collector.bytearray[1] != definition.id:
@@ -274,7 +217,7 @@ class Connection:
         if cls is not None:
             return cls(*(definition.deserialize(self.collector.bytearray, Connection.DATA_DEFINITION_DATA_START)[0]))
 
-    def unregister_data_definition(self, id_or_definition_or_type: int | DataDefinition | type) -> None:
+    async def unregister_data_definition(self, id_or_definition_or_type: int | DataDefinition | type, loop: Optional[AbstractEventLoop] = None) -> None:
         if isinstance(id_or_definition_or_type, type):
             if not hasattr(id_or_definition_or_type, DATA_DEFINITION_ATTR_NAME):
                 raise TypeError("The provided type is not a data definition")
@@ -288,7 +231,7 @@ class Connection:
         self._ensure_pending_request(RequestType.NoRequest)
         self.socket.send(encode_with_size([RequestType.UnregisterDataDefinition.value, definition.id]))
         self.pending_request = RequestType.UnregisterDataDefinition
-        self.receive_all()
+        await self.receive_all(loop)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.UnregisterDataDefinition, exact_size=2)
         if self.collector.bytearray[1] != definition.id:
@@ -324,12 +267,12 @@ class Connection:
         self.pending_telemetry_id = TelemetryID.Invalid
         self.pending_trailer_index_or_count = TrailerIndexOrCount()
 
-    def __enter__(self) -> Connection:
+    async def __aenter__(self) -> Connection:
         if not self.connected:
-            self.connect()
+            await self.connect()
         return self
 
-    def __exit__(self, t: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
+    async def __aexit__(self, t: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
         del t, value, traceback
         if self.connected:
             self.disconnect()
@@ -367,12 +310,3 @@ class Connection:
                 raise CommunicationError(CommunicationResult.OtherRequestPending, message)
             else:
                 raise CommunicationError(CommunicationResult.OtherRequestPending)
-
-
-__all__ = [
-    "TrailerIndexOrCount",
-    "RequestType",
-    "CommunicationResult",
-    "CommunicationError",
-    "Connection"
-]

@@ -1,6 +1,8 @@
 from sys import stderr, argv
 from time import time, sleep
 from typing import Callable
+from asyncio import run
+import asyncio
 from truckconnect.connection import CommunicationError, CommunicationResult, Connection, TrailerIndexOrCount
 from scssdk_telemetry.scssdk_dataclasses import SCS_TELEMETRY_trailers_count
 from scssdk_truckconnect.truckconnect import Version, VERSION
@@ -8,6 +10,7 @@ from truckconnect.data import get_definition, data_definition, member
 from truckconnect.telemetry_id import TelemetryID
 from truckconnect.value_storage import SCSValueType, value_storage_from_bytes, is_value_storage
 from truckconnect.master_structure import Master
+import truckconnect.asyncio.connection as tcaio
 
 RUN_FOR_SEC: float = 5 * 60
 SLEEP_FOR: float = 0.050
@@ -178,9 +181,20 @@ def main(connection: Connection) -> None:
         sleep(SLEEP_FOR)
 
 
+async def async_main() -> None:
+    async with tcaio.Connection() as connection:
+        print()
+        while True:
+            print(await connection.request_telemetry(TelemetryID.TruckChannelSpeed), end="\r")
+            await asyncio.sleep(0.07)
+
+
 if __name__ == "__main__":
     try:
-        with Connection() as connection:
-            main(connection)
+        if len(argv) > 1 and argv[1] == "async":
+            run(async_main())
+        else:
+            with Connection() as connection:
+                main(connection)
     except KeyboardInterrupt:
         print("^C", file=stderr)
