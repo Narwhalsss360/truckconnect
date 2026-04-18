@@ -4,6 +4,7 @@
 #include "metadata_functions.h"
 #include "packed_size.h"
 #include "byte_converters.h"
+#include <cstring>
 
 namespace truckconnect {
     namespace data {
@@ -336,7 +337,7 @@ namespace truckconnect {
 
             if constexpr (member_info::reinterpretable) {
                 if (bytes.size() - offset >= sizeof(data_structure)) {
-                    out = apply_offset<data_structure>(bytes.data(), offset);
+                    std::memcpy(&out, bytes.data() + offset, sizeof(data_structure));
                     return true;
                 }
 

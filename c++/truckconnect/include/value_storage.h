@@ -8,8 +8,21 @@
 
 #define serialization_namespace truckconnect
 
+#ifdef __GNUC__
+#define __attribute_packed__ __attribute__((packed))
+#else
+#define __attribute_packed__
+#endif
+
 namespace truckconnect {
     using trailer_index_uint = uint8_t;
+
+#pragma pack(push, 1)
+    template <typename T>
+    struct __attribute_packed__ as_unaligned {
+        T unaligned;
+    };
+#pragma pack(pop)
 
 #pragma region constant expression utility
     template <typename T, uint32_t count>
@@ -143,7 +156,7 @@ namespace truckconnect {
             }
 
             const uint8_t* const& bytes_start = &bytes[offset];
-            initialized = *reinterpret_cast<const bool*>(bytes_start);
+            initialized = *bytes_start > 0;
             read += sizeof(bool);
 
             return true;
@@ -252,8 +265,8 @@ namespace truckconnect {
 
             const uint8_t* const& bytes_start = &bytes[offset];
 
-            const bool& initialized = *reinterpret_cast<const bool*>(bytes_start);
-            const uint32_t& count = *reinterpret_cast<const uint32_t*>(bytes_start + sizeof(initialized));
+            const bool initialized = *bytes_start > 0;
+            const uint32_t& count = reinterpret_cast<const as_unaligned<uint32_t>*>(bytes_start + sizeof(initialized))->unaligned;
 
             if (count > max_count) {
                 return false;
@@ -311,7 +324,7 @@ namespace truckconnect {
             }
 
             const uint8_t* const bytes_start = &bytes[offset];
-            const uint32_t& count = *reinterpret_cast<const uint32_t* const>(bytes_start);
+            const uint32_t& count = reinterpret_cast<const as_unaligned<uint32_t>* const>(bytes_start)->unaligned;
 
             if (bytes.size() - offset - count < sizeof(T) * count) {
                 return false;
@@ -355,7 +368,7 @@ namespace truckconnect {
             }
 
             const uint8_t* const bytes_start = &bytes[offset];
-            const uint32_t& count = *reinterpret_cast<const uint32_t* const>(bytes_start);
+            const uint32_t& count = reinterpret_cast<const as_unaligned<uint32_t>* const>(bytes_start)->unaligned;
 
             const uint32_t& str_offset = offset + sizeof(count);
             values.clear();
@@ -420,7 +433,7 @@ namespace truckconnect {
             }
 
             const uint8_t* const bytes_start = &bytes[offset];
-            const uint32_t& count = *reinterpret_cast<const uint32_t* const>(bytes_start);
+            const uint32_t& count = reinterpret_cast<const as_unaligned<uint32_t>* const>(bytes_start)->unaligned;
             const uint32_t byte_count = cieldiv(count, 8);
             if (bytes.size() - offset - sizeof(count) < byte_count) {
                 return false;

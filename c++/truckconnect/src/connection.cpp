@@ -1,6 +1,8 @@
 #include "connection.h"
 #include "packed_size.h"
 #include "metadata_functions.h"
+#include "truckconnect_version.h"
+#include <cstring>
 
 using nstreamcom::collector_states;
 using nstreamcom::as_collected_size;
@@ -94,9 +96,11 @@ namespace truckconnect {
 
             if (connection.collector.buffer()[0] == request_type::error_response) {
                 return apply_offset<communication_result>(connection.collector.buffer().data(), 1);
-            }
 
-            version = version_t(apply_offset<uint32_t>(connection.collector.buffer().data(), 1));
+            }
+            uint32_t version_int;
+            std::memcpy(&version_int, connection.collector.buffer().data() + 1, sizeof(version_int));
+            version = version_t(version_int);
             connection.clear_pending_request();
             return communication_result::success;
         }

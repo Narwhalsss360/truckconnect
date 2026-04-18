@@ -1,6 +1,7 @@
 #pragma once
 #include "truckconnect_platform.h"
 #include "truckconnect_version.h"
+#include "value_storage.h"
 #include "vector_collector.h"
 #include "telemetry_metadata.h"
 #include "byte_converters.h"
@@ -96,7 +97,7 @@ namespace truckconnect {
 
         using communication_results::communication_result_string;
 
-        struct trailer_index_or_count {
+        struct __attribute_packed__ trailer_index_or_count {
             bool is_count : 1;
             trailer_index_uint index_or_count : 7;
 
@@ -143,6 +144,7 @@ namespace truckconnect {
             }
 
             inline trailer_index_or_count& request_data_trailer_index_or_count() {
+                static_assert(sizeof(trailer_index_or_count) == 1);
                 return apply_offset<trailer_index_or_count>(&request_data, 1);
             }
 

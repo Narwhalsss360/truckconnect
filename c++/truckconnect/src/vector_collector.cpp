@@ -81,6 +81,11 @@ namespace truckconnect {
         }
 
         collector_states vector_collector::dynamic_collect(uint8_t byte) {
+            /* TODO: Find all references to functions that may cause the buffer's iterators to invalidate. */
+            if (_buffer.begin() != _decoder.begin() || _buffer.end() != _decoder.end()) {
+				notify(index());
+            }
+
             if (collect(byte) == collector_states::BUFFER_FULL) {
                 expand();
                 collect(byte);

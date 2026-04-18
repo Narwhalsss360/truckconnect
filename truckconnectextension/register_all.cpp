@@ -37,8 +37,8 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	const uint32_t& structure_offset = master_offset_of(event_info_id, trailer_index);
 	debug_assert(structure_offset != INVALID_OFFSET);
 
-	void* const structure = &apply_offset<void*>(&current_master(), structure_offset);
-	value_storage<uint32_t>& latest = apply_offset<value_storage<uint32_t>>(structure, event_info_latest_offset(event_info_id));
+	uint8_t* const structure = reinterpret_cast<uint8_t*>(&current_master()) + structure_offset;
+	value_storage<uint32_t>& latest = *reinterpret_cast<value_storage<uint32_t>*>(structure + event_info_latest_offset(event_info_id));
 	latest.initialized = true;
 
 	if (trailer_index == 9) {
@@ -68,7 +68,7 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 		debug_assert((current->index != SCS_U32_NIL) == member.indexed);
 		debug_assert(member.event_info_id != telemetry_id::invalid);
 		debug_assert(member.scs_type_id == current->value.type);
-		dynamic_store(current->value, &apply_offset<void*>(structure, member.structure_offset), current->index);
+		dynamic_store(current->value, structure + member.structure_offset, current->index);
 	}
 
 	latest.value++;
@@ -100,7 +100,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
             return;
         }
 
-		storage_type& storage = apply_offset<storage_type>(&current_master(), offset);
+		storage_type& storage = *reinterpret_cast<storage_type*>(reinterpret_cast<uint8_t*>(&current_master()) + offset);
         storage.values[index] = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
         if (storage.count <= index) {
             storage.count = index + 1;
@@ -114,7 +114,7 @@ void store(const scs_string_t channel, const scs_u32_t index, const scs_value_t*
             return;
         }
 
-		storage_type& storage = apply_offset<storage_type>(&current_master(), offset);
+		storage_type& storage = *reinterpret_cast<storage_type*>(reinterpret_cast<uint8_t*>(&current_master()) + offset);
         storage.value = *reinterpret_cast<const primitive_type* const>(&value->value_bool.value);
         storage.initialized = true;
     }

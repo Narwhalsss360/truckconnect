@@ -1,6 +1,7 @@
 #include "process_client.h"
 #include "scssdk/scssdk.h"
 #include "truckconnectextension.h"
+#include <cstring>
 
 using std::vector;
 using std::to_string;
@@ -105,7 +106,7 @@ bool read_new_pending_request(client& client) {
     }
 
     client.connection.pending_request = static_cast<communication::request_type>(client.connection.collector.buffer()[0]);
-    client.connection.request_data = apply_offset<uint16_t>(client.connection.collector.buffer().data(), 1);
+    std::memcpy(&client.connection.request_data, client.connection.collector.buffer().data() + 1, sizeof(client.connection.request_data));
     return true;
 }
 
@@ -180,14 +181,14 @@ bool process_client(client& client) {
                 if (offset == metadata::INVALID_OFFSET) {
                     return send_error_response(client, communication_result::invalid_telemetry);
                 }
-                append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response);
+                append_bytes(meta.id, reinterpret_cast<uint8_t*>(&current_master()) + offset, response);
             }
         } else {
             const uint32_t& offset = metadata::master_offset_of(meta.id, trailer_index_or_count.index_or_count);
             if (offset == metadata::INVALID_OFFSET) {
                 return send_error_response(client, communication_result::invalid_telemetry);
             }
-            append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response);
+            append_bytes(meta.id, reinterpret_cast<uint8_t*>(&current_master()) + offset, response);
         }
 
         encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
@@ -298,14 +299,14 @@ bool process_client(client& client) {
                     if (offset == metadata::INVALID_OFFSET) {
                         return send_error_response(client, communication_result::invalid_telemetry);
                     }
-                    append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response);
+                    append_bytes(meta.id, reinterpret_cast<uint8_t*>(&current_master()) + offset, response);
                 }
             } else {
                 const uint32_t& offset = metadata::master_offset_of(meta.id, 0);
                 if (offset == metadata::INVALID_OFFSET) {
                     return send_error_response(client, communication_result::invalid_telemetry);
                 }
-                append_bytes(meta.id, &apply_offset<void*>(&current_master(), offset), response);
+                append_bytes(meta.id, reinterpret_cast<uint8_t*>(&current_master()) + offset, response);
             }
         }
 
@@ -355,7 +356,7 @@ bool process_client(client& client) {
     case request_type::version:
         response.resize(1 + sizeof(uint32_t));
         response[0] = request_type::version;
-        apply_offset<uint32_t>(response.data(), 1) = version;
+        std::memcpy(response.data() + 1, &version, sizeof(version));
         encoded_response.resize(as_collected_size(static_cast<uint32_t>(response.size())));
         encode_with_size(
             response.begin(),
