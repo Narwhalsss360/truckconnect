@@ -57,6 +57,10 @@ typedef const char *            scs_string_t;
 #define SCS_ARCHITECTURE_x86
 #define SCS_PF_U64 "llu"
 #define SCS_PF_S64 "lld"
+#elif defined(PICO_RP2040)
+#if !defined(SCS_ARCHITECTURE_x86) && !defined(SCS_ARCHITECTURE_x64)
+#error "Must define either x86 or x64 architecture for scs value structures structures."
+#endif
 #else
 #error "Unknown architecture."
 #endif
@@ -181,6 +185,10 @@ struct scs_sdk_init_params_v100_t
          * @brief Explicit alignment for the 64 bit pointer.
          */
         scs_u32_t                               _padding;
+
+#ifdef PICO_RP2040
+        scs_u32_t _padding1, _padding2, _padding3;
+#endif
 #endif
 
         /**

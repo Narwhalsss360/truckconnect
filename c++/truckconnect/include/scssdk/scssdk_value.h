@@ -78,6 +78,9 @@ struct scs_value_double_t
 struct scs_value_string_t
 {
         scs_string_t value;
+#if defined(PICO_RP2040) && defined(SCS_ARCHITECTURE_x64)
+        scs_u32_t _padding;
+#endif
 };
 
 /**
