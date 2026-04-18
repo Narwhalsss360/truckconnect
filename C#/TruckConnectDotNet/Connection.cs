@@ -162,6 +162,11 @@ namespace TruckConnect
         {
             EnsureConnected(nameof(ReceiveOne));
             EnsureAnyPendingRequest();
+
+            if (Collector.State == Collector.States.Collected) {
+                Collector.Reset();
+            }
+
             do
             {
                 byte[] buffer = new byte[1];

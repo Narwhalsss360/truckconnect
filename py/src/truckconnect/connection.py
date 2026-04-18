@@ -6,7 +6,7 @@ from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP, SHUT_RDWR
 from typing import Callable, Type, TypeVar
 from truckconnect.telemetry_id import TelemetryID
 from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
-from nstreamcom import Collector, encode_with_size
+from nstreamcom import Collector, CollectorState, CollectorStates, encode_with_size
 from truckconnect.value_storage import BufferType, value_storage_from_bytes, value_array_storage_from_bytes, SCSValueType
 from .data import DATA_DEFINITION_ATTR_NAME, NON_CHANNEL_TYPES, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
 
@@ -116,8 +116,9 @@ class Connection:
         if self.pending_request == RequestType.NoRequest:
             raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
 
-        if self.collector.data_ready:
+        if self.collector.state == CollectorStates.Collected:
             self.collector.reset()
+
         while not self.collector.error_state and not self.collector.data_ready:
             if not (recv := self.socket.recv(1)):
                 raise CommunicationError(CommunicationResult.Disconnected)

@@ -186,6 +186,11 @@ namespace truckconnect {
 
         communication_result receive_all(connection& connection, std::function<void(const std::vector<uint8_t>&)> received_callback) {
             communication_result result;
+
+            if (connection.collector.state() == collector_states::COLLECTED) {
+                connection.collector.reset();
+            }
+
             do {
                 result = receive_one(connection);
             } while (result == communication_result::incomplete);
