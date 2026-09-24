@@ -1,5 +1,6 @@
 #pragma once
 #include "truckconnect_platform_win.h"
+#include <WinSock2.h>
 
 namespace truckconnect {
     namespace platform {
@@ -29,6 +30,15 @@ namespace truckconnect {
             static bool set_reuseable_address(socket socket) {
                 int true_int = 1;
                 return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&true_int, sizeof(true_int)) != -1;
+            }
+
+            static bool set_tcp_nodelay(socket socket) {
+                int true_int = 1;
+                return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&true_int), sizeof(true_int)) == 0;
+            }
+
+            static bool set_tcp_quickack(socket socket) {
+                return true;
             }
 
             static bool shut_read(socket socket) {

@@ -88,6 +88,13 @@ void dispatcher_start() {
             console_log(SCS_LOG_TYPE_error, IDENTSTR(dispatcher_start), "Not accepting client, could not set non-blocking mode.");
             sockets::close_socket(new_client.connection.socket);
         } else {
+            const int one = 1;
+            if (!sockets::set_tcp_nodelay(new_client.connection.socket)) {
+                console_log(SCS_LOG_TYPE_warning, "Could not set no tcp delay on client socket for " + to_string(new_client.connection.addr) + ", code:" + to_string(sockets::last_error()));
+            }
+            if (!sockets::set_tcp_quickack(new_client.connection.socket)) {
+                console_log(SCS_LOG_TYPE_warning, "Could not set no tcp delay on client socket for " + to_string(new_client.connection.addr) + ", code:" + to_string(sockets::last_error()));
+            }
             clients.push_back(new_client);
             console_log(SCS_LOG_TYPE_message, to_string(new_client.connection.addr) + " connected.");
         }

@@ -37,6 +37,15 @@ namespace truckconnect {
                 return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &true_int, sizeof(true_int)) != -1;
             }
 
+            static bool set_tcp_nodelay(socket socket) {
+                int true_int = 1;
+                return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&true_int), sizeof(true_int)) == 0;
+            }
+
+            static bool set_tcp_quickack(socket socket) {
+                return true;
+            }
+
             static bool shut_read(socket socket) {
                 return shutdown(socket, SHUT_RD) != -1;
             }
