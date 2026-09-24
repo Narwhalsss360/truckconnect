@@ -41,7 +41,7 @@ void catch_and_print_recv_error(client& client) {
         case sockets::errors::SE_ECONNRESET:
             break;
         case sockets::errors::SE_ECONNABORTED:
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Client" + to_string(client.connection.addr) + " disconnected unexpectedly.");
             break;
         default:
             console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "recv(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));
@@ -55,7 +55,7 @@ void catch_and_print_send_error(client& client) {
         case sockets::errors::SE_ECONNRESET:
             break;
         case sockets::errors::SE_ECONNABORTED:
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(catch_and_print_send_error), "Client" + to_string(client.connection.addr) + "disconnected unexpectedly.");
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(catch_and_print_send_error), "Client" + to_string(client.connection.addr) + " disconnected unexpectedly.");
             break;
         default:
             console_log(SCS_LOG_TYPE_error, IDENTSTR(catch_and_print_send_error), "send(" + to_string(client.connection.addr) + ") error: " + to_string(sockets::last_error()));

@@ -1,4 +1,5 @@
 #include "register_all.h"
+#include "scssdk/scssdk_telemetry_event.h"
 #include "truckconnectextension.h"
 #include "dynamic_store.h"
 #include <scssdk/common/scssdk_telemetry_common_channels.h>
@@ -32,7 +33,14 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 
 	const uint32_t& trailer_index = extract_trailer_index(data.id);
 	const telemetry_id& event_info_id = trailer_index != SCS_U32_NIL ? configuration_trailer_info::id : id_of(data.id, true);
-	debug_assert(event_info_id != telemetry_id::invalid);
+    if (event_info_id == telemetry_id::invalid) {
+        if constexpr (meta::id == telemetry_id::configuration || meta::id == telemetry_id::gameplay) {
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(handle_event), std::string("Unknown data id (") + std::string(data.id) + "for telemtry id" + std::to_string(meta::id));
+            return;
+        } else {
+            debug_assert(false);
+        }
+    }
 
 	const uint32_t& structure_offset = master_offset_of(event_info_id, trailer_index);
 	debug_assert(structure_offset != INVALID_OFFSET);
