@@ -15,7 +15,7 @@ using namespace truckconnect::platform::event_signal;
 sockets::socket listener = sockets::INVALID;
 thread dispatcher;
 volatile bool stop = false;
-constexpr const timeout_int& dispatcher_timeout = 500;
+constexpr const timeout_int& dispatcher_timeout = 20;
 constexpr const std::clock_t MINIMUM_COMMUNICATION_INTERVAL = 5 * CLOCKS_PER_SEC / 1000;
 void dispatcher_start();
 vector<client> clients;
@@ -105,32 +105,14 @@ void dispatcher_start() {
                 continue;
             }
 
-            clients[i].last_communication_time = MINIMUM_COMMUNICATION_INTERVAL;
+            clients[i].last_communication_time = now;
             if (!process_client(clients[i])) {
                 console_log(SCS_LOG_TYPE_message, IDENTSTR(dispatcher_start), "Client " + to_string(clients[i].connection.addr) + " disconnected.");
                 clients.erase(clients.begin() + i);
             }
         }
 
-        timeout_int timeout;
-        if (current_master().channels.general.channel_paused.value || !current_master().channels.general.channel_paused.initialized) {
-            timeout = dispatcher_timeout;
-        } else {
-            timeout = event_signal::NO_TIMEOUT;
-        }
-
-        switch (wait(frame_end_signal(), timeout)) {
-            case signal_state::signaled:
-                break;
-            case signal_state::not_signaled:
-                // console_log(SCS_LOG_TYPE_warning, IDENTSTR(dispatcher_start), "Unexpected not_signaled result from wait(...) with no timeout.");
-                break;
-            case signal_state::error:
-                console_log(SCS_LOG_TYPE_error, IDENTSTR(dispatcher_start), "Signal wait(...) error: " + to_string(event_signal::last_error()));
-                break;
-            default:
-                break;
-        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(dispatcher_timeout));
     } while (!stop);
 }
 

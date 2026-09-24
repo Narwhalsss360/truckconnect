@@ -42,25 +42,15 @@ SCSAPI_VOID started(scs_event_t event, const void* const event_info, scs_context
 }
 
 SCSAPI_VOID frame_end(scs_event_t event, const void* const event_info, scs_context_t context) {
-    constexpr const std::clock_t NOTIFY_LAP_INTERVAL_MS = 5000;
-    constexpr const std::clock_t NOTIFY_LAP_INTERVAL_CLOCK = NOTIFY_LAP_INTERVAL_MS * CLOCKS_PER_SEC / 1000;
     constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL_MS = 5 * 60 * 1000;
     constexpr const std::clock_t NOTIFY_MEMORY_USAGE_INTERVAL_CLOCK = NOTIFY_MEMORY_USAGE_INTERVAL_MS * CLOCKS_PER_SEC / 1000;
 
     static std::clock_t now;
-    static std::clock_t last_lap = {};
     static std::clock_t last_memory_notify = {};
-    static uint32_t laps = 0;
 
     now = std::clock();
     switch (event_signal::signaled(frame_end_signal())) {
         case event_signal::signal_state::signaled:
-        laps++;
-        if (now - last_lap >= NOTIFY_LAP_INTERVAL_CLOCK) {
-            console_log(SCS_LOG_TYPE_warning, IDENTSTR(frame_end), "Game thread lapped dispatcher thread " + to_string(laps) + " times in the last " + to_string(NOTIFY_LAP_INTERVAL_MS) + "ms.");
-            laps = 0;
-            last_lap = now;
-        }
         break;
         case event_signal::signal_state::not_signaled:
         if (!event_signal::set(frame_end_signal())) {
