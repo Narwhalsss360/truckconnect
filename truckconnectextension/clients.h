@@ -10,15 +10,14 @@ struct client {
 extern std::vector<client> clients;
 
 namespace std {
-	static string to_string(sockaddr_in& addr)
-	{
-        const uint8_t (&bytes)[4] = *reinterpret_cast<uint8_t(*)[4]>(&addr);
-		return
-			to_string(bytes[0]) + "." +
-			to_string(bytes[1]) + "." +
-			to_string(bytes[2]) + "." +
-			to_string(bytes[3]);
-	}
+    static std::string to_string(const sockaddr_in& addr) {
+        char buffer[INET_ADDRSTRLEN];
+        if (inet_ntop(AF_INET, &(addr.sin_addr), buffer, sizeof(buffer)) != nullptr) {
+            return std::string(buffer);
+        }
+
+        return "0.0.0.0";
+    }
 }
 
 bool clients_init();
