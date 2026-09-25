@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <nstreamcom.h>
 #include <vector>
 
@@ -40,14 +41,24 @@ namespace truckconnect {
 
             nstreamcom::collector_states dynamic_collect(uint8_t byte);
 
+            std::vector<uint8_t>& flat_chunks();
+
+            bool chunks_available() const;
+
+            nstreamcom::collector_states digest_chunk();
+
+            nstreamcom::collector_states dynamic_collect_chunk(uint8_t chunk[], size_t size);
+
         protected:
             const uint32_t index();
 
             void notify(const uint32_t& index);
-        
+
             virtual const uint32_t growth(uint32_t new_size);
 
             std::vector<uint8_t> _buffer;
+
+            std::vector<uint8_t> _flat_chunks;
         };
     }
 }

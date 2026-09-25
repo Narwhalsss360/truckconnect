@@ -35,7 +35,7 @@ void handle_event(scs_event_t event, const void* const info, scs_context_t) {
 	const telemetry_id& event_info_id = trailer_index != SCS_U32_NIL ? configuration_trailer_info::id : id_of(data.id, true);
     if (event_info_id == telemetry_id::invalid) {
         if constexpr (meta::id == telemetry_id::configuration || meta::id == telemetry_id::gameplay) {
-            console_log(SCS_LOG_TYPE_error, IDENTSTR(handle_event), std::string("Unknown data id (") + std::string(data.id) + "for telemtry id" + std::to_string(meta::id));
+            console_log(SCS_LOG_TYPE_error, IDENTSTR(handle_event), std::string("Unknown data id (") + std::string(data.id) + ") for telemtry id " + std::string(name_of(meta::id)));
             return;
         } else {
             debug_assert(false);

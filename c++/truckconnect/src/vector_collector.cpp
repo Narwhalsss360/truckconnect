@@ -13,7 +13,7 @@ namespace truckconnect {
         using const_iterator = vector_collector::const_iterator;
 
         vector_collector::vector_collector(uint32_t initialize_size)
-            : my_base(iterator(), iterator()), _buffer(initialize_size < minimum_size ? minimum_size : initialize_size)
+            : my_base(iterator(), iterator()), _buffer(initialize_size < minimum_size ? minimum_size : initialize_size), _flat_chunks({})
         {
             _decoder.use(
                 _buffer.begin(),
@@ -76,11 +76,12 @@ namespace truckconnect {
             } else {
                 _buffer.resize(growth(new_size));
             }
-            
+
             notify(current_index);
         }
 
         collector_states vector_collector::dynamic_collect(uint8_t byte) {
+            /* WARNING Incompatible with chunking, no logic implemented. */
             /* TODO: Find all references to functions that may cause the buffer's iterators to invalidate. */
             if (_buffer.begin() != _decoder.begin() || _buffer.end() != _decoder.end()) {
 				notify(index());
@@ -91,6 +92,33 @@ namespace truckconnect {
                 collect(byte);
             }
             return _state;
+        }
+
+        std::vector<uint8_t>& vector_collector::flat_chunks() {
+            return _flat_chunks;
+        }
+
+        bool vector_collector::chunks_available() const {
+            return _flat_chunks.size() != 0;
+        }
+
+        collector_states vector_collector::digest_chunk() {
+            for (int i = 0; i < _flat_chunks.size(); ++i) {
+                dynamic_collect(_flat_chunks[i]);
+                if (_state == collector_states::WAITING_SIZE || _state == collector_states::WAITING_DATA) {
+                    continue;
+                }
+
+                _flat_chunks.erase(_flat_chunks.begin(), _flat_chunks.begin() + i);
+                break;
+            }
+
+            return _state;
+        }
+
+        collector_states vector_collector::dynamic_collect_chunk(uint8_t chunk[], size_t size) {
+            _flat_chunks.insert(_flat_chunks.end(), chunk, chunk + size);
+            return digest_chunk();
         }
 
         const uint32_t vector_collector::index() {
