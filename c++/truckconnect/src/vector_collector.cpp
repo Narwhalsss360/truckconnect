@@ -1,4 +1,5 @@
 #include "vector_collector.h"
+#include <stdio.h>
 
 namespace truckconnect {
     namespace communication {
@@ -13,7 +14,7 @@ namespace truckconnect {
         using const_iterator = vector_collector::const_iterator;
 
         vector_collector::vector_collector(uint32_t initialize_size)
-            : my_base(iterator(), iterator()), _buffer(initialize_size < minimum_size ? minimum_size : initialize_size), _flat_chunks({})
+            : my_base(iterator(), iterator()), _buffer(initialize_size < minimum_size ? minimum_size : initialize_size), _flat_chunks({}), _read_offset(0)
         {
             _decoder.use(
                 _buffer.begin(),
@@ -103,20 +104,37 @@ namespace truckconnect {
         }
 
         collector_states vector_collector::digest_chunk() {
-            for (int i = 0; i < _flat_chunks.size(); ++i) {
-                dynamic_collect(_flat_chunks[i]);
-                if (_state == collector_states::WAITING_SIZE || _state == collector_states::WAITING_DATA) {
-                    continue;
-                }
+            if (_read_offset >= _flat_chunks.size()) {
+                _flat_chunks.clear();
+                _read_offset = 0;
+                return _state;
+            }
 
-                _flat_chunks.erase(_flat_chunks.begin(), _flat_chunks.begin() + i);
-                break;
+            while (_read_offset < _flat_chunks.size()) {
+                dynamic_collect(_flat_chunks[_read_offset]);
+                _read_offset++;
+                if (error_state() || _state == collector_states::COLLECTED) {
+                    break;
+                }
+            }
+
+            if (_read_offset >= _flat_chunks.size()) {
+                _flat_chunks.clear();
+                _read_offset = 0;
             }
 
             return _state;
         }
 
         collector_states vector_collector::dynamic_collect_chunk(uint8_t chunk[], size_t size) {
+            if (size == 0) {
+                return _state;
+            }
+
+            if (_flat_chunks.empty()) {
+                _read_offset = 0;
+            }
+
             _flat_chunks.insert(_flat_chunks.end(), chunk, chunk + size);
             return digest_chunk();
         }

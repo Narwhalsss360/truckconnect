@@ -148,7 +148,15 @@ namespace truckconnect {
             return communication_result::success;
         }
 
-        communication_result receive_one(connection& connection) {
+        communication_result receive_one_chunk(connection& connection, size_t chunk_size) {
+            chunk_size = chunk_size == 0 ? DEFAULT_CHUNK_SIZE : chunk_size;
+
+            constexpr size_t MAX_STACK_CHUNK = 256;
+            if (chunk_size > MAX_STACK_CHUNK) {
+                chunk_size = MAX_STACK_CHUNK;
+            }
+            uint8_t stack_chunk_buffer[MAX_STACK_CHUNK];
+
             if (connection.socket == sockets::INVALID) {
                 return communication_result::not_connected;
             }
@@ -157,18 +165,21 @@ namespace truckconnect {
                 return communication_result::no_pending_request;
             }
 
-            uint8_t data;
-            int received = recv(connection.socket, reinterpret_cast<char* const>(&data), 1, 0);
+            int received = recv(connection.socket, reinterpret_cast<char* const>(stack_chunk_buffer), static_cast<int>(chunk_size), 0);
 
             if (received == 0) {
                 return communication_result::disconnected;
             }
 
             if (received < 0) {
-                return sockets::last_error() == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
+                int err = sockets::last_error();
+                if (err == EAGAIN || err == EWOULDBLOCK) {
+                    return communication_result::incomplete;
+                }
+                return err == sockets::errors::SE_ECONNRESET ? communication_result::disconnected : communication_result::generic_socket_error;
             }
 
-            switch (connection.collector.dynamic_collect(data)) {
+            switch (connection.collector.dynamic_collect_chunk(stack_chunk_buffer, received)) {
             case collector_states::COLLECTED:
                 return communication_result::success;
             case collector_states::MISSING_SIZE:
@@ -184,7 +195,7 @@ namespace truckconnect {
             }
         }
 
-        communication_result receive_all(connection& connection, std::function<void(const std::vector<uint8_t>&)> received_callback) {
+        communication_result receive_all_chunks(connection& connection, size_t chunk_size, std::function<void(const std::vector<uint8_t>&)> received_callback) {
             communication_result result;
 
             if (connection.collector.state() == collector_states::COLLECTED) {
@@ -192,13 +203,21 @@ namespace truckconnect {
             }
 
             do {
-                result = receive_one(connection);
+                result = receive_one_chunk(connection, chunk_size);
             } while (result == communication_result::incomplete);
 
             if (result == communication_result::success) {
                 received_callback(connection.collector.buffer());
             }
 
+            return result;
+        }
+
+        communication_result receive_all(connection& connection, std::function<void(const std::vector<uint8_t>&)> received_callback) {
+            communication_result result = receive_all_chunks(connection, DEFAULT_CHUNK_SIZE);
+            if (result == communication_result::success) {
+                received_callback(connection.collector.buffer());
+            }
             return result;
         }
 

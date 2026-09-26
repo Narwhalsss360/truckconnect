@@ -76,8 +76,9 @@ bool read_new_pending_request(client& client) {
     }
 
     do {
-        uint8_t data;
-        int received = recv(client.connection.socket, reinterpret_cast<char* const>(&data), 1, 0);
+        constexpr const size_t CHUNK_SIZE = DEFAULT_CHUNK_SIZE;
+        uint8_t chunk[CHUNK_SIZE];
+        int received = recv(client.connection.socket, reinterpret_cast<char* const>(chunk), CHUNK_SIZE, 0);
 
         if (received == 0) {
             cleanup_client(client);
@@ -93,8 +94,13 @@ bool read_new_pending_request(client& client) {
             return false;
         }
 
-        client.connection.collector.dynamic_collect(data);
+        client.connection.collector.dynamic_collect_chunk(chunk, received);
     } while (client.connection.collector.state() == collector_states::WAITING_SIZE || client.connection.collector.state() == collector_states::WAITING_DATA);
+
+    if (client.connection.collector.error_state()) {
+        console_log(SCS_LOG_TYPE_error, IDENTSTR(read_new_pending_request), "Collector error: " + std::to_string(int(client.connection.collector.state())));
+        return false;
+    }
 
     if (client.connection.collector.state() != collector_states::COLLECTED) {
         return true;
@@ -141,7 +147,7 @@ bool send_error_response(client& client, const communication_result& result) {
 bool process_client(client& client) {
     if (!read_new_pending_request(client)) {
         return false;
-    }
+    }   
 
     if (
         client.connection.pending_request == request_type::none ||

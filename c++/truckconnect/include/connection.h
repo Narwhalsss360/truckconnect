@@ -13,6 +13,8 @@ namespace truckconnect {
     namespace communication {
         constexpr const uint16_t PORT = 52878;
 
+        constexpr const size_t DEFAULT_CHUNK_SIZE = 32;
+
         using namespace platform;
 
         namespace request_types {
@@ -212,7 +214,13 @@ namespace truckconnect {
 
         communication_result send_request_for(connection& connection, const telemetry_id& id, const trailer_index_or_count& trailer_index_or_count = DEFAULT_TRAILER_INDEX_OR_COUNT);
 
-        communication_result receive_one(connection& connection);
+        communication_result receive_one_chunk(connection& connection, size_t chunk_size = 0);
+
+        communication_result receive_all_chunks(connection& connection, size_t chunk_size, std::function<void(const std::vector<uint8_t>&)> received_callback);
+
+        static communication_result receive_all_chunks(connection& connection, size_t chunk_size = 0) {
+            return receive_all_chunks(connection, chunk_size, [](const std::vector<uint8_t>&) {});
+        }
 
         communication_result receive_all(connection& connection, std::function<void(const std::vector<uint8_t>&)> received_callback);
 

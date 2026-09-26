@@ -39,8 +39,6 @@ namespace truckconnect {
 
             void expand();
 
-            nstreamcom::collector_states dynamic_collect(uint8_t byte);
-
             std::vector<uint8_t>& flat_chunks();
 
             bool chunks_available() const;
@@ -49,7 +47,14 @@ namespace truckconnect {
 
             nstreamcom::collector_states dynamic_collect_chunk(uint8_t chunk[], size_t size);
 
+            inline void clear_chunk_buffers() {
+                _flat_chunks.clear();
+                _read_offset = 0;
+            }
+
         protected:
+            nstreamcom::collector_states dynamic_collect(uint8_t byte);
+
             const uint32_t index();
 
             void notify(const uint32_t& index);
@@ -59,6 +64,8 @@ namespace truckconnect {
             std::vector<uint8_t> _buffer;
 
             std::vector<uint8_t> _flat_chunks;
+
+            size_t _read_offset;
         };
     }
 }

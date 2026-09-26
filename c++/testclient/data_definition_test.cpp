@@ -109,6 +109,28 @@ struct truckconnect::data::data_definition<just_trailer_data> {
     };
 };
 
+void loop(
+    connection& connection,
+    gauge_cluster& cluster,
+    metadata::channel_paused::storage_type& paused,
+    just_trailer_data& trailer_data,
+    communication_result& result
+) {
+    using namespace std::chrono_literals;
+    debug_assert((communication_result::success == (result = request<metadata::channel_paused>(connection, paused))));
+    if (paused.initialized && paused.value) {
+        std::this_thread::sleep_for(65ms);
+        return;
+    }
+
+    debug_assert((communication_result::success == (result = request(connection, cluster))));
+    debug_assert((communication_result::success == (result = request(connection, trailer_data))));
+    cluster.print();
+    cout << "\n";
+
+    std::this_thread::sleep_for(25ms);
+}
+
 int data_definition_test() {
     communication_result result;
     connection connection = ::connection("127.0.0.1");
@@ -137,19 +159,13 @@ int data_definition_test() {
     gauge_cluster cluster;
     just_trailer_data trailer_data;
     while (true) {
-        using namespace std::chrono_literals;
-        debug_assert((communication_result::success == (result = request<metadata::channel_paused>(connection, paused))));
-        if (paused.initialized && paused.value) {
-            std::this_thread::sleep_for(65ms);
-            continue;
-        }
-
-        debug_assert((communication_result::success == (result = request(connection, cluster))));
-        debug_assert((communication_result::success == (result = request(connection, trailer_data))));
-        cluster.print();
-        cout << "\n";
-
-        std::this_thread::sleep_for(25ms);
+        loop(
+            connection,
+            cluster,
+            paused,
+            trailer_data,
+            result
+        );
     }
 
     debug_assert(communication_result::success == (result = unregister_data_definition<just_trailer_data>(connection)));

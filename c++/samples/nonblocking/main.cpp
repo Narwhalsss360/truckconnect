@@ -22,6 +22,7 @@ bool once(truckconnect::communication::connection& connection) {
     using truckconnect::from_bytes;
     using truckconnect::platform::sockets::errors::SE_EWOULDBLOCK;
     using truckconnect::platform::sockets::last_error;
+    using nstreamcom::collector_states;
 
     //Using static to not cause a stack overflow.
     static master_telemetry::storage_type master;
@@ -32,9 +33,13 @@ bool once(truckconnect::communication::connection& connection) {
         return false;
     }
 
+    if (connection.collector.state() == collector_states::COLLECTED || connection.collector.error_state()) {
+        connection.collector.reset();
+    }
+
     clock_t start = clock();
     do {
-        result = receive_one(connection);
+        result = receive_one_chunk(connection);
         if (
             result == communication_result::generic_socket_error &&
             last_error() == SE_EWOULDBLOCK

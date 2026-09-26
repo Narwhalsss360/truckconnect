@@ -99,7 +99,7 @@ void dispatcher_start() {
             console_log(SCS_LOG_TYPE_message, to_string(new_client.connection.addr) + " connected.");
         }
 
-        const std::time_t now = std::clock();
+        const std::clock_t now = std::clock();
         for (uint32_t i = 0; i < clients.size(); i++) {
             if (now - clients[i].last_communication_time < MINIMUM_COMMUNICATION_INTERVAL) {
                 continue;
