@@ -47,11 +47,6 @@ namespace truckconnect {
 
             nstreamcom::collector_states dynamic_collect_chunk(uint8_t chunk[], size_t size);
 
-            inline void clear_chunk_buffers() {
-                _flat_chunks.clear();
-                _read_offset = 0;
-            }
-
         protected:
             nstreamcom::collector_states dynamic_collect(uint8_t byte);
 

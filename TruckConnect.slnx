@@ -16,7 +16,7 @@
     <Project Path="C#/samples/TrailerTelemetry/TrailerTelemetry.csproj" />
   </Folder>
   <Folder Name="/C++/">
-    <Project Path="../proto-truckconnect/NStreamCom/nstreamcom.vcxitems" Id="f6aabf94-ed61-41ac-aaad-e75510af8cff" />
+    <Project Path="c++/NStreamCom/nstreamcom.vcxitems" Id="f6aabf94-ed61-41ac-aaad-e75510af8cff" />
     <Project Path="c++/testclient/testclient.vcxproj" Id="e46bee7b-2ff6-49b9-8b9d-c6fa567039c2" />
     <Project Path="c++/truckconnect/truckconnect.vcxitems" Id="07b6de3e-fdf6-4293-bba6-56ac2394ff27" />
   </Folder>
