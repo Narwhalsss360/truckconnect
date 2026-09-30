@@ -16,6 +16,8 @@ namespace TruckConnect
 
         public static readonly int DEFINED_DATA_DATA_START = 1 + 1;
 
+        public const uint DEFAULT_CHUNK_SIZE = 32;
+
         public enum RequestType
         {
             None,
@@ -63,7 +65,7 @@ namespace TruckConnect
 
         private readonly IPAddress m_ipAddress;
 
-        public readonly Collector Collector = new();
+        public readonly ChunkCollector Collector = new();
 
         private TelemetryID m_pendingID = TelemetryID.Invalid;
 
@@ -119,7 +121,7 @@ namespace TruckConnect
             m_pendingTrailerIndexOrCount = trailerIndexOrCount.Value;
         }
 
-        public async Task<Version> GetVersion(CancellationToken cancellationToken = default)
+        public async Task<Version> GetVersion(uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
             EnsureConnected(nameof(GetVersion));
             EnsurePendingRequest(RequestType.None, "Request already pending.");
@@ -130,7 +132,7 @@ namespace TruckConnect
                 ])
             );
 
-            await ReceiveAllAsync(cancellationToken);
+            await ReceiveAllChunksAsync(chunkSize, cancellationToken);
             ClearPendingRequest();
 
             if (Collector.Size == 0)
@@ -149,33 +151,33 @@ namespace TruckConnect
         }
 
 
-        public async Task ReceiveOne(CancellationToken cancellationToken = default)
+        public async Task<Collector.States> ReceiveOneChunk(uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
-            EnsureConnected(nameof(ReceiveOne));
+            EnsureConnected(nameof(ReceiveOneChunk));
             EnsureAnyPendingRequest();
-            byte[] buffer = new byte[1];
-            await m_socket.ReceiveAsync(buffer, cancellationToken);
-            Collector.Collect(buffer[0]);
+            byte[] buffer = new byte[chunkSize];
+            int count = await m_socket.ReceiveAsync(buffer, cancellationToken);
+            return Collector.CollectChunk(buffer[0..count]);
         }
 
-        public async Task ReceiveAllAsync(CancellationToken cancellationToken = default)
+        public async Task ReceiveAllChunksAsync(uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
-            EnsureConnected(nameof(ReceiveOne));
+            EnsureConnected(nameof(ReceiveAllChunksAsync));
             EnsureAnyPendingRequest();
 
-            if (Collector.State == Collector.States.Collected) {
+            if (Collector.State == NStreamCom.Collector.States.Collected) {
                 Collector.Reset();
             }
 
             do
             {
-                byte[] buffer = new byte[1];
-                await m_socket.ReceiveAsync(buffer, cancellationToken);
-                Collector.Collect(buffer[0]);
-            } while (Collector.State == Collector.States.WaitingSize || Collector.State == Collector.States.WaitingData);
+                byte[] buffer = new byte[chunkSize];
+                int count = await m_socket.ReceiveAsync(buffer, cancellationToken);
+                Collector.CollectChunk(buffer[0..count]);
+            } while (Collector.State == NStreamCom.Collector.States.WaitingSize || Collector.State == NStreamCom.Collector.States.WaitingData);
         }
 
-        public async Task ReceiveForRequest(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default)
+        public async Task ReceiveForRequest(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = null, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
             trailerIndexOrCount ??= new();
             EnsureConnected(nameof(ReceiveForRequest));
@@ -190,7 +192,7 @@ namespace TruckConnect
             if (trailerIndexOrCount.Value != m_pendingTrailerIndexOrCount)
                 throw new InvalidOperationException("Other trailer index/count does is pending.");
 
-            await ReceiveAllAsync(cancellationToken);
+            await ReceiveAllChunksAsync(chunkSize, cancellationToken);
             ClearPendingRequest();
             m_pendingID = TelemetryID.Invalid;
 
@@ -210,13 +212,13 @@ namespace TruckConnect
                 throw new CommunicationErrorException(CommunicationResult.ReceivedOtherTrailerIndex , new InvalidDataException("Received response for another trailer index/count"));
         }
 
-        public async Task RequestAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default)
+        public async Task RequestAsync(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
             await SendRequestForAsync(id, trailerIndexOrCount, cancellationToken);
-            await ReceiveForRequest(id, trailerIndexOrCount, cancellationToken);
+            await ReceiveForRequest(id, trailerIndexOrCount, chunkSize, cancellationToken);
         }
 
-        public async Task<T> RequestAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
+        public async Task<T> RequestAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default) where T : struct
         {
             trailerIndexOrCount ??= new();
             if (Metadata.ByID(id) is not Metadata metadata)
@@ -228,22 +230,22 @@ namespace TruckConnect
             if (metadata.TelemetryType != TelemetryType.Channel && typeof(T).IDOfStructure() != id)
                 throw new ArgumentException("id did not match generic argument type.", nameof(id));
 
-            await RequestAsync(id, trailerIndexOrCount, cancellationToken);
+            await RequestAsync(id, trailerIndexOrCount, chunkSize, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?
                     Collector.Data.ConstructStorage<T>(metadata, TELEMETRY_DATA_START) :
                     Collector.Data.ConstructTelemetryStructure<T>(TELEMETRY_DATA_START);
         }
 
-        public async Task<T> RequestAsync<T>(TrailerIndexOrCount? trailerIndexOrCount = null, CancellationToken cancellationToken = default) where T : struct
+        public async Task<T> RequestAsync<T>(TrailerIndexOrCount? trailerIndexOrCount = null, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default) where T : struct
         {
             TelemetryID id = typeof(T).IDOfStructure();
             if (id == TelemetryID.Invalid)
                 throw new ArgumentException("Generic argument was not a telemetry structure.", nameof(T));
-            return await RequestAsync<T>(id, trailerIndexOrCount, cancellationToken);
+            return await RequestAsync<T>(id, trailerIndexOrCount, chunkSize, cancellationToken);
         }
 
-        public async Task<T[]> RequestArrayAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, CancellationToken cancellationToken = default) where T : struct
+        public async Task<T[]> RequestArrayAsync<T>(TelemetryID id, TrailerIndexOrCount? trailerIndexOrCount = default, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default) where T : struct
         {
             trailerIndexOrCount ??= new();
             if (Metadata.ByID(id) is not Metadata metadata)
@@ -252,7 +254,7 @@ namespace TruckConnect
             if (!trailerIndexOrCount.Value.IsCount)
                 throw new ArgumentException($"For a regular request, use {nameof(RequestAsync)}", nameof(trailerIndexOrCount));
 
-            await RequestAsync(id, trailerIndexOrCount, cancellationToken);
+            await RequestAsync(id, trailerIndexOrCount, chunkSize, cancellationToken);
             return
                 metadata.TelemetryType == TelemetryType.Channel ?
                     Collector.Data.ConstructStorageArray<T>(trailerIndexOrCount.Value.IndexOrCount, metadata, TELEMETRY_DATA_START) :
@@ -271,7 +273,7 @@ namespace TruckConnect
 
             await m_socket.SendAsync(dataDefinition.FormRegistrationRequest().EncodeWithSize(), cancellationToken);
             PendingRequest = RequestType.RegisterDataDefinition;
-            await ReceiveAllAsync(cancellationToken);
+            await ReceiveAllChunksAsync(DEFAULT_CHUNK_SIZE, cancellationToken);
             ClearPendingRequest();
 
             if (Collector.Size < 2)
@@ -289,7 +291,7 @@ namespace TruckConnect
             m_definitions.Add(dataDefinition);
         }
 
-        public async Task RequestAsync(int definitionID, CancellationToken cancellationToken = default)
+        public async Task RequestAsync(int definitionID, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
             EnsureConnected(nameof(RequestAsync));
             EnsurePendingRequest(RequestType.None, "Reqest already pending.");
@@ -298,37 +300,37 @@ namespace TruckConnect
 
             await m_socket.SendAsync(NEncode.EncodeWithSize([(byte)RequestType.DefinedData, (byte)definitionID]), cancellationToken);
             PendingRequest = RequestType.DefinedData;
-            await ReceiveAllAsync(cancellationToken);
+            await ReceiveAllChunksAsync(chunkSize, cancellationToken);
             ClearPendingRequest();
 
             if (Collector.Size < 2)
-                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received unknown data."));
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received unknown data."));
 
             if ((RequestType)Collector.Data[0] == RequestType.ErrorResponse)
                 throw new CommunicationErrorException((CommunicationResult)Collector.Data[1]);
 
             if ((RequestType)Collector.Data[0] != RequestType.DefinedData)
-                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse , new InvalidDataException("Received unexpected response."));
+                throw new CommunicationErrorException(CommunicationResult.ReceivedOtherResponse, new InvalidDataException("Received unexpected response."));
 
             if (Collector.Data[1] != definitionID)
-                throw new CommunicationErrorException(CommunicationResult.UnknownData , new InvalidDataException("Received response for another definition."));
+                throw new CommunicationErrorException(CommunicationResult.UnknownData, new InvalidDataException("Received response for another definition."));
         }
 
-        public async Task RequestAsync(DataDefinition definition, CancellationToken cancellationToken = default)
+        public async Task RequestAsync(DataDefinition definition, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
-            await RequestAsync(definition.DefinitionID, cancellationToken);
+            await RequestAsync(definition.DefinitionID, chunkSize, cancellationToken);
             definition.Store(Collector.Data, DEFINED_DATA_DATA_START);
         }
 
-        public async Task<T> RequestAsync<T>(DataDefinition definition, CancellationToken cancellationToken = default) where T : struct
+        public async Task<T> RequestAsync<T>(DataDefinition definition, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default) where T : struct
         {
-            await RequestAsync(definition, cancellationToken);
+            await RequestAsync(definition, chunkSize, cancellationToken);
             object boxed = new T();
             definition.StoreInto(Collector.Data, DEFINED_DATA_DATA_START, boxed);
             return (T)boxed;
         }
 
-        public async Task UnregisterDataDefinitionAsync(int definitionID, CancellationToken cancellationToken = default)
+        public async Task UnregisterDataDefinitionAsync(int definitionID, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default)
         {
             EnsureConnected(nameof(UnregisterDataDefinitionAsync));
             EnsurePendingRequest(RequestType.None, "Request already pending.");
@@ -337,7 +339,7 @@ namespace TruckConnect
 
             await m_socket.SendAsync(dataDefinition.FormUnregistrationRequest().EncodeWithSize(), default);
             PendingRequest = RequestType.UnregisterDataDefinition;
-            await ReceiveAllAsync(cancellationToken);
+            await ReceiveAllChunksAsync(chunkSize, cancellationToken);
             ClearPendingRequest();
 
             if (Collector.Size < 2)
@@ -355,8 +357,8 @@ namespace TruckConnect
             m_definitions.Remove(dataDefinition);
         }
 
-        public async Task UnregisterDataDefinitionAsync(DataDefinition definition, CancellationToken cancellationToken = default) =>
-            await UnregisterDataDefinitionAsync(definition.DefinitionID, cancellationToken);
+        public async Task UnregisterDataDefinitionAsync(DataDefinition definition, uint chunkSize = DEFAULT_CHUNK_SIZE, CancellationToken cancellationToken = default) =>
+            await UnregisterDataDefinitionAsync(definition.DefinitionID, chunkSize, cancellationToken);
 
         public void Disconnect()
         {
