@@ -1,15 +1,36 @@
 from __future__ import annotations
+
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from socket import IPPROTO_TCP, SHUT_RDWR, AddressFamily, SocketKind, socket
 from types import TracebackType
-from socket import socket, AddressFamily, SocketKind, IPPROTO_TCP, SHUT_RDWR
-from typing import Callable, Type, TypeVar
-from truckconnect.telemetry_id import TelemetryID
-from scssdk_truckconnect.truckconnect import Version, Telemetry, telemetries, TelemetryType
-from nstreamcom import Collector, CollectorStates, encode_with_size
-from truckconnect.value_storage import BufferType, value_storage_from_bytes, value_array_storage_from_bytes, SCSValueType
-from .data import DATA_DEFINITION_ATTR_NAME, NON_CHANNEL_TYPES, DataDefinition, DeserializedType, NON_CHANNEL_DESERIALIZERS
+from typing import Self, TypeVar
 
+from nstreamcom import CollectorStates, encode_with_size
+from scssdk_truckconnect.truckconnect import (
+    Telemetry,
+    TelemetryType,
+    Version,
+    telemetries,
+)
+
+from truckconnect.telemetry_id import TelemetryID
+
+from .chunk_collector import ChunkCollector
+from .data import (
+    DATA_DEFINITION_ATTR_NAME,
+    NON_CHANNEL_DESERIALIZERS,
+    NON_CHANNEL_TYPES,
+    DataDefinition,
+    DeserializedType,
+)
+from .value_storage import (
+    BufferType,
+    SCSValueType,
+    value_array_storage_from_bytes,
+    value_storage_from_bytes,
+)
 
 T = TypeVar("T")
 
@@ -76,6 +97,9 @@ class CommunicationError(Exception):
         self.communication_result = communication_result
 
 
+DEFAULT_CHUNK_SIZE: int = 32
+
+
 class Connection:
     PORT: int = 52878
     TELEMETRY_DATA_START: int = 1 + 2
@@ -84,12 +108,12 @@ class Connection:
 
     def __init__(self, ip: str = "127.0.0.1") -> None:
         self.addr: tuple[str, int] = ip, Connection.PORT
-        self.socket = socket(AddressFamily.AF_INET, SocketKind.SOCK_STREAM, IPPROTO_TCP)
+        self.socket: socket = socket(AddressFamily.AF_INET, SocketKind.SOCK_STREAM, IPPROTO_TCP)
         self._connected: bool = False
         self.pending_request: RequestType = RequestType.NoRequest
         self.pending_telemetry_id: TelemetryID = TelemetryID.Invalid
         self.pending_trailer_index_or_count: TrailerIndexOrCount = TrailerIndexOrCount()
-        self.collector = Collector()
+        self.collector: ChunkCollector = ChunkCollector()
         self.definitions: list[DataDefinition] = []
 
     @property
@@ -102,16 +126,16 @@ class Connection:
         self.socket.connect(self.addr)
         self._connected = True
 
-    def receive_one(self) -> None:
+    def receive_one_chunk(self, chunk_size: int = DEFAULT_CHUNK_SIZE) -> None:
         self._ensure_connected("receive_one")
         if self.pending_request == RequestType.NoRequest:
             raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
 
-        if not (recv := self.socket.recv(1)):
+        if not (recv := self.socket.recv(chunk_size)):
             raise CommunicationError(CommunicationResult.Disconnected)
-        self.collector.collect(recv[0])
+        self.collector.collect_chunk(bytearray(recv))
 
-    def receive_all(self) -> None:
+    def receive_all_chunks(self, chunk_size: int = DEFAULT_CHUNK_SIZE) -> None:
         self._ensure_connected("receive_all")
         if self.pending_request == RequestType.NoRequest:
             raise CommunicationError(CommunicationResult.NoPendingRequest, "There is no request pending to receive")
@@ -120,9 +144,9 @@ class Connection:
             self.collector.reset()
 
         while not self.collector.error_state and not self.collector.data_ready:
-            if not (recv := self.socket.recv(1)):
+            if not (recv := self.socket.recv(chunk_size)):
                 raise CommunicationError(CommunicationResult.Disconnected)
-            self.collector.collect(recv[0])
+            self.collector.collect_chunk(bytearray(recv))
 
     def get_version(self) -> Version:
         self._ensure_connected("get_version")
@@ -130,7 +154,7 @@ class Connection:
 
         self.pending_request = RequestType.Version
         self.socket.send(encode_with_size([RequestType.Version.value]))
-        self.receive_all()
+        self.receive_all_chunks()
         self.pending_request = RequestType.NoRequest
 
         self._ensure_received_request(RequestType.Version, exact_size=1 + 4)
@@ -150,7 +174,7 @@ class Connection:
         self.pending_telemetry_id = telemetry_id
         self.pending_trailer_index_or_count = trailer_index_or_count
 
-    def receive_for_request(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None) -> None:
+    def receive_for_request(self, telemetry_id: TelemetryID, trailer_index_or_count: TrailerIndexOrCount | None = None, chunk_size: int = DEFAULT_CHUNK_SIZE) -> None:
         self._ensure_connected("receive_for_request")
         self._ensure_pending_request(RequestType.TelemetryID)
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
@@ -160,7 +184,7 @@ class Connection:
         if trailer_index_or_count != self.pending_trailer_index_or_count:
             raise CommunicationError(CommunicationResult.OtherTrailerIndexRequestPending)
 
-        self.receive_all()
+        self.receive_all_chunks(chunk_size)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.TelemetryID, minimum_size=3)
 
@@ -172,8 +196,9 @@ class Connection:
 
     def request_telemetry(
         self,
-        telemetry_id: TelemetryID | Type[T],
-        trailer_index_or_count: TrailerIndexOrCount | None = None
+        telemetry_id: TelemetryID | type[T],
+        trailer_index_or_count: TrailerIndexOrCount | None = None,
+        chunk_size: int = DEFAULT_CHUNK_SIZE
     ) -> tuple[T, int] | tuple[DeserializedType, int]:
         if isinstance(telemetry_id, type):
             type_to_id: dict[type, TelemetryID] = { v: k for k, v in NON_CHANNEL_TYPES.items() }
@@ -183,7 +208,7 @@ class Connection:
         trailer_index_or_count = trailer_index_or_count or TrailerIndexOrCount()
 
         self.send_request_for(telemetry_id, trailer_index_or_count)
-        self.receive_for_request(telemetry_id, trailer_index_or_count)
+        self.receive_for_request(telemetry_id, trailer_index_or_count, chunk_size)
 
         telemetry: Telemetry = telemetries()[telemetry_id.value]
         deserializer: Callable[[BufferType, int], tuple[DeserializedType, int]]
@@ -206,10 +231,10 @@ class Connection:
         else:
             return deserializer(self.collector.bytearray, Connection.TELEMETRY_DATA_START)
 
-    def request_telemetry_structure(self, structure_type: Type[T], trailer_index_or_count: TrailerIndexOrCount | None = None) -> tuple[T, int]:
+    def request_telemetry_structure(self, structure_type: type[T], trailer_index_or_count: TrailerIndexOrCount | None = None, chunk_size: int = DEFAULT_CHUNK_SIZE) -> tuple[T, int]:
         if (telemetry_id := { v: k for k, v in NON_CHANNEL_TYPES.items() }.get(structure_type)) is None:
             raise TypeError(f"The type's '{structure_type}' telemetry ID could not be inferred.")
-        structure, read = self.request_telemetry(telemetry_id, trailer_index_or_count)
+        structure, read = self.request_telemetry(telemetry_id, trailer_index_or_count, chunk_size)
         assert isinstance(structure, structure_type)
         return structure, read
 
@@ -242,7 +267,7 @@ class Connection:
             bytearray([RequestType.RegisterDataDefinition.value]) + definition_or_type.to_bytes()
         ))
         self.pending_request = RequestType.RegisterDataDefinition
-        self.receive_all()
+        self.receive_all_chunks()
         self.clear_pending_request()
         self._ensure_received_request(RequestType.RegisterDataDefinition, exact_size=2)
         if self.collector.bytearray[1] != definition_or_type.id:
@@ -250,7 +275,7 @@ class Connection:
 
         self.definitions.append(definition_or_type)
 
-    def request_data_definition(self, id_or_definition_or_type: int | DataDefinition | Type[T]) -> T | None:
+    def request_data_definition(self, id_or_definition_or_type: int | DataDefinition | type[T], chunk_size: int = DEFAULT_CHUNK_SIZE) -> T | None:
         cls: type | None = None
         if isinstance(id_or_definition_or_type, type):
             cls = id_or_definition_or_type
@@ -266,7 +291,7 @@ class Connection:
         self._ensure_pending_request(RequestType.NoRequest)
         self.socket.send(encode_with_size([RequestType.DefinedData.value, definition.id]))
         self.pending_request = RequestType.DefinedData
-        self.receive_all()
+        self.receive_all_chunks(chunk_size)
         self.clear_pending_request()
         self._ensure_received_request(RequestType.DefinedData, minimum_size=2)
         if self.collector.bytearray[1] != definition.id:
@@ -289,7 +314,7 @@ class Connection:
         self._ensure_pending_request(RequestType.NoRequest)
         self.socket.send(encode_with_size([RequestType.UnregisterDataDefinition.value, definition.id]))
         self.pending_request = RequestType.UnregisterDataDefinition
-        self.receive_all()
+        self.receive_all_chunks()
         self.clear_pending_request()
         self._ensure_received_request(RequestType.UnregisterDataDefinition, exact_size=2)
         if self.collector.bytearray[1] != definition.id:
@@ -325,7 +350,7 @@ class Connection:
         self.pending_telemetry_id = TelemetryID.Invalid
         self.pending_trailer_index_or_count = TrailerIndexOrCount()
 
-    def __enter__(self) -> Connection:
+    def __enter__(self) -> Self:
         if not self.connected:
             self.connect()
         return self
@@ -371,9 +396,9 @@ class Connection:
 
 
 __all__ = [
-    "TrailerIndexOrCount",
-    "RequestType",
-    "CommunicationResult",
     "CommunicationError",
-    "Connection"
+    "CommunicationResult",
+    "Connection",
+    "RequestType",
+    "TrailerIndexOrCount"
 ]
